@@ -1,0 +1,43 @@
+openapi: "3.0.0"
+info:
+  version: 0.0.1
+  title: Template API
+  description: A simple API to post and receive likes 
+paths:
+  /like:
+    post:
+      summary: Persists a **Like**
+      description: Persists a **Like** in the the DB
+      tags:
+        - Like
+      responses:
+        "201":
+          description: Like created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Like"
+
+  /like/count:
+    get:
+      summary: get the number of **Like** in DB
+      description: get the number of likes in the the DB
+      tags:
+        - Like
+      responses:
+        "200":
+          description: Count updated
+          content:
+            application/json:
+              schema:
+                properties:
+                  numberOfLikes:
+                    type: number
+                    format: float
+components:
+  schemas:
+    Like:
+      properties:
+        uuid:
+          type: string # returns the actual number of Likes in the database
+          format: uuid

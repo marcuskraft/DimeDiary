@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: template
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/postgres" # for local run
+    password: mKIPycOs3QwqO7dUW01R
+    username: postgres # for local run
+logging:
+  level:
+    root: WARN
+    com.template.demo: ${LOG_LEVEL:DEBUG}
+
+server:
+  port: 8080
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+          - prometheus
+          - loggers

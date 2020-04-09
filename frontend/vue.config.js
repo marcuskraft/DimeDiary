@@ -1,17 +1,22 @@
 module.exports = {
-  devServer: {
-    port: 4200,
-    proxy: {
-      '^/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false
+  "devServer": {
+    "port": 4200,
+    "proxy": {
+      "^/api": {
+        "target": "http://localhost:8080",
+        "changeOrigin": true,
+        "secure": false
       }
     },
-    watchOptions: {
-      ignored: [/node_modules/]
+    "watchOptions": {
+      "ignored": [
+        {}
+      ]
     },
-    disableHostCheck: true
+    "disableHostCheck": true
   },
-  lintOnSave: process.env.NODE_ENV !== 'production'
-};
+  "lintOnSave": true,
+  "transpileDependencies": [
+    "vuetify"
+  ]
+}

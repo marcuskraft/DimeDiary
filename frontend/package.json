@@ -11,6 +11,7 @@
     "start": "vue-cli-service serve"
   },
   "dependencies": {
+    "@js-joda/core": "^2.0.0",
     "@sentry/browser": "^5.9.1",
     "@stomp/stompjs": "^5.4.2",
     "core-js": "^3.3.2",

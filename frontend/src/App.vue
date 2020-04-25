@@ -13,7 +13,7 @@
 
       <!-- Sizes your content based upon application components -->
       <v-content>
-        <div>Test</div>
+        <overview-grid></overview-grid>
       </v-content>
 
       <v-footer app>
@@ -25,14 +25,12 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import LikeButton from "./components/LikeButton.vue";
-import Vuetify from "vuetify";
+import OverviewGrid from "@/components/OverviewGrid.vue";
 
-Vue.use(Vuetify);
 
 @Component({
   components: {
-    LikeButton: LikeButton
+    OverviewGrid
   }
 })
 export default class App extends Vue {}

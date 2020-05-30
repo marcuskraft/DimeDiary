@@ -38,6 +38,8 @@ import { LocalDate, DateTimeFormatter } from "@js-joda/core";
 import TransactionModel from "../model/TransactionModel";
 import TransactionModelArray from "../model/TransactionModelArray";
 import TransactionSlideGroup from "./TransactionSlideGroup.vue";
+import TransactionStore from "@/store/modules/TransactionStore";
+import TimeService from "../helper/TimeService";
 
 @Component({
   components: {
@@ -47,8 +49,6 @@ import TransactionSlideGroup from "./TransactionSlideGroup.vue";
 export default class OverviewGrid extends Vue {
   private dates: LocalDate[];
 
-  private transactionMap: Map<string, TransactionModelArray>;
-
   private balanceMap: Map<string, number>;
 
   private dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
@@ -57,27 +57,26 @@ export default class OverviewGrid extends Vue {
 
   constructor() {
     super();
+
+    let transactionMap: Map<string, TransactionModelArray> = new Map();
+
     this.dates = [];
-    this.transactionMap = new Map();
     this.balanceMap = new Map();
     for (let i = 1; i <= 31; i++) {
       let date: LocalDate = LocalDate.of(2020, 1, i);
       this.dates.push(date);
-
-      let transaction: TransactionModel = new TransactionModel(
-        "das ist " + i,
-        date,
-        i
-      );
+      this.balanceMap.set(date.format(this.dateFormatter), i);
       let transactionList: TransactionModelArray = new TransactionModelArray(
         []
       );
-      transactionList.addTransaction(transaction);
 
-      this.transactionMap.set(date.format(this.dateFormatter), transactionList);
-
-      this.balanceMap.set(date.format(this.dateFormatter), i);
+      transactionMap.set(
+        TimeService.formatLocalDateRest(date),
+        transactionList
+      );
     }
+    TransactionStore.initializeTransactionsMap(transactionMap);
+    TransactionStore.loadTransactions();
   }
 
   formatDate(date: LocalDate): string {
@@ -92,8 +91,15 @@ export default class OverviewGrid extends Vue {
     return this.balanceMap.get(date.format(this.dateFormatter));
   }
 
-  transactionOfDate(date: LocalDate): TransactionModelArray | undefined {
-    return this.transactionMap.get(date.format(this.dateFormatter));
+  transactionOfDate(date: LocalDate): TransactionModelArray {
+    let dateString: string = TimeService.formatLocalDateRest(date);
+    if (!TransactionStore.transactionMap.has(dateString)) {
+      TransactionStore.addTransactionPair([
+        dateString,
+        new TransactionModelArray([])
+      ]);
+    }
+    return TransactionStore.transactionMap.get(dateString)!;
   }
 }
 </script>

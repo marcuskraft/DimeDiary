@@ -26,8 +26,15 @@ export default class TransactionSlideGroup extends Vue {
   @Prop({ type: TransactionModelArray })
   transactionsProp!: TransactionModelArray;
 
+  transactionArray: TransactionModelArray;
+
+  constructor() {
+    super();
+    this.transactionArray = this.transactionsProp;
+  }
+
   public get transactions(): TransactionModel[] {
-    return this.transactionsProp.transactions;
+    return this.transactionArray.transactions;
   }
 }
 </script>

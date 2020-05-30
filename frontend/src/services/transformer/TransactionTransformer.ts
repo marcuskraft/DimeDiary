@@ -1,20 +1,15 @@
 import { Transaction } from '../../../build/openapi/models/Transaction';
 import TransactionModel from '../../model/TransactionModel';
 import { LocalDate, DateTimeFormatter } from '@js-joda/core';
+import TimeService from '@/helper/TimeService';
 
 
 export class TransactionTransformer {
 
-    private static dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
-        "yyyy-MM-dd"
-    );
-
-
-
     public static from(transaction: Transaction): TransactionModel {
         let date: LocalDate | undefined = undefined;
         if (transaction.date != undefined) {
-            date = LocalDate.from(TransactionTransformer.dateFormatter.parse(transaction.date));
+            date = TimeService.parseLocalDateRest(transaction.date);
         }
         return new TransactionModel(transaction.uuid, transaction.subject, date, transaction.amount)
     }
@@ -22,7 +17,7 @@ export class TransactionTransformer {
     public to(transactionModel: TransactionModel): Transaction {
         let dateString: string | undefined = undefined;
         if (transactionModel.date != undefined) {
-            dateString = TransactionTransformer.dateFormatter.format(transactionModel.date);
+            dateString = TimeService.formatLocalDateRest(transactionModel.date);
         }
         return new TransactionForRequest(transactionModel.uuid, transactionModel.subject, dateString, transactionModel.amount);
     }

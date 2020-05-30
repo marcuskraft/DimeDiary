@@ -26,17 +26,7 @@
         <v-label>{{ balanceOfDate(date) }}</v-label>
       </v-col>
       <v-col cols="9">
-        <v-slide-group multiple show-arrows>
-          <v-slide-item v-for="n in 15" :key="n" v-slot:default="{ active, toggle }">
-            <v-btn
-              :input-value="active"
-              active-class="purple white--text"
-              depressed
-              rounded
-              @click="toggle"
-            >Options {{ n }}</v-btn>
-          </v-slide-item>
-        </v-slide-group>
+        <TransactionSlideGroup :transactions-prop="transactionOfDate(date)"></TransactionSlideGroup>
       </v-col>
     </v-row>
   </v-container>
@@ -45,12 +35,19 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import { LocalDate, DateTimeFormatter } from "@js-joda/core";
+import TransactionModel from "../model/TransactionModel";
+import TransactionModelArray from "../model/TransactionModelArray";
+import TransactionSlideGroup from "./TransactionSlideGroup.vue";
 
-@Component
+@Component({
+  components: {
+    TransactionSlideGroup
+  }
+})
 export default class OverviewGrid extends Vue {
   private dates: LocalDate[];
 
-  private transactionMap: Map<string, string>;
+  private transactionMap: Map<string, TransactionModelArray>;
 
   private balanceMap: Map<string, number>;
 
@@ -67,10 +64,17 @@ export default class OverviewGrid extends Vue {
       let date: LocalDate = LocalDate.of(2020, 1, i);
       this.dates.push(date);
 
-      this.transactionMap.set(
-        date.format(this.dateFormatter),
-        "This is transaction " + i
+      let transaction: TransactionModel = new TransactionModel(
+        "das ist " + i,
+        date,
+        i
       );
+      let transactionList: TransactionModelArray = new TransactionModelArray(
+        []
+      );
+      transactionList.addTransaction(transaction);
+
+      this.transactionMap.set(date.format(this.dateFormatter), transactionList);
 
       this.balanceMap.set(date.format(this.dateFormatter), i);
     }
@@ -88,7 +92,7 @@ export default class OverviewGrid extends Vue {
     return this.balanceMap.get(date.format(this.dateFormatter));
   }
 
-  transactionOfDate(date: LocalDate): string | undefined {
+  transactionOfDate(date: LocalDate): TransactionModelArray | undefined {
     return this.transactionMap.get(date.format(this.dateFormatter));
   }
 }

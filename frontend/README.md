@@ -1,4 +1,4 @@
-# vue-template
+# dimediary
 
 ## Project setup
 ```

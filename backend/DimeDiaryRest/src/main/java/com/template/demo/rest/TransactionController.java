@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.template.api.TransactionApi;
-import com.template.model.Transaction;
-import com.template.model.Transactions;
+import com.dimediary.openapi.api.TransactionApi;
+import com.dimediary.openapi.model.Transaction;
+import com.dimediary.openapi.model.Transactions;
 
 @RequestMapping("/api")
 @Controller

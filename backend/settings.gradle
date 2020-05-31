@@ -1,4 +1,4 @@
-include 'TemplateJpa'
-include 'TemplateRest'
-include 'Domain'
-include 'TemplateApp'
+include 'DimeDiaryPersistence'
+include 'DimeDiaryRest'
+include 'DimeDiaryDomain'
+include 'DimeDiaryApp'

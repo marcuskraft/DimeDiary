@@ -14,7 +14,7 @@ plugins {
 
 dependencies {
     // Use JUnit test framework
-    implementation project(':Domain')
+    implementation project(':DimeDiaryDomain')
     
     testImplementation 'junit:junit:4.12'
     
@@ -34,7 +34,7 @@ compileJava.dependsOn('openApiGenerate')
 sourceSets {
     main {
         java {
-            srcDir "${rootDir}/TemplateRest/openapi/src/main/java"
+            srcDir "${rootDir}/DimeDiaryRest/openapi/src/main/java"
         }
     }
     
@@ -58,7 +58,7 @@ openApiGenerate {
     generatorName = "spring"
     library = "spring-boot"
     inputSpec = "${rootDir}/../openapi/schema.yaml".toString()
-    outputDir = "${rootDir}/TemplateRest/openapi".toString()
+    outputDir = "${rootDir}/DimeDiaryRest/openapi".toString()
     systemProperties = [
             modelDocs      : "false",
             models         : "",
@@ -72,16 +72,16 @@ openApiGenerate {
             useBeanValidation    : "false",
             useTags              : "true",
             singleContentTypes   : "true",
-            basePackage          : "com.template.api",
-            configPackage        : "com.template.api",
+            basePackage          : "com.dimediary.openapi.api",
+            configPackage        : "com.dimediary.openapi.api",
             title                : rootProject.name,
             java8                : "false",
             dateLibrary          : "java8",
             serializableModel    : "true",
             artifactId           : rootProject.name,
-            apiPackage           : "com.template.api",
-            modelPackage         : "com.template.model",
-            invokerPackage       : "com.template.api",
+            apiPackage           : "com.dimediary.openapi.api",
+            modelPackage         : "com.dimediary.openapi.model",
+            invokerPackage       : "com.dimediary.openapi.api",
             interfaceOnly        : "true"
     ]
 }

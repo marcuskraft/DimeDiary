@@ -4,7 +4,7 @@ plugins {
 
 subprojects {
 
-    group = 'com.template.demo'
+    group = 'com.dimediary'
     version = '0.0.1-SNAPSHOT'
 
     apply plugin: 'java'

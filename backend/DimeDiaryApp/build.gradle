@@ -16,9 +16,9 @@ apply plugin: 'org.springframework.boot'
 
 
 dependencies {
-	implementation project(':Domain')
-    implementation project(':TemplateJpa')
-    implementation project(':TemplateRest') 
+	implementation project(':DimeDiaryDomain')
+    implementation project(':DimeDiaryPersistence')
+    implementation project(':DimeDiaryRest') 
     
     implementation 'org.springframework.boot:spring-boot-starter-web'
      

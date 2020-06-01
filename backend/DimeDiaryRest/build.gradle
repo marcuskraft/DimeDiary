@@ -30,6 +30,8 @@ dependencies {
 
 
 compileJava.dependsOn('openApiGenerate')
+processResources.dependsOn('copyFrontend')
+
 
 sourceSets {
     main {
@@ -47,6 +49,11 @@ sourceSets {
         resources.srcDir file('src/component/resources')
     }
 
+}
+
+task copyFrontend(type: Copy) {
+    from "${rootDir}/../frontend/dist"
+    into "${buildDir}/resources/main/public"
 }
 
 

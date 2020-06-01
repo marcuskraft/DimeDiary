@@ -1,13 +1,13 @@
-package com.template.demo;
+package com.dimediary;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DimeDiaryApplication {
+public class DimediaryApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(DimeDiaryApplication.class, args);
+		SpringApplication.run(DimediaryApplication.class, args);
 	}
 
 }

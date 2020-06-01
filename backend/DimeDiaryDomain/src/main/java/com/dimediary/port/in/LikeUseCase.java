@@ -1,6 +1,6 @@
-package com.template.demo.port.in;
+package com.dimediary.port.in;
 
-import com.template.demo.domain.Like;
+import com.dimediary.domain.Like;
 
 public interface LikeUseCase {
 	

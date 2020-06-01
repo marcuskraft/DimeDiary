@@ -1,9 +1,9 @@
-package com.template.demo.jpa.repo;
+package com.dimediary.jpa.repo;
 
 import org.springframework.stereotype.Service;
 
-import com.template.demo.domain.Like;
-import com.template.demo.port.out.LikeRepository;
+import com.dimediary.domain.Like;
+import com.dimediary.port.out.LikeRepository;
 
 @Service
 public class LikeRepo implements LikeRepository {

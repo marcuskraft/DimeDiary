@@ -1,10 +1,10 @@
-package com.template.demo.services;
+package com.dimediary.services;
 
 import org.springframework.stereotype.Service;
 
-import com.template.demo.domain.Like;
-import com.template.demo.port.in.LikeUseCase;
-import com.template.demo.port.out.LikeRepository;
+import com.dimediary.domain.Like;
+import com.dimediary.port.in.LikeUseCase;
+import com.dimediary.port.out.LikeRepository;
 
 @Service
 public class LikeService implements LikeUseCase {

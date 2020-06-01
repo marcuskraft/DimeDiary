@@ -1,4 +1,4 @@
-package com.template.demo.rest;
+package com.dimediary.rest;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

@@ -1,4 +1,4 @@
-package com.template.demo.jpa.entities;
+package com.dimediary.jpa.entities;
 
 import java.util.UUID;
 

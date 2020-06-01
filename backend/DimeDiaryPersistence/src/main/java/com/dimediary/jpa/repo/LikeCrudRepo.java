@@ -1,10 +1,10 @@
-package com.template.demo.jpa.repo;
+package com.dimediary.jpa.repo;
 
 import java.util.UUID;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.template.demo.jpa.entities.LikeEntity;
+import com.dimediary.jpa.entities.LikeEntity;
 
 public interface LikeCrudRepo extends CrudRepository<LikeEntity, UUID> {
 

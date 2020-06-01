@@ -1,4 +1,4 @@
-package com.template.demo.domain;
+package com.dimediary.domain;
 
 import java.util.UUID;
 

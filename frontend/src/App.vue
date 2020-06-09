@@ -12,15 +12,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import OverviewGrid from "@/components/OverviewGrid.vue";
+  import {Component, Vue} from "vue-property-decorator";
+  import OverviewGrid from "@/components/OverviewGrid.vue";
 
-@Component({
-  components: {
-    OverviewGrid
+  @Component({
+    components: {
+      OverviewGrid
+    }
+  })
+  export default class App extends Vue {
   }
-})
-export default class App extends Vue {}
 </script>
 
 <style>

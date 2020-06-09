@@ -1,4 +1,3 @@
-
 export enum Environment {
   Local = 'localdev'
 }

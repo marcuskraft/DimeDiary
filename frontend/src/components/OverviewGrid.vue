@@ -33,75 +33,74 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
-import { LocalDate, DateTimeFormatter } from "@js-joda/core";
-import TransactionModel from "../model/TransactionModel";
-import TransactionModelArray from "../model/TransactionModelArray";
-import TransactionSlideGroup from "./TransactionSlideGroup.vue";
-import TransactionStore from "@/store/modules/TransactionStore";
-import TimeService from "../helper/TimeService";
+  import {Component, Vue} from "vue-property-decorator";
+  import {DateTimeFormatter, LocalDate} from "@js-joda/core";
+  import TransactionModelArray from "../model/TransactionModelArray";
+  import TransactionSlideGroup from "./TransactionSlideGroup.vue";
+  import TransactionStore from "@/store/modules/TransactionStore";
+  import TimeService from "../helper/TimeService";
 
-@Component({
-  components: {
-    TransactionSlideGroup
-  }
-})
-export default class OverviewGrid extends Vue {
-  private dates: LocalDate[];
-
-  private balanceMap: Map<string, number>;
-
-  private dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
-    "dd.MM.yyyy"
-  );
-
-  constructor() {
-    super();
-
-    let transactionMap: Map<string, TransactionModelArray> = new Map();
-
-    this.dates = [];
-    this.balanceMap = new Map();
-    for (let i = 1; i <= 31; i++) {
-      let date: LocalDate = LocalDate.of(2020, 1, i);
-      this.dates.push(date);
-      this.balanceMap.set(date.format(this.dateFormatter), i);
-      let transactionList: TransactionModelArray = new TransactionModelArray(
-        []
-      );
-
-      transactionMap.set(
-        TimeService.formatLocalDateRest(date),
-        transactionList
-      );
+  @Component({
+    components: {
+      TransactionSlideGroup
     }
-    TransactionStore.initializeTransactionsMap(transactionMap);
-    TransactionStore.loadTransactions();
-  }
+  })
+  export default class OverviewGrid extends Vue {
+    private dates: LocalDate[];
 
-  formatDate(date: LocalDate): string {
-    return date.format(this.dateFormatter);
-  }
+    private balanceMap: Map<string, number>;
 
-  dayOfWeek(date: LocalDate): string {
-    return date.dayOfWeek().toString();
-  }
+    private dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
+        "dd.MM.yyyy"
+    );
 
-  balanceOfDate(date: LocalDate): number | undefined {
-    return this.balanceMap.get(date.format(this.dateFormatter));
-  }
+    constructor() {
+      super();
 
-  transactionOfDate(date: LocalDate): TransactionModelArray {
-    let dateString: string = TimeService.formatLocalDateRest(date);
-    if (!TransactionStore.transactionMap.has(dateString)) {
-      TransactionStore.addTransactionPair([
-        dateString,
-        new TransactionModelArray([])
-      ]);
+      let transactionMap: Map<string, TransactionModelArray> = new Map();
+
+      this.dates = [];
+      this.balanceMap = new Map();
+      for (let i = 1; i <= 31; i++) {
+        let date: LocalDate = LocalDate.of(2020, 1, i);
+        this.dates.push(date);
+        this.balanceMap.set(date.format(this.dateFormatter), i);
+        let transactionList: TransactionModelArray = new TransactionModelArray(
+            []
+        );
+
+        transactionMap.set(
+            TimeService.formatLocalDateRest(date),
+            transactionList
+        );
+      }
+      TransactionStore.initializeTransactionsMap(transactionMap);
+      TransactionStore.loadTransactions();
     }
-    return TransactionStore.transactionMap.get(dateString)!;
+
+    formatDate(date: LocalDate): string {
+      return date.format(this.dateFormatter);
+    }
+
+    dayOfWeek(date: LocalDate): string {
+      return date.dayOfWeek().toString();
+    }
+
+    balanceOfDate(date: LocalDate): number | undefined {
+      return this.balanceMap.get(date.format(this.dateFormatter));
+    }
+
+    transactionOfDate(date: LocalDate): TransactionModelArray {
+      let dateString: string = TimeService.formatLocalDateRest(date);
+      if (!TransactionStore.transactionMap.has(dateString)) {
+        TransactionStore.addTransactionPair([
+          dateString,
+          new TransactionModelArray([])
+        ]);
+      }
+      return TransactionStore.transactionMap.get(dateString)!;
+    }
   }
-}
 </script>
 
 <style scoped>

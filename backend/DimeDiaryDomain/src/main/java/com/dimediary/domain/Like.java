@@ -4,18 +4,18 @@ import java.util.UUID;
 
 public class Like {
 
-	private UUID id;
+  private UUID id;
 
-    public Like() {
-        this.id = UUID.randomUUID();
-    }
+  public Like() {
+    this.id = UUID.randomUUID();
+  }
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+  public void setId(UUID id) {
+    this.id = id;
+  }
 
-    public UUID getId() {
-        return id;
-    }
-	
+  public UUID getId() {
+    return id;
+  }
+
 }

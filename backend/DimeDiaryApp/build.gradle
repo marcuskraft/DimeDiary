@@ -16,10 +16,10 @@ apply plugin: 'org.springframework.boot'
 
 
 dependencies {
-	implementation project(':DimeDiaryDomain')
+    implementation project(':DimeDiaryDomain')
     implementation project(':DimeDiaryPersistence')
-    implementation project(':DimeDiaryRest') 
-    
+    implementation project(':DimeDiaryRest')
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
-     
+
 }

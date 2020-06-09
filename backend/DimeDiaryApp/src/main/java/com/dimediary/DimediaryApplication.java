@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class DimediaryApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(DimediaryApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(DimediaryApplication.class, args);
+  }
 
 }

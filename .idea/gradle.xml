@@ -15,6 +15,7 @@
             <option value="$PROJECT_DIR$/backend/DimeDiaryDomain" />
             <option value="$PROJECT_DIR$/backend/DimeDiaryPersistence" />
             <option value="$PROJECT_DIR$/backend/DimeDiaryRest" />
+            <option value="$PROJECT_DIR$/backend/frontend" />
           </set>
         </option>
         <option name="useQualifiedModuleNames" value="true" />

@@ -5,7 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "generate:api": "openapi-generator generate -g typescript-fetch -i ../openapi/schema.yaml -t ../openapi/templates -o ./build/openapi",
+    "generate:api": "openapi-generator generate -g typescript-fetch -i ../../openapi/schema.yaml -t ../../openapi/templates -o ./build/openapi",
     "prebuild": "npm run generate:api",
     "prestart": "npm run generate:api",
     "start": "vue-cli-service serve"

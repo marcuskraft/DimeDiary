@@ -20,7 +20,9 @@ subprojects {
         imports {
             mavenBom("org.springframework.boot:spring-boot-dependencies:2.1.9.RELEASE")
         }
+
     }
+
 
     compileJava {
         sourceCompatibility = 11

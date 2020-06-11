@@ -19,7 +19,7 @@ dependencies {
 
     compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql:42.2.5'
+    runtimeOnly group: 'org.apache.derby', name: 'derby', version: '10.15.2.0'
     annotationProcessor 'org.projectlombok:lombok'
 }
 

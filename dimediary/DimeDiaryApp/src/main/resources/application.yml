@@ -4,11 +4,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
   datasource:
-    url: "jdbc:postgresql://localhost:5432/dimediary" # for local run
-    username: dimediary # for local run
-    password: xXkKqqoOa7aDi8PtFfBL
+    url: "jdbc:derby:..\\DB;create=true" # for local run
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
 logging:
   level:
     root: WARN

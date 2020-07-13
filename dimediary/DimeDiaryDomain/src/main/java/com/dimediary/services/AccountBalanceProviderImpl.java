@@ -4,7 +4,6 @@ import com.dimediary.domain.BalanceHistory;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.Transaction;
 import com.dimediary.domain.helper.AmountUtils;
-import com.dimediary.domain.helper.DatabaseTransactionProvider;
 import com.dimediary.port.in.AccountBalanceProvider;
 import com.dimediary.port.out.AccountBalanceRepo;
 import com.dimediary.port.out.TransactionRepo;
@@ -15,22 +14,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.inject.Inject;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
-  @Inject
-  private Logger log;
 
-  @Inject
-  private TransactionRepo transactionService;
+  private final TransactionRepo transactionService;
 
-  @Inject
-  private AccountBalanceRepo accountBalanceService;
 
-  @Inject
-  private DatabaseTransactionProvider databaseTransactionProvider;
+  private final AccountBalanceRepo accountBalanceService;
+
+
+  @Autowired
+  public AccountBalanceProviderImpl(final TransactionRepo transactionService,
+      final AccountBalanceRepo accountBalanceService) {
+    this.transactionService = transactionService;
+    this.accountBalanceService = accountBalanceService;
+  }
 
   /**
    * @param bankAccount the bank account
@@ -151,14 +155,10 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
    * @param bankAccount bank account to initialize
    */
   private void initBalance(final BankAccount bankAccount, final LocalDate today) {
-    try {
-      this.deleteBalanceHistories(bankAccount);
-      this.generateBalances(bankAccount, bankAccount.getStartBudget(),
-          bankAccount.getDateStartBudget(), today);
-    } catch (final Exception e) {
-      this.databaseTransactionProvider.rollbackTransaction();
-      throw e;
-    }
+    this.deleteBalanceHistories(bankAccount);
+    this.generateBalances(bankAccount, bankAccount.getStartBudget(),
+        bankAccount.getDateStartBudget(), today);
+
 
   }
 
@@ -201,26 +201,18 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
   private void generateMissingBalanceHistories(final BankAccount bankAccount,
       final BalanceHistory lastBalanceHistory,
       final LocalDate today) {
-    final boolean ownTransaction = this.databaseTransactionProvider.beginTransaction();
 
-    try {
-      if (lastBalanceHistory == null) {
-        this.initBalance(bankAccount, today);
-        return;
-      }
-
-      final LocalDate dateForNextBalanceHistory = DateUtils
-          .getNextSundayAlways(lastBalanceHistory.getDate());
-      this.generateBalances(bankAccount, lastBalanceHistory.getAmount(), dateForNextBalanceHistory,
-          today);
-    } catch (final Exception e) {
-      this.databaseTransactionProvider.rollbackTransaction();
-      throw e;
+    if (lastBalanceHistory == null) {
+      this.initBalance(bankAccount, today);
+      return;
     }
 
-    if (ownTransaction) {
-      this.databaseTransactionProvider.commitTransaction();
-    }
+    final LocalDate dateForNextBalanceHistory = DateUtils
+        .getNextSundayAlways(lastBalanceHistory.getDate());
+    this.generateBalances(bankAccount, lastBalanceHistory.getAmount(), dateForNextBalanceHistory,
+        today);
+
+
   }
 
   private void generateBalances(final BankAccount bankAccount, Double lastAmount,

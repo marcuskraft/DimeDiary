@@ -5,19 +5,26 @@ import com.dimediary.port.in.AccountBalanceProvider;
 import com.dimediary.port.in.BankAccountProvider;
 import com.dimediary.port.out.BankaccountRepo;
 import java.util.List;
-import javax.inject.Inject;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class BankaccountProviderImpl implements BankAccountProvider {
 
-  @Inject
-  private Logger logger;
 
-  @Inject
-  private BankaccountRepo bankaccountService;
+  private final BankaccountRepo bankaccountService;
 
-  @Inject
-  private AccountBalanceProvider accountBalanceProvider;
+
+  private final AccountBalanceProvider accountBalanceProvider;
+
+  @Autowired
+  public BankaccountProviderImpl(final BankaccountRepo bankaccountService,
+      final AccountBalanceProvider accountBalanceProvider) {
+    this.bankaccountService = bankaccountService;
+    this.accountBalanceProvider = accountBalanceProvider;
+  }
 
   @Override
   public List<String> getBankAccountNames() {
@@ -25,7 +32,7 @@ public class BankaccountProviderImpl implements BankAccountProvider {
     try {
       bankAccountNames = this.bankaccountService.getBankAccountNames();
     } catch (final Exception e) {
-      this.logger.error("error during load of bank account names", e);
+      this.log.error("error during load of bank account names", e);
     }
     return bankAccountNames;
   }
@@ -36,7 +43,7 @@ public class BankaccountProviderImpl implements BankAccountProvider {
     try {
       bankAccount = this.bankaccountService.getBankAccount(bankaccountName);
     } catch (final Exception e) {
-      this.logger.error("error during load of bank account", e);
+      this.log.error("error during load of bank account", e);
     }
     return bankAccount;
   }

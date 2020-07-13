@@ -3,22 +3,32 @@ package com.dimediary.model.repositories;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.model.converter.ContinuosTransactionTransformer;
-import com.dimediary.model.repositories.helper.DatabaseTransactionProviderImpl;
 import com.dimediary.port.out.ContinuosTransactionRepo;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
+@Service
+@Transactional
 class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
 
-  private final static org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager
-      .getLogger(
-          com.dimediary.model.repositories.ContinuosTransactionRepoImpl.class);
+  @PersistenceContext
+  private final EntityManager entityManager;
 
-  @Inject
-  private DatabaseTransactionProviderImpl entityManagerService;
+  private final ContinuosTransactionTransformer continuosTransactionTransformer;
 
-  @Inject
-  private ContinuosTransactionTransformer continuosTransactionTransformer;
+  @Autowired
+  public ContinuosTransactionRepoImpl(final EntityManager entityManager,
+      final ContinuosTransactionTransformer continuosTransactionTransformer) {
+    this.entityManager = entityManager;
+    this.continuosTransactionTransformer = continuosTransactionTransformer;
+  }
+
 
   /**
    * @param bankAccount
@@ -35,8 +45,7 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
     final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
         .findBankAccountEntity(bankAccount);
 
-    final java.util.List<com.dimediary.model.entities.ContinuousTransactionEntity> continuousTransactionEntities = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.ContinuousTransactionEntity> continuousTransactionEntities = this.entityManager
         .createNamedQuery(
             com.dimediary.model.entities.ContinuousTransactionEntity.CONTINUOUS_TRANSACTION_FOR_BANK_ACCOUNT,
             com.dimediary.model.entities.ContinuousTransactionEntity.class)
@@ -57,23 +66,18 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
     com.dimediary.model.repositories.ContinuosTransactionRepoImpl.log
         .info("persist ContinuousTransaction: " + continuousTransaction.getId());
 
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
-
     final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
         .domainToEntity(continuousTransaction);
 
     if (this.findEntity(continuousTransaction) != null) {
-      this.entityManagerService.getEntityManager().merge(continuousTransactionEntity);
+      this.entityManager.merge(continuousTransactionEntity);
     } else {
-      this.entityManagerService.getEntityManager().persist(continuousTransactionEntity);
-      this.entityManagerService.getEntityManager().refresh(continuousTransactionEntity);
+      this.entityManager.persist(continuousTransactionEntity);
+      this.entityManager.refresh(continuousTransactionEntity);
     }
 
     continuousTransaction.setId(continuousTransactionEntity.getId());
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
 
   }
 
@@ -83,24 +87,20 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
 
     com.dimediary.model.repositories.ContinuosTransactionRepoImpl.log
         .info("deleteAllContinuousTransactions : " + continuousTransaction.getId());
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
         .findEntity(continuousTransaction);
 
     if (continuousTransactionEntity != null) {
-      this.entityManagerService.getEntityManager().remove(continuousTransactionEntity);
+      this.entityManager.remove(continuousTransactionEntity);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   private com.dimediary.model.entities.BankAccountEntity findBankAccountEntity(
       final BankAccount bankAccount) {
     if (bankAccount != null && bankAccount.getName() != null) {
-      return this.entityManagerService.getEntityManager().find(
+      return this.entityManager.find(
           com.dimediary.model.entities.BankAccountEntity.class, bankAccount.getName());
     }
     return null;
@@ -122,7 +122,7 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
   private com.dimediary.model.entities.ContinuousTransactionEntity findEntity(
       final ContinuousTransaction continuousTransaction) {
     if (continuousTransaction != null && continuousTransaction.getId() != null) {
-      return this.entityManagerService.getEntityManager().find(
+      return this.entityManager.find(
           com.dimediary.model.entities.ContinuousTransactionEntity.class,
           continuousTransaction.getId());
     }

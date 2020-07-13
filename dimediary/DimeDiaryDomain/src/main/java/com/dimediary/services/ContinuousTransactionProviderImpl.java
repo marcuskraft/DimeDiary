@@ -3,7 +3,6 @@ package com.dimediary.services;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.domain.helper.DatabaseTransactionProvider;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.ContinuosTransactionRepo;
@@ -12,24 +11,29 @@ import com.dimediary.utils.recurrence.RecurrenceRuleUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.Logger;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class ContinuousTransactionProviderImpl implements ContinuousTransactionProvider {
 
-  @Inject
-  private Logger log;
 
-  @Inject
-  private DatabaseTransactionProvider entityManagerService;
+  private final TransactionProvider transactionProvider;
 
-  @Inject
-  private TransactionProvider transactionProvider;
 
-  @Inject
-  private ContinuosTransactionRepo continuosTransactionService;
+  private final ContinuosTransactionRepo continuosTransactionService;
+
+  @Autowired
+  public ContinuousTransactionProviderImpl(
+      final TransactionProvider transactionProvider,
+      final ContinuosTransactionRepo continuosTransactionService) {
+    this.transactionProvider = transactionProvider;
+    this.continuosTransactionService = continuosTransactionService;
+  }
 
   /**
    * @param bankAccount
@@ -69,14 +73,10 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
       return;
     }
 
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
-
     this.persist(continuousTransaction);
     this.transactionProvider.persistTransactions(transactions);
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+
   }
 
   @Override
@@ -90,22 +90,12 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   public void deleteAllContinuousTransactions(final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
 
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
+    final List<Transaction> transactions = this.transactionProvider
+        .getTransactions(continuousTransaction);
+    this.transactionProvider.deleteTransactions(transactions);
+    this.continuosTransactionService.delete(continuousTransaction);
 
-    try {
-      final List<Transaction> transactions = this.transactionProvider
-          .getTransactions(continuousTransaction);
-      this.transactionProvider.deleteTransactions(transactions);
-      this.continuosTransactionService.delete(continuousTransaction);
-    } catch (final Exception e) {
-      this.log.error("can't delete all continuous Transactions", e);
-      this.entityManagerService.rollbackTransaction();
-      throw e;
-    }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   /**

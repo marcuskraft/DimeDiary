@@ -39,6 +39,7 @@
   import TransactionSlideGroup from "./TransactionSlideGroup.vue";
   import TransactionStore from "@/store/modules/TransactionStore";
   import TimeService from "../helper/TimeService";
+  import {TransactionGetRequestImpl} from "@/services/TransactionService";
 
   @Component({
     components: {
@@ -75,7 +76,8 @@
         );
       }
       TransactionStore.initializeTransactionsMap(transactionMap);
-      TransactionStore.loadTransactions();
+      let transactionGetRequest: TransactionGetRequestImpl = new TransactionGetRequestImpl("01.01.2020", "31.01.2020");
+      TransactionStore.loadTransactions(transactionGetRequest);
     }
 
     formatDate(date: LocalDate): string {

@@ -4,13 +4,20 @@ import com.dimediary.domain.BankAccountCategory;
 import com.dimediary.port.in.BankaccountCategoryProvider;
 import com.dimediary.port.out.BankaccountCategoryRepo;
 import java.util.List;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-
+@Service
 public class BankaccountCategoryProviderImpl implements BankaccountCategoryProvider {
 
-  @Inject
-  private BankaccountCategoryRepo bankaccountCategoryService;
+
+  private final BankaccountCategoryRepo bankaccountCategoryService;
+
+  @Autowired
+  public BankaccountCategoryProviderImpl(
+      final BankaccountCategoryRepo bankaccountCategoryService) {
+    this.bankaccountCategoryService = bankaccountCategoryService;
+  }
 
   @Override
   public List<String> getBankAccountCategoryNames() {

@@ -1,7 +1,7 @@
 package com.dimediary.model;
 
-import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
+
 
 public class EntityManagerHelperImpl {
 
@@ -30,7 +30,7 @@ public class EntityManagerHelperImpl {
     return com.dimediary.model.EntityManagerHelperImpl.entityManager;
   }
 
-  @Produces
+
   public static EntityManager getEntityManager() {
     return com.dimediary.model.EntityManagerHelperImpl.getEntityManager(
         com.dimediary.model.EntityManagerHelperImpl.PERSISTENCE_DERBY, null);
@@ -50,31 +50,5 @@ public class EntityManagerHelperImpl {
     }
   }
 
-  public static boolean beginTransaction() {
-    if (!com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction()
-        .isActive()) {
-      com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction().begin();
-      return true;
-    }
-    return false;
-  }
-
-  public static boolean commitTransaction() {
-    if (com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction()
-        .isActive()) {
-      com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction().commit();
-      return true;
-    }
-    return false;
-  }
-
-  public static boolean rollbackTransaction() {
-    if (com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction()
-        .isActive()) {
-      com.dimediary.model.EntityManagerHelperImpl.getEntityManager().getTransaction().rollback();
-      return true;
-    }
-    return false;
-  }
 
 }

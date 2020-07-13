@@ -12,15 +12,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CategoryProviderImpl implements CategoryProvider {
 
-  @Inject
-  private CategoryRepo categoryService;
+  private final CategoryRepo categoryService;
 
-  @Inject
-  private TransactionProvider transactionProvider;
+  private final TransactionProvider transactionProvider;
+
+  @Autowired
+  public CategoryProviderImpl(final CategoryRepo categoryService,
+      final TransactionProvider transactionProvider) {
+    this.categoryService = categoryService;
+    this.transactionProvider = transactionProvider;
+  }
 
   @Override
   public Category getCategory(final String categoryName) {

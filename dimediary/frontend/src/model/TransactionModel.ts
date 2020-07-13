@@ -2,14 +2,14 @@ import {LocalDate} from '@js-joda/core';
 
 export default class TransactionModel {
 
-  private _uuid?: string;
+  private _id?: number;
   private _subject?: string;
   private _date?: LocalDate;
   private _amount?: number;
 
 
-  constructor(uuid?: string, subject?: string, date?: LocalDate, amount?: number) {
-    this._uuid = uuid;
+  constructor(id?: number, subject?: string, date?: LocalDate, amount?: number) {
+    this._id = id;
     this._subject = subject;
     this._date = date;
     this._amount = amount;
@@ -63,9 +63,8 @@ export default class TransactionModel {
     this._amount = value;
   }
 
-  public get uuid(): string | undefined {
-    return this._uuid;
+
+  get id(): number | undefined {
+    return this._id;
   }
-
-
 }

@@ -1,18 +1,18 @@
 package com.dimediary.model.converter;
 
 import com.dimediary.domain.BankAccountCategory;
+import com.dimediary.model.entities.BankAccountCategoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface BankaccountCategoryTransformer {
 
-  com.dimediary.model.converter.BankaccountCategoryTransformer INSTANCE = Mappers.getMapper(
-      com.dimediary.model.converter.BankaccountCategoryTransformer.class);
+  BankaccountCategoryTransformer INSTANCE = Mappers.getMapper(BankaccountCategoryTransformer.class);
 
-  com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategoryToBankaccountCategoryEntity(
+  BankAccountCategoryEntity bankAccountCategoryToBankaccountCategoryEntity(
       BankAccountCategory bankAccountCategory);
 
   BankAccountCategory bankAccountCategoryEntityToBankAccountCategory(
-      com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategoryEntity);
+      BankAccountCategoryEntity bankAccountCategoryEntity);
 }

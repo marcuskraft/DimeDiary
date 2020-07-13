@@ -1,17 +1,17 @@
 package com.dimediary.model.converter;
 
 import com.dimediary.domain.Category;
+import com.dimediary.model.entities.CategoryEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CategoryTransformer {
 
-  com.dimediary.model.converter.CategoryTransformer INSTANCE = Mappers.getMapper(
-      com.dimediary.model.converter.CategoryTransformer.class);
+  CategoryTransformer INSTANCE = Mappers.getMapper(CategoryTransformer.class);
 
-  com.dimediary.model.entities.CategoryEntity categoryToCategoryEntity(Category category);
+  CategoryEntity categoryToCategoryEntity(Category category);
 
-  Category categoryEntityToCategory(com.dimediary.model.entities.CategoryEntity categoryEntity);
+  Category categoryEntityToCategory(CategoryEntity categoryEntity);
 
 }

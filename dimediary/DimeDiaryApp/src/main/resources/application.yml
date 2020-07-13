@@ -8,6 +8,8 @@ spring:
   datasource:
     url: "jdbc:derby:..\\DB;create=true" # for local run
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+    hikari:
+      schema: APP
 logging:
   level:
     root: WARN

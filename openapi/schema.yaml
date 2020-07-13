@@ -2,14 +2,27 @@ openapi: "3.0.0"
 info:
   version: 0.0.1
   title: Template API
-  description: A simple API to post and receive likes 
+  description: A simple API to post and receive likes
 paths:
   /transaction:
     get:
-      summary: get all transactions
-      description: get all transactions
+      summary: load transactions
+      description: load transactions
       tags:
         - Transaction
+      parameters:
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+          required: true
+          description: Load transactions from this date on in format dd.MM.yyyy
+        - in: query
+          name: dateUntil
+          schema:
+            type: string
+          required: true
+          description: Load transactions until this date in format dd.MM.yyyy
       responses:
         "200":
           description: get all transactions
@@ -17,17 +30,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Transactions'
+  /bankaccount:
+    get:
+      summary: get all bankaccounts
+      description: get all bankaccounts
+      tags:
+        - Bankaccount
+      responses:
+        "200":
+          description: get all bankaccounts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankaccountNames'
+    post:
+      summary: saves a bankaccount
+      description: saves a bankaccount
+      tags:
+        - Bankaccount
+      requestBody:
+        description: bankaccount to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Bankaccount'
+      responses:
+        "200":
+          description: bankaccount succesfully saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bankaccount'
 components:
   schemas:
     Transaction:
       properties:
-        uuid:
-          type: string 
-          format: uuid
+        id:
+          type: integer
         subject:
           type: string
         amount:
-          type: integer
+          type: float
         date:
           type: string
     Transactions:
@@ -36,4 +79,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Transaction'
-          
+    Bankaccount:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    Bankaccounts:
+      properties:
+        bankaccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bankaccount'
+    BankaccountNames:
+      properties:
+        bankaccountNames:
+          type: array
+          items:
+            type: string

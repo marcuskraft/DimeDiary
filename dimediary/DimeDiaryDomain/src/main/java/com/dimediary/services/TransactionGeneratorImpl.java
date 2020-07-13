@@ -2,7 +2,6 @@ package com.dimediary.services;
 
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.domain.helper.DatabaseTransactionProvider;
 import com.dimediary.domain.helper.TransactionDialogStatus;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.port.in.ContinuousTransactionSplitterProvider;
@@ -12,30 +11,36 @@ import com.dimediary.utils.date.DateUtils;
 import com.dimediary.utils.recurrence.RecurrenceRuleUtils;
 import java.time.LocalDate;
 import java.util.List;
-import javax.inject.Inject;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class TransactionGeneratorImpl implements TransactionGenerator {
 
-  @Inject
-  private TransactionProvider transactionProvider;
+  private final TransactionProvider transactionProvider;
 
-  @Inject
-  private ContinuousTransactionSplitterProvider continuousTransactionSplitterProvider;
+  private final ContinuousTransactionSplitterProvider continuousTransactionSplitterProvider;
 
-  @Inject
-  private ContinuousTransactionProvider continuousTransactionProvider;
+  private final ContinuousTransactionProvider continuousTransactionProvider;
 
-  @Inject
-  private DatabaseTransactionProvider entityManagerService;
+
+  @Autowired
+  public TransactionGeneratorImpl(final TransactionProvider transactionProvider,
+      final ContinuousTransactionSplitterProvider continuousTransactionSplitterProvider,
+      final ContinuousTransactionProvider continuousTransactionProvider) {
+    this.transactionProvider = transactionProvider;
+    this.continuousTransactionSplitterProvider = continuousTransactionSplitterProvider;
+    this.continuousTransactionProvider = continuousTransactionProvider;
+  }
 
   @Override
   public void generateTransactions(final TransactionDialogStatus transactionDialogStatus) {
     if (transactionDialogStatus.getTransaction() != null) {
       if (transactionDialogStatus.getRecurrenceRule() == null) {
-        this.changeTransaction(true, transactionDialogStatus);
+        this.changeTransaction(transactionDialogStatus);
       } else {
-        this.changeNewContinuousTransactionFromTransaction(true, transactionDialogStatus);
+        this.changeNewContinuousTransactionFromTransaction(transactionDialogStatus);
       }
     } else if (transactionDialogStatus.getContinuousTransaction() != null) {
       if (transactionDialogStatus.getRecurrenceRule() == null) {
@@ -45,51 +50,32 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
       }
     } else {
       if (transactionDialogStatus.getRecurrenceRule() == null) {
-        this.createNewTransaction(true, transactionDialogStatus);
+        this.createNewTransaction(transactionDialogStatus);
       } else {
-        this.createNewContinuousTransaction(true, transactionDialogStatus);
+        this.createNewContinuousTransaction(transactionDialogStatus);
       }
     }
   }
 
-  private void createNewContinuousTransaction(final boolean ownTransaction,
+  private void createNewContinuousTransaction(
       final TransactionDialogStatus transactionDialogStatus) {
-    if (ownTransaction) {
-      this.entityManagerService.beginTransaction();
-    }
-    try {
-      final ContinuousTransaction continuousTransaction = new ContinuousTransaction();
-      this.setContinuousTransactionAttributtes(continuousTransaction, transactionDialogStatus);
 
-      final List<Transaction> transactions = this.continuousTransactionProvider
-          .generateTransactionsForContinuousTransaction(continuousTransaction);
-      this.continuousTransactionProvider
-          .persistContinuousTransaction(continuousTransaction, transactions);
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
-    }
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+    final ContinuousTransaction continuousTransaction = new ContinuousTransaction();
+    this.setContinuousTransactionAttributtes(continuousTransaction, transactionDialogStatus);
+
+    final List<Transaction> transactions = this.continuousTransactionProvider
+        .generateTransactionsForContinuousTransaction(continuousTransaction);
+    this.continuousTransactionProvider
+        .persistContinuousTransaction(continuousTransaction, transactions);
+
   }
 
-  private void createNewTransaction(final boolean ownTransaction,
-      final TransactionDialogStatus transactionDialogStatus) {
-    if (ownTransaction) {
-      this.entityManagerService.beginTransaction();
-    }
-    try {
-      final Transaction transaction = new Transaction();
-      this.setTransactionAttributes(transaction, transactionDialogStatus);
-      this.transactionProvider.persistTransaction(transaction);
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
-    }
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+  private void createNewTransaction(final TransactionDialogStatus transactionDialogStatus) {
+
+    final Transaction transaction = new Transaction();
+    this.setTransactionAttributes(transaction, transactionDialogStatus);
+    this.transactionProvider.persistTransaction(transaction);
+
   }
 
   private void setTransactionAttributes(final Transaction transaction,
@@ -107,50 +93,44 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
       throw new IllegalStateException("continuousTransaction should not be null");
     }
 
-    this.entityManagerService.beginTransaction();
-    try {
-      if (transactionDialogStatus.getChangeFromDate() == null) {
-        if (transactionDialogStatus.getRecurrenceRule() != null) {
-          transactionDialogStatus
-              .setDate(transactionDialogStatus.getContinuousTransaction().getDateBeginn());
-        }
-        this.continuousTransactionProvider
-            .deleteAllContinuousTransactions(transactionDialogStatus.getContinuousTransaction());
-      } else {
-        final List<Transaction> transactionsAfter = this.transactionProvider
-            .getTransactionsFromDate(
-                transactionDialogStatus.getContinuousTransaction(),
-                transactionDialogStatus.getChangeFromDate());
-
-        this.transactionProvider.deleteTransactions(transactionsAfter);
-
-        final RecurrenceRule recurrenceRuleOfOldContinuousTransaction = RecurrenceRuleUtils
-            .createRecurrenceRule(
-                transactionDialogStatus.getContinuousTransaction().getRecurrenceRule());
-
-        final LocalDate lastDateBeforeRecurrence = RecurrenceRuleUtils.getLastRecurrenceDateBefore(
-            recurrenceRuleOfOldContinuousTransaction,
-            transactionDialogStatus.getContinuousTransaction().getDateBeginn(),
-            transactionDialogStatus.getChangeFromDate());
-
-        recurrenceRuleOfOldContinuousTransaction
-            .setUntil(DateUtils.localDateToDateTime(lastDateBeforeRecurrence));
-        transactionDialogStatus.getContinuousTransaction()
-            .setRecurrenceRule(recurrenceRuleOfOldContinuousTransaction.toString());
-        this.continuousTransactionProvider
-            .merge(transactionDialogStatus.getContinuousTransaction());
-      }
-
+    if (transactionDialogStatus.getChangeFromDate() == null) {
       if (transactionDialogStatus.getRecurrenceRule() != null) {
-        this.createNewContinuousTransaction(false, transactionDialogStatus);
-      } else {
-        this.createNewTransaction(false, transactionDialogStatus);
+        transactionDialogStatus
+            .setDate(transactionDialogStatus.getContinuousTransaction().getDateBeginn());
       }
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
+      this.continuousTransactionProvider
+          .deleteAllContinuousTransactions(transactionDialogStatus.getContinuousTransaction());
+    } else {
+      final List<Transaction> transactionsAfter = this.transactionProvider
+          .getTransactionsFromDate(
+              transactionDialogStatus.getContinuousTransaction(),
+              transactionDialogStatus.getChangeFromDate());
+
+      this.transactionProvider.deleteTransactions(transactionsAfter);
+
+      final RecurrenceRule recurrenceRuleOfOldContinuousTransaction = RecurrenceRuleUtils
+          .createRecurrenceRule(
+              transactionDialogStatus.getContinuousTransaction().getRecurrenceRule());
+
+      final LocalDate lastDateBeforeRecurrence = RecurrenceRuleUtils.getLastRecurrenceDateBefore(
+          recurrenceRuleOfOldContinuousTransaction,
+          transactionDialogStatus.getContinuousTransaction().getDateBeginn(),
+          transactionDialogStatus.getChangeFromDate());
+
+      recurrenceRuleOfOldContinuousTransaction
+          .setUntil(DateUtils.localDateToDateTime(lastDateBeforeRecurrence));
+      transactionDialogStatus.getContinuousTransaction()
+          .setRecurrenceRule(recurrenceRuleOfOldContinuousTransaction.toString());
+      this.continuousTransactionProvider
+          .merge(transactionDialogStatus.getContinuousTransaction());
     }
-    this.entityManagerService.commitTransaction();
+
+    if (transactionDialogStatus.getRecurrenceRule() != null) {
+      this.createNewContinuousTransaction(transactionDialogStatus);
+    } else {
+      this.createNewTransaction(transactionDialogStatus);
+    }
+
   }
 
   private void changeContinuesTransactionToTransaction(
@@ -158,44 +138,24 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
     this.changeContinuousTransaction(transactionDialogStatus);
   }
 
-  private void changeNewContinuousTransactionFromTransaction(final boolean ownTransaction,
+  private void changeNewContinuousTransactionFromTransaction(
       final TransactionDialogStatus transactionDialogStatus) {
-    if (ownTransaction) {
-      this.entityManagerService.beginTransaction();
-    }
-    try {
-      this.transactionProvider.delete(transactionDialogStatus.getTransaction());
-      this.createNewContinuousTransaction(false, transactionDialogStatus);
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
-    }
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+    this.transactionProvider.delete(transactionDialogStatus.getTransaction());
+    this.createNewContinuousTransaction(transactionDialogStatus);
+
   }
 
-  private void changeTransaction(final boolean ownTransaction,
-      final TransactionDialogStatus transactionDialogStatus) {
-    if (ownTransaction) {
-      this.entityManagerService.beginTransaction();
-    }
-    try {
-      if (transactionDialogStatus.getTransaction().getContinuousTransaction() != null) {
-        this.continuousTransactionSplitterProvider
-            .splitContinuousTransaction(transactionDialogStatus.getTransaction());
-      } else {
-        this.transactionProvider.delete(transactionDialogStatus.getTransaction());
-      }
+  private void changeTransaction(final TransactionDialogStatus transactionDialogStatus) {
 
-      this.createNewTransaction(false, transactionDialogStatus);
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
+    if (transactionDialogStatus.getTransaction().getContinuousTransaction() != null) {
+      this.continuousTransactionSplitterProvider
+          .splitContinuousTransaction(transactionDialogStatus.getTransaction());
+    } else {
+      this.transactionProvider.delete(transactionDialogStatus.getTransaction());
     }
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+
+    this.createNewTransaction(transactionDialogStatus);
+
   }
 
   private void setContinuousTransactionAttributtes(

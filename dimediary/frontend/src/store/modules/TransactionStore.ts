@@ -2,7 +2,7 @@ import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decor
 import store from '@/store'
 import TransactionModel from '@/model/TransactionModel';
 import {TransactionTransformer} from '@/services/transformer/TransactionTransformer';
-import {TransactionService} from '@/services/TransactionService';
+import {TransactionGetRequestImpl, TransactionService} from '@/services/TransactionService';
 import TransactionModelArray from '@/model/TransactionModelArray';
 import TimeService from '@/helper/TimeService';
 
@@ -54,9 +54,9 @@ export class TransactionStore extends VuexModule {
   }
 
   @Action
-  loadTransactions() {
+  loadTransactions(transactionGetRequest: TransactionGetRequestImpl) {
     let transactionsService: TransactionService = new TransactionService();
-    transactionsService.getTransactions().then((transactionArray) => {
+    transactionsService.getTransactions(transactionGetRequest).then((transactionArray) => {
       if (transactionArray.transactions != undefined) {
         transactionArray.transactions!.forEach(transaction => {
           this.addTransactionToMap(TransactionTransformer.from(transaction));

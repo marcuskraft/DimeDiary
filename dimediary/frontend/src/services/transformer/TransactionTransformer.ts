@@ -11,7 +11,7 @@ export class TransactionTransformer {
     if (transaction.date != undefined) {
       date = TimeService.parseLocalDateRest(transaction.date);
     }
-    return new TransactionModel(transaction.uuid, transaction.subject, date, transaction.amount)
+    return new TransactionModel(transaction.id, transaction.subject, date, transaction.amount)
   }
 
   public to(transactionModel: TransactionModel): Transaction {
@@ -19,15 +19,15 @@ export class TransactionTransformer {
     if (transactionModel.date != undefined) {
       dateString = TimeService.formatLocalDateRest(transactionModel.date);
     }
-    return new TransactionForRequest(transactionModel.uuid, transactionModel.subject, dateString, transactionModel.amount);
+    return new TransactionForRequest(transactionModel.id, transactionModel.subject, dateString, transactionModel.amount);
   }
 
 }
 
-export class TransactionForRequest implements Transaction {
+class TransactionForRequest implements Transaction {
 
 
-  uuid?: string;
+  id?: number;
 
   subject?: string;
 
@@ -35,8 +35,8 @@ export class TransactionForRequest implements Transaction {
 
   date?: string;
 
-  constructor(uuid?: string, subject?: string, date?: string, amount?: number) {
-    this.uuid = uuid;
+  constructor(id?: number, subject?: string, date?: string, amount?: number) {
+    this.id = id;
     this.subject = subject;
     this.date = date;
     this.amount = amount;

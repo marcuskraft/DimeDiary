@@ -3,22 +3,32 @@ package com.dimediary.model.repositories;
 import com.dimediary.domain.BalanceHistory;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.model.converter.BalanceHistoryTransformer;
-import com.dimediary.model.repositories.helper.DatabaseTransactionProviderImpl;
 import com.dimediary.port.out.AccountBalanceRepo;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
+@Service
+@Transactional
 class AccountBalanceRepoImpl implements AccountBalanceRepo {
 
-  @Inject
-  private Logger log;
 
-  @Inject
-  private DatabaseTransactionProviderImpl entityManagerService;
+  @PersistenceContext
+  private final EntityManager entityManager;
 
-  @Inject
-  private BalanceHistoryTransformer balanceHistoryTransformer;
+  private final BalanceHistoryTransformer balanceHistoryTransformer;
+
+  @Autowired
+  public AccountBalanceRepoImpl(final EntityManager entityManager,
+      final BalanceHistoryTransformer balanceHistoryTransformer) {
+    this.entityManager = entityManager;
+    this.balanceHistoryTransformer = balanceHistoryTransformer;
+  }
 
   @Override
   public java.util.List<BalanceHistory> getBalanceHistories(final BankAccount bankAccount) {
@@ -28,8 +38,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
 
     final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
         .findBankAccount(bankAccount);
-    final java.util.List<com.dimediary.model.entities.BalanceHistoryEntity> balanceHistories = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.BalanceHistoryEntity> balanceHistories = this.entityManager
         .createNamedQuery("accountBalance", com.dimediary.model.entities.BalanceHistoryEntity.class)
         .setParameter("bankAccount", bankAccountEntity).getResultList();
     return this.entitiesToDomains(balanceHistories);
@@ -48,8 +57,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
     final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
         .findBankAccount(bankAccount);
 
-    final java.util.List<com.dimediary.model.entities.BalanceHistoryEntity> balanceHistories = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.BalanceHistoryEntity> balanceHistories = this.entityManager
         .createNamedQuery(com.dimediary.model.entities.BalanceHistoryEntity.ACCOUNT_BALANCE_DATE,
             com.dimediary.model.entities.BalanceHistoryEntity.class)
         .setParameter("date", date).setParameter("bankAccount", bankAccountEntity).getResultList();
@@ -70,8 +78,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
     final com.dimediary.model.entities.BalanceHistoryPK balanceHistoryPK = new com.dimediary.model.entities.BalanceHistoryPK(
         bankAccountEntity, date);
 
-    final com.dimediary.model.entities.BalanceHistoryEntity balanceEntity = this.entityManagerService
-        .getEntityManager()
+    final com.dimediary.model.entities.BalanceHistoryEntity balanceEntity = this.entityManager
         .find(com.dimediary.model.entities.BalanceHistoryEntity.class, balanceHistoryPK);
 
     return this.entityToDomain(balanceEntity);
@@ -91,7 +98,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
       final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
           .findBankAccount(bankAccount);
 
-      return this.entityToDomain(this.entityManagerService.getEntityManager()
+      return this.entityToDomain(this.entityManager
           .createNamedQuery(
               com.dimediary.model.entities.BalanceHistoryEntity.LAST_ACCOUNT_BALANCE_BEFORE,
               com.dimediary.model.entities.BalanceHistoryEntity.class)
@@ -116,7 +123,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
       final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
           .findBankAccount(bankAccount);
 
-      return this.entityToDomain(this.entityManagerService.getEntityManager()
+      return this.entityToDomain(this.entityManager
           .createNamedQuery("lastAccountBalance",
               com.dimediary.model.entities.BalanceHistoryEntity.class)
           .setParameter("bankAccount", bankAccountEntity).getSingleResult());
@@ -133,27 +140,20 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
     this.log.info("persist BalanceHistory for bank account: " + balanceHistory.getBankAccount()
         + " and date: "
         + balanceHistory.getDate());
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
-
     try {
       final com.dimediary.model.entities.BalanceHistoryEntity balanceHistoryEntity = this.balanceHistoryTransformer
           .balanceHistoryToBalanceHistoryEntity(balanceHistory,
               this.findBankAccount(balanceHistory.getBankAccount()));
 
       if (this.findBalanceHistoryEntity(balanceHistory) == null) {
-        this.entityManagerService.getEntityManager().persist(balanceHistoryEntity);
+        this.entityManager.persist(balanceHistoryEntity);
       } else {
-        this.entityManagerService.getEntityManager().merge(balanceHistoryEntity);
+        this.entityManager.merge(balanceHistoryEntity);
       }
 
     } catch (final Exception e) {
       this.log.error("can't persist balance history", e);
-      this.entityManagerService.rollbackTransaction();
       throw e;
-    }
-
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
     }
   }
 
@@ -163,15 +163,11 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
     if (balanceHistories.isEmpty()) {
       return;
     }
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     for (final BalanceHistory balanceHistory : balanceHistories) {
       this.persist(balanceHistory);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   @Override
@@ -185,23 +181,17 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
             + " and date: " + balanceHistory.getDate());
       }
 
-      final boolean ownTransaction = this.entityManagerService.beginTransaction();
-
       final com.dimediary.model.entities.BalanceHistoryEntity balanceHistoryEntity = this
           .findBalanceHistoryEntity(balanceHistory);
 
       if (balanceHistoryEntity != null) {
-        this.entityManagerService.getEntityManager().remove(balanceHistoryEntity);
+        this.entityManager.remove(balanceHistoryEntity);
       }
 
-      if (ownTransaction) {
-        this.entityManagerService.commitTransaction();
-      }
+
     } catch (final Exception e) {
-      this.log.error(new org.apache.logging.log4j.message.ParameterizedMessage(
-          "can't delete BalanceHistory for bank account: {} and date: {}",
-          balanceHistory.getBankAccount().getBankName(), balanceHistory.getDate()), e);
-      this.entityManagerService.rollbackTransaction();
+      this.log.error("can't delete BalanceHistory for bank account: {} and date: {}",
+          balanceHistory.getBankAccount().getBankName(), balanceHistory.getDate(), e);
       throw e;
     }
   }
@@ -215,15 +205,11 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
     if (balanceHistories.isEmpty()) {
       return;
     }
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     for (final BalanceHistory balanceHistory : balanceHistories) {
       this.delete(balanceHistory);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   /**
@@ -232,16 +218,12 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   @Override
   public void deleteBalanceHistories(final BankAccount bankAccount) {
     Validate.notNull(bankAccount);
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     final java.util.List<BalanceHistory> balanceHistories = this.getBalanceHistories(bankAccount);
     if (!balanceHistories.isEmpty()) {
       this.deleteBalanceHistories(balanceHistories);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   private java.util.List<BalanceHistory> entitiesToDomains(
@@ -258,10 +240,9 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   private com.dimediary.model.entities.BankAccountEntity findBankAccount(
       final BankAccount bankAccount) {
     if (bankAccount != null && bankAccount.getName() != null && !bankAccount.getName().isEmpty()) {
-      final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.entityManagerService
-          .getEntityManager()
+      final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.entityManager
           .find(com.dimediary.model.entities.BankAccountEntity.class, bankAccount.getName());
-      this.entityManagerService.getEntityManager().merge(bankAccountEntity);
+      this.entityManager.merge(bankAccountEntity);
       return bankAccountEntity;
 
     } else {
@@ -279,7 +260,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
       if (bankAccountEntity != null) {
 
         try {
-          return this.entityManagerService.getEntityManager()
+          return this.entityManager
               .createNamedQuery(
                   com.dimediary.model.entities.BalanceHistoryEntity.ACCOUNT_BALANCE_EXACT_DATE,
                   com.dimediary.model.entities.BalanceHistoryEntity.class)

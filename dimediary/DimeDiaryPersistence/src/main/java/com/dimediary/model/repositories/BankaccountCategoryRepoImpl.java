@@ -2,21 +2,32 @@ package com.dimediary.model.repositories;
 
 import com.dimediary.domain.BankAccountCategory;
 import com.dimediary.model.converter.BankaccountCategoryTransformer;
-import com.dimediary.model.repositories.helper.DatabaseTransactionProviderImpl;
 import com.dimediary.port.out.BankaccountCategoryRepo;
-import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
+@Service
+@Transactional
 class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
 
-  private final static org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager
-      .getLogger(
-          com.dimediary.model.repositories.BankaccountCategoryRepoImpl.class);
 
-  @Inject
-  private DatabaseTransactionProviderImpl entityManagerService;
+  @PersistenceContext
+  private final EntityManager entityManager;
 
-  @Inject
-  private BankaccountCategoryTransformer bankaccountCategoryTransformer;
+  private final BankaccountCategoryTransformer bankaccountCategoryTransformer;
+
+  @Autowired
+  public BankaccountCategoryRepoImpl(final EntityManager entityManager,
+      final BankaccountCategoryTransformer bankaccountCategoryTransformer) {
+    this.entityManager = entityManager;
+    this.bankaccountCategoryTransformer = bankaccountCategoryTransformer;
+  }
+
 
   @Override
   public java.util.List<String> getBankAccountCategoryNames() {
@@ -24,8 +35,7 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
         .info("getBankAccountCategoryNames");
     final java.util.ArrayList<String> names = new java.util.ArrayList<>();
 
-    final java.util.List<com.dimediary.model.entities.BankAccountCategoryEntity> bankAccountCategories = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.BankAccountCategoryEntity> bankAccountCategories = this.entityManager
         .createNamedQuery("allAccountCategories",
             com.dimediary.model.entities.BankAccountCategoryEntity.class).getResultList();
 
@@ -44,8 +54,7 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
 
     com.dimediary.model.repositories.BankaccountCategoryRepoImpl.log
         .info("getBankAccountCategory: " + bankAccountCategoryName);
-    final com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategory = this.entityManagerService
-        .getEntityManager()
+    final com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategory = this.entityManager
         .find(com.dimediary.model.entities.BankAccountCategoryEntity.class,
             bankAccountCategoryName);
 
@@ -64,8 +73,7 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
           .info("getBankAccountCategory: " + string);
     }
 
-    final java.util.List<com.dimediary.model.entities.BankAccountCategoryEntity> bankAccountCategories = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.BankAccountCategoryEntity> bankAccountCategories = this.entityManager
         .createNamedQuery("findAccountCategories",
             com.dimediary.model.entities.BankAccountCategoryEntity.class)
         .setParameter("nameList", bankAccountCategoryNames).getResultList();
@@ -80,8 +88,6 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
       return;
     }
     try {
-      final boolean ownTransaction = this.entityManagerService.beginTransaction();
-
       final java.util.List<BankAccountCategory> bankAccountCategories = this
           .getBankAccountCategories(bankAccountCategoryNames);
 
@@ -89,9 +95,6 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
         this.delete(bankAccountCategory);
       }
 
-      if (ownTransaction) {
-        this.entityManagerService.commitTransaction();
-      }
     } catch (final javax.persistence.RollbackException e) {
       throw e;
     }
@@ -107,18 +110,14 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
     try {
       com.dimediary.model.repositories.BankaccountCategoryRepoImpl.log
           .info("delete BankAccountCategory: " + bankAccountCategory.getName());
-      final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
       final com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategoryEntity = this
           .findEntity(bankAccountCategory);
 
       if (bankAccountCategoryEntity != null) {
-        this.entityManagerService.getEntityManager().remove(bankAccountCategoryEntity);
+        this.entityManager.remove(bankAccountCategoryEntity);
       }
 
-      if (ownTransaction) {
-        this.entityManagerService.commitTransaction();
-      }
     } catch (final javax.persistence.RollbackException e) {
       throw new javax.persistence.RollbackException(
           "can't delete bank account category: " + bankAccountCategory.getName(), e);
@@ -133,20 +132,16 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
     }
     com.dimediary.model.repositories.BankaccountCategoryRepoImpl.log
         .info("persist BankAccountCategory: " + bankAccountCategory.getName());
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     final com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategoryEntity = this
         .domainToEntity(bankAccountCategory);
 
     if (this.findEntity(bankAccountCategory) != null) {
-      this.entityManagerService.getEntityManager().merge(bankAccountCategoryEntity);
+      this.entityManager.merge(bankAccountCategoryEntity);
     } else {
-      this.entityManagerService.getEntityManager().persist(bankAccountCategoryEntity);
+      this.entityManager.persist(bankAccountCategoryEntity);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
   private com.dimediary.model.entities.BankAccountCategoryEntity domainToEntity(
@@ -159,7 +154,7 @@ class BankaccountCategoryRepoImpl implements BankaccountCategoryRepo {
       final BankAccountCategory bankAccountCategory) {
     if (bankAccountCategory != null && bankAccountCategory.getName() != null
         && !bankAccountCategory.getName().isEmpty()) {
-      return this.entityManagerService.getEntityManager().find(
+      return this.entityManager.find(
           com.dimediary.model.entities.BankAccountCategoryEntity.class,
           bankAccountCategory.getName());
     }

@@ -2,7 +2,6 @@ package com.dimediary.services;
 
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.domain.helper.DatabaseTransactionProvider;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.port.in.ContinuousTransactionSplitterProvider;
 import com.dimediary.port.in.TransactionProvider;
@@ -10,20 +9,25 @@ import com.dimediary.utils.date.DateUtils;
 import com.dimediary.utils.recurrence.RecurrenceRuleUtils;
 import java.time.LocalDate;
 import java.util.List;
-import javax.inject.Inject;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ContinuousTransactionSplitterProviderImpl implements
     ContinuousTransactionSplitterProvider {
 
-  @Inject
-  private DatabaseTransactionProvider entityManagerService;
+  private final TransactionProvider transactionProvider;
 
-  @Inject
-  private TransactionProvider transactionProvider;
+  private final ContinuousTransactionProvider continuousTransactionProvider;
 
-  @Inject
-  private ContinuousTransactionProvider continuousTransactionProvider;
+  @Autowired
+  public ContinuousTransactionSplitterProviderImpl(
+      final TransactionProvider transactionProvider,
+      final ContinuousTransactionProvider continuousTransactionProvider) {
+    this.transactionProvider = transactionProvider;
+    this.continuousTransactionProvider = continuousTransactionProvider;
+  }
 
   /**
    * splits the continuous transaction around the given transaction. Two new continuous transactions
@@ -56,28 +60,21 @@ public class ContinuousTransactionSplitterProviderImpl implements
       final LocalDate lastDateBefore, final LocalDate firstDateAfter) {
     // TODO: don't delete all transactions, only reorganize the continuous
     // transaction into two
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
-    try {
-      final RecurrenceRule recurrenceRuleOriginal = RecurrenceRuleUtils
-          .createRecurrenceRule(continuousTransaction.getRecurrenceRule());
+    final RecurrenceRule recurrenceRuleOriginal = RecurrenceRuleUtils
+        .createRecurrenceRule(continuousTransaction.getRecurrenceRule());
 
-      final List<Transaction> transactionsBefore = this
-          .generateContinuousTransactionBefore(continuousTransaction,
-              lastDateBefore);
+    final List<Transaction> transactionsBefore = this
+        .generateContinuousTransactionBefore(continuousTransaction,
+            lastDateBefore);
 
-      this.generateContinuousTransactionAfter(continuousTransaction, firstDateAfter,
-          recurrenceRuleOriginal,
-          transactionsBefore);
+    this.generateContinuousTransactionAfter(continuousTransaction, firstDateAfter,
+        recurrenceRuleOriginal,
+        transactionsBefore);
 
-      this.continuousTransactionProvider.deleteAllContinuousTransactions(continuousTransaction);
-    } catch (final Exception e) {
-      this.entityManagerService.rollbackTransaction();
-      throw e;
-    }
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+    this.continuousTransactionProvider.deleteAllContinuousTransactions(continuousTransaction);
+
+
   }
 
   private void generateContinuousTransactionAfter(final ContinuousTransaction continuousTransaction,
@@ -164,14 +161,10 @@ public class ContinuousTransactionSplitterProviderImpl implements
     if ((continuousTransaction == null) || (transactions == null) || transactions.isEmpty()) {
       return;
     }
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     this.continuousTransactionProvider.persist(continuousTransaction);
     this.transactionProvider.persistTransactions(transactions);
-
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
+    
   }
 
 }

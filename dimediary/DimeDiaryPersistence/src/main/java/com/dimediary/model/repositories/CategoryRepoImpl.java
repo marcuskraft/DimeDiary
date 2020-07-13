@@ -2,32 +2,43 @@ package com.dimediary.model.repositories;
 
 import com.dimediary.domain.Category;
 import com.dimediary.model.converter.CategoryTransformer;
-import com.dimediary.model.repositories.helper.DatabaseTransactionProviderImpl;
+import com.dimediary.model.entities.CategoryEntity;
 import com.dimediary.port.out.CategoryRepo;
-import javax.inject.Inject;
+import java.util.List;
+import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
+@Service
+@Transactional
 class CategoryRepoImpl implements CategoryRepo {
 
-  private static final org.apache.logging.log4j.Logger log = org.apache.logging.log4j.LogManager
-      .getLogger(
-          com.dimediary.model.repositories.CategoryRepoImpl.class);
+  @PersistenceContext
+  private final EntityManager entityManager;
 
-  @Inject
-  private DatabaseTransactionProviderImpl entityManagerService;
+  private final CategoryTransformer categoryTransformer;
 
-  @Inject
-  private CategoryTransformer categoryTransformer;
+  @Autowired
+  public CategoryRepoImpl(final EntityManager entityManager,
+      final CategoryTransformer categoryTransformer) {
+    this.entityManager = entityManager;
+    this.categoryTransformer = categoryTransformer;
+  }
 
   @Override
   public Category getCategory(final String categoryName) {
     Validate.notEmpty(categoryName);
 
-    com.dimediary.model.repositories.CategoryRepoImpl.log.info("getCategory: " + categoryName);
-    final com.dimediary.model.entities.CategoryEntity categoryEntity = this.entityManagerService
-        .getEntityManager().find(
-            com.dimediary.model.entities.CategoryEntity.class,
-            categoryName);
+    log.info("getCategory: " + categoryName);
+    final com.dimediary.model.entities.CategoryEntity categoryEntity = this.entityManager.find(
+        com.dimediary.model.entities.CategoryEntity.class,
+        categoryName);
     return this.entityToDomain(categoryEntity);
   }
 
@@ -36,8 +47,7 @@ class CategoryRepoImpl implements CategoryRepo {
     Validate.notNull(categoryNames);
     Validate.notEmpty(categoryNames);
 
-    final java.util.List<com.dimediary.model.entities.CategoryEntity> categoryEntities = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.CategoryEntity> categoryEntities = this.entityManager
         .createNamedQuery("findCategories", com.dimediary.model.entities.CategoryEntity.class)
         .setParameter("namesList", categoryNames)
         .getResultList();
@@ -49,8 +59,7 @@ class CategoryRepoImpl implements CategoryRepo {
     com.dimediary.model.repositories.CategoryRepoImpl.log.info("getCategoryNames");
     final java.util.List<String> categoryNames = new java.util.ArrayList<>();
 
-    final java.util.List<com.dimediary.model.entities.CategoryEntity> categories = this.entityManagerService
-        .getEntityManager()
+    final java.util.List<com.dimediary.model.entities.CategoryEntity> categories = this.entityManager
         .createNamedQuery("allCategories", com.dimediary.model.entities.CategoryEntity.class)
         .getResultList();
 
@@ -68,20 +77,16 @@ class CategoryRepoImpl implements CategoryRepo {
     }
     com.dimediary.model.repositories.CategoryRepoImpl.log
         .info("persist Category: " + category.getName());
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     final com.dimediary.model.entities.CategoryEntity categoryEntity = this.categoryTransformer
         .categoryToCategoryEntity(category);
 
     if (this.findEntity(category) != null) {
-      this.entityManagerService.getEntityManager().merge(categoryEntity);
+      this.entityManager.merge(categoryEntity);
     } else {
-      this.entityManagerService.getEntityManager().persist(categoryEntity);
+      this.entityManager.persist(categoryEntity);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
 
   }
 
@@ -91,17 +96,13 @@ class CategoryRepoImpl implements CategoryRepo {
     try {
       com.dimediary.model.repositories.CategoryRepoImpl.log
           .info("delete Category: " + category.getName());
-      final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
       final com.dimediary.model.entities.CategoryEntity categoryEntity = this.findEntity(category);
 
       if (categoryEntity != null) {
-        this.entityManagerService.getEntityManager().remove(categoryEntity);
+        this.entityManager.remove(categoryEntity);
       }
 
-      if (ownTransaction) {
-        this.entityManagerService.commitTransaction();
-      }
     } catch (final Exception e) {
       com.dimediary.model.repositories.CategoryRepoImpl.log
           .error("can't delete category: " + category.getName(), e);
@@ -110,35 +111,28 @@ class CategoryRepoImpl implements CategoryRepo {
   }
 
   @Override
-  public void deleteCategories(final java.util.List<Category> categories) {
+  public void deleteCategories(final List<Category> categories) {
     Validate.notNull(categories);
-
-    final boolean ownTransaction = this.entityManagerService.beginTransaction();
 
     for (final Category category : categories) {
       this.delete(category);
     }
 
-    if (ownTransaction) {
-      this.entityManagerService.commitTransaction();
-    }
   }
 
-  private Category entityToDomain(
-      final com.dimediary.model.entities.CategoryEntity categoryEntity) {
+  private Category entityToDomain(final CategoryEntity categoryEntity) {
     return this.categoryTransformer.categoryEntityToCategory(categoryEntity);
   }
 
-  private java.util.List<Category> entitiesToDomains(
-      final java.util.List<com.dimediary.model.entities.CategoryEntity> categoryEntities) {
+  private List<Category> entitiesToDomains(
+      final List<CategoryEntity> categoryEntities) {
     return categoryEntities.stream().map((categoryEntity) -> this.entityToDomain(categoryEntity))
-        .collect(java.util.stream.Collectors.toList());
+        .collect(Collectors.toList());
   }
 
-  private com.dimediary.model.entities.CategoryEntity findEntity(final Category category) {
+  private CategoryEntity findEntity(final Category category) {
     if (category != null && category.getName() != null) {
-      return this.entityManagerService.getEntityManager().find(
-          com.dimediary.model.entities.CategoryEntity.class, category.getName());
+      return this.entityManager.find(CategoryEntity.class, category.getName());
     }
     return null;
   }

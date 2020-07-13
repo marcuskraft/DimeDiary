@@ -3,29 +3,33 @@ package com.dimediary.services;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.domain.helper.DatabaseTransactionProvider;
 import com.dimediary.port.in.AccountBalanceProvider;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.TransactionRepo;
 import java.time.LocalDate;
 import java.util.List;
-import javax.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
-import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class TransactionProviderImpl implements TransactionProvider {
 
-  @Inject
-  private Logger log;
 
-  @Inject
-  private AccountBalanceProvider accountBalanceProvider;
+  private final AccountBalanceProvider accountBalanceProvider;
 
-  @Inject
-  private TransactionRepo transactionService;
 
-  @Inject
-  private DatabaseTransactionProvider databaseTransactionProvider;
+  private final TransactionRepo transactionService;
+
+
+  @Autowired
+  public TransactionProviderImpl(final AccountBalanceProvider accountBalanceProvider,
+      final TransactionRepo transactionService) {
+    this.accountBalanceProvider = accountBalanceProvider;
+    this.transactionService = transactionService;
+  }
 
   /**
    * @param dateFrom
@@ -134,21 +138,11 @@ public class TransactionProviderImpl implements TransactionProvider {
     Validate.notNull(transaction, "Transaction must not be null");
 
     this.log.info("persist transaction: " + transaction.getId());
-    final boolean ownTransaction = this.databaseTransactionProvider.beginTransaction();
 
-    try {
-      this.transactionService.persistTransaction(transaction);
-      this.accountBalanceProvider
-          .updateBalance(transaction, AccountBalanceProvider.BalanceAction.adding);
-    } catch (final Exception e) {
-      this.log.error("can't persist transaction", e);
-      this.databaseTransactionProvider.rollbackTransaction();
-      throw e;
-    }
+    this.transactionService.persistTransaction(transaction);
+    this.accountBalanceProvider
+        .updateBalance(transaction, AccountBalanceProvider.BalanceAction.adding);
 
-    if (ownTransaction) {
-      this.databaseTransactionProvider.commitTransaction();
-    }
 
   }
 
@@ -159,15 +153,10 @@ public class TransactionProviderImpl implements TransactionProvider {
       return;
     }
 
-    final boolean ownTransaction = this.databaseTransactionProvider.beginTransaction();
-
     for (final Transaction transaction : transactions) {
       this.persistTransaction(transaction);
     }
 
-    if (ownTransaction) {
-      this.databaseTransactionProvider.commitTransaction();
-    }
   }
 
   @Override
@@ -175,21 +164,11 @@ public class TransactionProviderImpl implements TransactionProvider {
     Validate.notNull(transaction);
 
     this.log.info("delete Transaction: " + transaction.getId());
-    final boolean ownTransaction = this.databaseTransactionProvider.beginTransaction();
 
-    try {
-      this.accountBalanceProvider
-          .updateBalance(transaction, AccountBalanceProvider.BalanceAction.deleting);
-      this.transactionService.delete(transaction);
-    } catch (final Exception e) {
-      this.log.error("can't delete transaction: " + transaction.getId(), e);
-      this.databaseTransactionProvider.rollbackTransaction();
-      throw e;
-    }
+    this.accountBalanceProvider
+        .updateBalance(transaction, AccountBalanceProvider.BalanceAction.deleting);
+    this.transactionService.delete(transaction);
 
-    if (ownTransaction) {
-      this.databaseTransactionProvider.commitTransaction();
-    }
   }
 
   @Override
@@ -199,15 +178,11 @@ public class TransactionProviderImpl implements TransactionProvider {
       return;
 
     }
-    final boolean ownTransaction = this.databaseTransactionProvider.beginTransaction();
 
     for (final Transaction transaction : transactions) {
       this.delete(transaction);
     }
-
-    if (ownTransaction) {
-      this.databaseTransactionProvider.commitTransaction();
-    }
+    
   }
 
 }

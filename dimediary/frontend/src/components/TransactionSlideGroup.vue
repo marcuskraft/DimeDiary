@@ -11,7 +11,7 @@
           depressed
           rounded
           @click="toggle"
-      >{{ transaction.subject }}
+      >{{ transaction.subject }}: {{ transaction.amount }} €
       </v-btn>
     </v-slide-item>
   </v-slide-group>

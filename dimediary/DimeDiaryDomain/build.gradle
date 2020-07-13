@@ -14,8 +14,8 @@ dependencies {
     implementation group: 'org.dmfs', name: 'lib-recur', version: '0.11.2'
     implementation group: 'org.apache.commons', name: 'commons-lang3'
 
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'
     compileOnly 'org.projectlombok:lombok'
-    compileOnly group: 'javax.enterprise', name: 'cdi-api', version: '2.0'
 
     annotationProcessor 'org.projectlombok:lombok'
 

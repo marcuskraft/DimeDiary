@@ -1,4 +1,4 @@
-import {DateTimeFormatter, LocalDate} from '@js-joda/core';
+import {DateTimeFormatter, LocalDate, Month, ZoneId} from '@js-joda/core';
 
 export default class TimeService {
 
@@ -15,4 +15,19 @@ export default class TimeService {
     return LocalDate.from(TimeService.dateFormatter.parse(dateString));
   }
 
+  public static actualYear(): number {
+    return this.getNowDate().year();
+  }
+
+  public static getAllMonths(): Month[] {
+    return Month.values();
+  }
+
+  public static actualMonth() {
+    return this.getNowDate().month();
+  }
+
+  private static getNowDate() {
+    return LocalDate.now(ZoneId.systemDefault());
+  }
 }

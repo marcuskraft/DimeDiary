@@ -3,8 +3,15 @@
     <!-- App.vue -->
 
     <v-app>
-      <!-- Sizes your content based upon application components -->
-      <v-content>
+      <v-app-bar app>
+        Missing content
+      </v-app-bar>
+
+      <v-navigation-drawer app>
+        <overview-navigation></overview-navigation>
+      </v-navigation-drawer>
+
+      <v-content app>
         <overview-grid></overview-grid>
       </v-content>
     </v-app>
@@ -13,11 +20,13 @@
 
 <script lang="ts">
   import {Component, Vue} from "vue-property-decorator";
-  import OverviewGrid from "@/components/OverviewGrid.vue";
+  import OverviewGrid from "@/components/overview/OverviewGrid.vue";
+  import OverviewNavigation from "@/components/overview/OverviewNavigation.vue";
 
   @Component({
     components: {
-      OverviewGrid
+      OverviewGrid,
+      OverviewNavigation
     }
   })
   export default class App extends Vue {

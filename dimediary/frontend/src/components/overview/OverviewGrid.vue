@@ -1,6 +1,6 @@
 <template>
-  <v-container class="grey lighten-5">
-    <v-row class="grey lighten-5">
+  <div>
+    <v-row>
       <v-col cols="1">
         <v-label>Datum</v-label>
       </v-col>
@@ -15,7 +15,7 @@
       </v-col>
     </v-row>
 
-    <v-row class="grey lighten-5" v-for="(date,i) in dates" :key="i">
+    <v-row v-for="(date,i) in dates" :key="i">
       <v-col cols="1">
         <v-label>{{ formatDate(date) }}</v-label>
       </v-col>
@@ -29,16 +29,16 @@
         <TransactionSlideGroup :transactions-prop="transactionOfDate(date)"></TransactionSlideGroup>
       </v-col>
     </v-row>
-  </v-container>
+  </div>
 </template>
 
 <script lang="ts">
   import {Component, Vue} from "vue-property-decorator";
   import {DateTimeFormatter, LocalDate} from "@js-joda/core";
-  import TransactionModelArray from "../model/TransactionModelArray";
-  import TransactionSlideGroup from "./TransactionSlideGroup.vue";
+  import TransactionModelArray from "@/model/TransactionModelArray";
+  import TransactionSlideGroup from "@/components/overview/TransactionSlideGroup.vue";
   import TransactionStore from "@/store/modules/TransactionStore";
-  import TimeService from "../helper/TimeService";
+  import TimeService from "@/helper/TimeService";
   import {TransactionGetRequestImpl} from "@/services/TransactionService";
 
   @Component({

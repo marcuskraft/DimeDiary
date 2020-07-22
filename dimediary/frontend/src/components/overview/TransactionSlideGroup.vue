@@ -19,8 +19,8 @@
 
 <script lang="ts">
   import {Component, Prop, Vue} from "vue-property-decorator";
-  import TransactionModel from "../model/TransactionModel";
-  import TransactionModelArray from "../model/TransactionModelArray";
+  import TransactionModel from "@/model/TransactionModel";
+  import TransactionModelArray from "@/model/TransactionModelArray";
 
   @Component
   export default class TransactionSlideGroup extends Vue {

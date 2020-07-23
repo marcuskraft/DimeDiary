@@ -1,5 +1,5 @@
 <template>
-  <v-slide-group multiple show-arrows>
+  <v-slide-group multiple show-arrows v-if="transactions.length > 0">
     <v-slide-item
         v-for="(transaction,n) in transactions"
         :key="n"
@@ -20,22 +20,16 @@
 <script lang="ts">
   import {Component, Prop, Vue} from "vue-property-decorator";
   import TransactionModel from "@/model/TransactionModel";
-  import TransactionModelArray from "@/model/TransactionModelArray";
+  import DayTransactions from "@/model/DayTransactions";
 
   @Component
   export default class TransactionSlideGroup extends Vue {
-    @Prop({type: TransactionModelArray})
-    transactionsProp!: TransactionModelArray;
+    @Prop({type: DayTransactions})
+    transactionsProp!: DayTransactions;
 
-    transactionArray: TransactionModelArray;
 
-    constructor() {
-      super();
-      this.transactionArray = this.transactionsProp;
-    }
-
-    public get transactions(): TransactionModel[] {
-      return this.transactionArray.transactions;
+    get transactions(): TransactionModel[] {
+      return this.transactionsProp.transactions;
     }
   }
 </script>

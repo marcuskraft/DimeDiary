@@ -30,4 +30,16 @@ export default class TimeService {
   private static getNowDate() {
     return LocalDate.now(ZoneId.systemDefault());
   }
+
+  public static getDatesFor(year: number, month: Month): LocalDate[] {
+    let localDates: LocalDate[] = [];
+
+    let localDate: LocalDate = LocalDate.of(year, month, 1);
+    while (localDate.month() == month) {
+      localDates.push(localDate);
+      localDate = localDate.plusDays(1);
+    }
+
+    return localDates;
+  }
 }

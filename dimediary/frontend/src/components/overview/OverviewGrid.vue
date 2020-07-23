@@ -35,11 +35,9 @@
 <script lang="ts">
   import {Component, Vue} from "vue-property-decorator";
   import {DateTimeFormatter, LocalDate} from "@js-joda/core";
-  import TransactionModelArray from "@/model/TransactionModelArray";
   import TransactionSlideGroup from "@/components/overview/TransactionSlideGroup.vue";
   import TransactionStore from "@/store/modules/TransactionStore";
-  import TimeService from "@/helper/TimeService";
-  import {TransactionGetRequestImpl} from "@/services/TransactionService";
+  import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
 
   @Component({
     components: {
@@ -47,7 +45,9 @@
     }
   })
   export default class OverviewGrid extends Vue {
-    private dates: LocalDate[];
+
+    //@Prop({type: DayTransactionsArray, required: true}) dayTransactionsArray!: DayTransactionsArray;
+
 
     private balanceMap: Map<string, number>;
 
@@ -58,26 +58,30 @@
     constructor() {
       super();
 
-      let transactionMap: Map<string, TransactionModelArray> = new Map();
-
-      this.dates = [];
       this.balanceMap = new Map();
-      for (let i = 1; i <= 31; i++) {
-        let date: LocalDate = LocalDate.of(2020, 1, i);
-        this.dates.push(date);
-        this.balanceMap.set(date.format(this.dateFormatter), i);
-        let transactionList: TransactionModelArray = new TransactionModelArray(
-            []
-        );
 
-        transactionMap.set(
-            TimeService.formatLocalDateRest(date),
-            transactionList
-        );
-      }
-      TransactionStore.initializeTransactionsMap(transactionMap);
-      let transactionGetRequest: TransactionGetRequestImpl = new TransactionGetRequestImpl("01.01.2020", "31.01.2020");
-      TransactionStore.loadTransactions(transactionGetRequest);
+      let i: number = 0;
+      this.dates.forEach(date => {
+        this.balanceMap.set(date.format(this.dateFormatter), ++i);
+      });
+
+
+    }
+
+    get dates(): LocalDate[] {
+      return this.dayTransactionsArray.dayTransactions.map(value => value.date).sort((a: LocalDate, b: LocalDate) => {
+        return a.compareTo(b);
+      })
+    }
+
+    get dayTransactionsArray(): DayTransactionsArray {
+      return TransactionStore.transactions;
+    }
+
+    get key(): number {
+      let sum: number = 0;
+      this.dayTransactionsArray.dayTransactions.map(value => value.transactions.length).forEach(value => sum + value);
+      return sum;
     }
 
     formatDate(date: LocalDate): string {
@@ -92,15 +96,13 @@
       return this.balanceMap.get(date.format(this.dateFormatter));
     }
 
-    transactionOfDate(date: LocalDate): TransactionModelArray {
-      let dateString: string = TimeService.formatLocalDateRest(date);
-      if (!TransactionStore.transactionMap.has(dateString)) {
-        TransactionStore.addTransactionPair([
-          dateString,
-          new TransactionModelArray([])
-        ]);
+    transactionOfDate(date: LocalDate): DayTransactions {
+      let dayTransactions: DayTransactions | undefined = this.dayTransactionsArray.getDayTransaction(date);
+      if (dayTransactions == undefined) {
+        dayTransactions = new DayTransactions(date, []);
+        TransactionStore.addDayTransaction(dayTransactions);
       }
-      return TransactionStore.transactionMap.get(dateString)!;
+      return dayTransactions;
     }
   }
 </script>

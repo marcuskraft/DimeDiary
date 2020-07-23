@@ -3,8 +3,7 @@ import store from '@/store'
 import TransactionModel from '@/model/TransactionModel';
 import {TransactionTransformer} from '@/services/transformer/TransactionTransformer';
 import {TransactionGetRequestImpl, TransactionService} from '@/services/TransactionService';
-import TransactionModelArray from '@/model/TransactionModelArray';
-import TimeService from '@/helper/TimeService';
+import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
 
 
 @Module({
@@ -16,62 +15,52 @@ import TimeService from '@/helper/TimeService';
 export class TransactionStore extends VuexModule {
 
 
-  private _transactionMap: Map<string, TransactionModelArray> = new Map<string, TransactionModelArray>();
+  private _transactions: DayTransactionsArray = new DayTransactionsArray([]);
 
-  public get transactionMap(): Map<string, TransactionModelArray> {
-    return this._transactionMap;
+
+  public get transactions(): DayTransactionsArray {
+    return this._transactions;
   }
 
   @Mutation
-  addTransactionToMap(transaction: TransactionModel) {
+  addTransaction(transaction: TransactionModel) {
     if (transaction.date == undefined) {
       console.error("date must not be null");
       throw console.error("date must not be null");
     }
 
-    if (!this._transactionMap.has(TimeService.formatLocalDateRest(transaction.date))) {
-      this._transactionMap.set(TimeService.formatLocalDateRest(transaction.date), new TransactionModelArray([]));
+    let dayTransactions = this._transactions.getDayTransaction(transaction.date);
+    if (dayTransactions == undefined) {
+      dayTransactions = new DayTransactions(transaction.date, []);
+      this._transactions.addDayTransactions(dayTransactions);
     }
-
-    this._transactionMap.get(TimeService.formatLocalDateRest(transaction.date))!.addTransaction(transaction);
+    dayTransactions.push(transaction);
   }
 
   @Mutation
-  setTransactionMap(transactionMap: Map<string, TransactionModelArray>) {
-    this._transactionMap = transactionMap;
+  addDayTransaction(dayTransactions: DayTransactions) {
+    this._transactions.addDayTransactions(dayTransactions);
   }
 
-  @Mutation
-  addTransactionPair(transactionPair: [string, TransactionModelArray]) {
-    if (!this._transactionMap.has(transactionPair[0])) {
-      this._transactionMap.set(transactionPair[0], transactionPair[1]);
-    }
-  }
-
-  @Mutation
-  clearTransactionMap() {
-    this._transactionMap.clear();
-  }
 
   @Action
   loadTransactions(transactionGetRequest: TransactionGetRequestImpl) {
     let transactionsService: TransactionService = new TransactionService();
     transactionsService.getTransactions(transactionGetRequest).then((transactionArray) => {
+      this.clearTransactions();
       if (transactionArray.transactions != undefined) {
         transactionArray.transactions!.forEach(transaction => {
-          this.addTransactionToMap(TransactionTransformer.from(transaction));
+          this.addTransaction(TransactionTransformer.from(transaction));
         })
       }
     })
   }
 
-
-  @Action
-  initializeTransactionsMap(transactionMap: Map<string, TransactionModelArray>) {
-    this.clearTransactionMap();
-    this.setTransactionMap(transactionMap);
+  @Mutation
+  private clearTransactions() {
+    this._transactions.clear();
+    this._transactions = new DayTransactionsArray([]);
   }
-
 }
 
 export default getModule(TransactionStore);

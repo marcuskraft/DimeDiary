@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-container fluid>
+    <v-container style="height: 80px" fluid>
       <v-row justify="center">
         <v-col cols="1">
           <v-text-field
@@ -17,7 +17,6 @@
         </v-col>
       </v-row>
     </v-container>
-
     <overview-grid></overview-grid>
   </div>
 </template>

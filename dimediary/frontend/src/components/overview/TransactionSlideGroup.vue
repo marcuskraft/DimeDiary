@@ -5,14 +5,8 @@
         :key="n"
         v-slot:default="{ active, toggle }"
     >
-      <v-btn
-          :input-value="active"
-          active-class="purple white--text"
-          depressed
-          rounded
-          @click="toggle"
-      >{{ transaction.subject }}: {{ transaction.amount }} €
-      </v-btn>
+      <v-chip>{{ transaction.subject }}: {{ transaction.amount }} €
+      </v-chip>
     </v-slide-item>
   </v-slide-group>
 </template>

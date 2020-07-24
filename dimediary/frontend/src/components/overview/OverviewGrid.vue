@@ -26,7 +26,7 @@
         <v-col cols="1">
           <v-label>{{ balanceOfDate(date) }}</v-label>
         </v-col>
-        <v-col cols="9">
+        <v-col cols="9" style="padding: 3px">
           <TransactionSlideGroup
               :transactions-prop="transactionOfDate(date)"></TransactionSlideGroup>
         </v-col>
@@ -102,4 +102,13 @@
 </script>
 
 <style scoped>
+  .row {
+    height: 40px;
+    border: 1px dotted dimgray;
+  }
+
+  .col {
+    border-right: 1px dotted dimgray;;
+  }
+
 </style>

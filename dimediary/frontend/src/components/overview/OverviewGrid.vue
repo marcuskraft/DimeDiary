@@ -1,34 +1,37 @@
 <template>
   <div>
-    <v-row>
-      <v-col cols="1">
-        <v-label>Datum</v-label>
-      </v-col>
-      <v-col cols="1">
-        <v-label>Wochentag</v-label>
-      </v-col>
-      <v-col cols="1">
-        <v-label>Kontostand</v-label>
-      </v-col>
-      <v-col cols="9">
-        <v-label>Transaktionen</v-label>
-      </v-col>
-    </v-row>
+    <v-container fluid>
+      <v-row>
+        <v-col cols="1">
+          <v-label>Datum</v-label>
+        </v-col>
+        <v-col cols="1">
+          <v-label>Wochentag</v-label>
+        </v-col>
+        <v-col cols="1">
+          <v-label>Kontostand</v-label>
+        </v-col>
+        <v-col cols="9">
+          <v-label>Transaktionen</v-label>
+        </v-col>
+      </v-row>
 
-    <v-row v-for="(date,i) in dates" :key="i">
-      <v-col cols="1">
-        <v-label>{{ formatDate(date) }}</v-label>
-      </v-col>
-      <v-col cols="1">
-        <v-label>{{ dayOfWeek(date) }}</v-label>
-      </v-col>
-      <v-col cols="1">
-        <v-label>{{ balanceOfDate(date) }}</v-label>
-      </v-col>
-      <v-col cols="9">
-        <TransactionSlideGroup :transactions-prop="transactionOfDate(date)"></TransactionSlideGroup>
-      </v-col>
-    </v-row>
+      <v-row v-for="(date,i) in dates" :key="i">
+        <v-col cols="1">
+          <v-label>{{ formatDate(date) }}</v-label>
+        </v-col>
+        <v-col cols="1">
+          <v-label>{{ dayOfWeek(date) }}</v-label>
+        </v-col>
+        <v-col cols="1">
+          <v-label>{{ balanceOfDate(date) }}</v-label>
+        </v-col>
+        <v-col cols="9">
+          <TransactionSlideGroup
+              :transactions-prop="transactionOfDate(date)"></TransactionSlideGroup>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -38,6 +41,8 @@
   import TransactionSlideGroup from "@/components/overview/TransactionSlideGroup.vue";
   import TransactionStore from "@/store/modules/TransactionStore";
   import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
+  import TimeService from "@/helper/TimeService";
+  import OverviewNavigationStore from "@/store/modules/OverviewNavigationStore";
 
   @Component({
     components: {
@@ -45,9 +50,6 @@
     }
   })
   export default class OverviewGrid extends Vue {
-
-    //@Prop({type: DayTransactionsArray, required: true}) dayTransactionsArray!: DayTransactionsArray;
-
 
     private balanceMap: Map<string, number>;
 
@@ -69,19 +71,11 @@
     }
 
     get dates(): LocalDate[] {
-      return this.dayTransactionsArray.dayTransactions.map(value => value.date).sort((a: LocalDate, b: LocalDate) => {
-        return a.compareTo(b);
-      })
+      return TimeService.getDatesFor(OverviewNavigationStore.year, OverviewNavigationStore.month)
     }
 
     get dayTransactionsArray(): DayTransactionsArray {
       return TransactionStore.transactions;
-    }
-
-    get key(): number {
-      let sum: number = 0;
-      this.dayTransactionsArray.dayTransactions.map(value => value.transactions.length).forEach(value => sum + value);
-      return sum;
     }
 
     formatDate(date: LocalDate): string {

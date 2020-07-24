@@ -1,29 +1,24 @@
 <template>
   <div>
-    <v-list dense nav>
-      <v-list-item>
-        <v-text-field
-            label="Jahr"
-            v-model.number="year"
-            type="number"
-        ></v-text-field>
-      </v-list-item>
-      <v-list-item>
-        <v-select
-            label="Monat"
-            :items="allMonths"
-            v-model="month"
-        >
-        </v-select>
-      </v-list-item>
-      <v-list-item>
-        <v-btn @click="fetchTransactions">
-          Laden
-        </v-btn>
-      </v-list-item>
-    </v-list>
+    <v-container fluid>
+      <v-row justify="center">
+        <v-col cols="1">
+          <v-text-field
+              label="Jahr"
+              v-model.number="year"
+              type="number"/>
+        </v-col>
+        <v-col cols="1">
+          <v-select
+              clear-icon="text-capitalize"
+              label="Monat"
+              :items="allMonths"
+              v-model="month"/>
+        </v-col>
+      </v-row>
+    </v-container>
 
-
+    <overview-grid></overview-grid>
   </div>
 </template>
 
@@ -34,14 +29,16 @@
   import {TransactionGetRequestImpl} from "@/services/TransactionService";
   import TransactionStore from "@/store/modules/TransactionStore";
   import {DateTimeFormatter, LocalDate, Month} from "@js-joda/core";
+  import OverviewGrid from "@/components/overview/OverviewGrid.vue";
 
-  @Component
-  export default class OverviewNavigation extends Vue {
+  @Component({
+    components: {OverviewGrid}
+  })
+  export default class Overview extends Vue {
 
     private dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(
         "dd.MM.yyyy"
     );
-
 
     get year(): number {
       return OverviewNavigationStore.year;
@@ -82,6 +79,9 @@
       return this.dates[this.dates.length - 1].format(this.dateFormatter);
     }
 
+    created() {
+      this.fetchTransactions();
+    }
 
   }
 </script>

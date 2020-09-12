@@ -1,10 +1,10 @@
 openapi: "3.0.0"
 info:
-  version: 0.0.1
-  title: Template API
-  description: A simple API to post and receive likes
+  version: 1.0.0
+  title: DimeDiary API
+  description: REST API for DimeDiary
 paths:
-  /transaction:
+  /transactions:
     get:
       summary: load transactions
       description: load transactions
@@ -15,85 +15,518 @@ paths:
           name: dateFrom
           schema:
             type: string
+            format: date
           required: true
-          description: Load transactions from this date on in format dd.MM.yyyy
+          description: Load transactions from this date on
         - in: query
           name: dateUntil
           schema:
             type: string
+            format: date
           required: true
-          description: Load transactions until this date in format dd.MM.yyyy
+          description: Load transactions until this date
       responses:
         "200":
           description: get all transactions
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Transactions'
-  /bankaccount:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaction'
+    post:
+      summary: save new transaction
+      description: save new transaction
+      tags:
+        - Transaction
+      requestBody:
+        description: the transaction to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "201":
+          description: transaction saved succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+  /transactions/{transactionId}:
+    put:
+      summary: update transaction
+      description: update transaction
+      tags:
+        - Transaction
+      parameters:
+        - in: path
+          name: transactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the transaction to update
+      requestBody:
+        description: the transaction to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Transaction'
+      responses:
+        "204":
+          description: transaction succesfully updated
+    delete:
+      summary: delete transaction
+      description: delete transaction
+      tags:
+        - Transaction
+      parameters:
+        - in: path
+          name: transactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the transaction to delete
+      responses:
+        "204":
+          description: transaction succesfully deleted
+  /continuousTransactions:
+    post:
+      summary: save new continuous transaction
+      description: save new continuous transaction
+      tags:
+        - ContinuousTransaction
+      requestBody:
+        description: the continuous transaction to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContinuousTransaction'
+      responses:
+        "201":
+          description: continuous transaction saved succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContinuousTransaction'
+  /continuousTransactions/{continuousTransactionId}:
+    get:
+      summary: load continuous transactions
+      description: load continuous transactions
+      tags:
+        - ContinuousTransaction
+      parameters:
+        - in: path
+          name: continuousTransactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the continuous transaction to get
+      responses:
+        "200":
+          description: get continuous transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContinuousTransaction'
+    put:
+      summary: update continuous transaction
+      description: update continuous transaction
+      tags:
+        - ContinuousTransaction
+      parameters:
+        - in: path
+          name: continuousTransactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the continuous transaction to update
+      requestBody:
+        description: the continuous transaction to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContinuousTransaction'
+      responses:
+        "204":
+          description: continuous transaction succesfully updated
+    delete:
+      summary: delete continuous transaction
+      description: delete continuous transaction
+      tags:
+        - ContinuousTransaction
+      parameters:
+        - in: path
+          name: continuousTransactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the continuous transaction to delete
+      responses:
+        "204":
+          description: continuous transaction succesfully deleted
+  /categories:
+    get:
+      summary: get all categories
+      description: get all categories
+      tags:
+        - Category
+      responses:
+        "200":
+          description: get all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+    post:
+      summary: saves a new category
+      description: saves a  category
+      tags:
+        - Category
+      requestBody:
+        description: category to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankAccount'
+      responses:
+        "201":
+          description: category succesfully saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankAccount'
+  /categories/{categoryId}:
+    put:
+      summary: update bank category
+      description: update category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the category to update
+      requestBody:
+        description: category to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankAccount'
+      responses:
+        "204":
+          description: category succesfully updated
+    delete:
+      summary: delete category
+      description: delete category
+      tags:
+        - Category
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the category to delete
+      responses:
+        "204":
+          description: category succesfully deleted
+  /bankAccountCategories:
+    get:
+      summary: get all bank account categories
+      description: get all bank account categories
+      tags:
+        - BankAccountCategory
+      responses:
+        "200":
+          description: get all bank account categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+    post:
+      summary: saves a new bank account category
+      description: saves a new bank account category
+      tags:
+        - BankAccountCategory
+      requestBody:
+        description: bank account category to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankAccount'
+      responses:
+        "201":
+          description: bank account category succesfully saved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankAccount'
+  /bankAccountCategories/{bankAccountCategoryId}:
+    put:
+      summary: update bank account category
+      description: update bank account category
+      tags:
+        - BankAccountCategory
+      parameters:
+        - in: path
+          name: bankAccountCategoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bank account category to update
+      requestBody:
+        description: bank account category to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankAccount'
+      responses:
+        "204":
+          description: bank account category succesfully updated
+    delete:
+      summary: delete bank account category
+      description: delete bank account category
+      tags:
+        - BankAccountCategory
+      parameters:
+        - in: path
+          name: bankAccountCategoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bank account category to delete
+      responses:
+        "204":
+          description: bank account category succesfully deleted
+  /bankAccounts:
     get:
       summary: get all bankaccounts
       description: get all bankaccounts
       tags:
-        - Bankaccount
+        - BankAccount
       responses:
         "200":
           description: get all bankaccounts
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BankaccountNames'
+                type: array
+                items:
+                  type: string
     post:
-      summary: saves a bankaccount
-      description: saves a bankaccount
+      summary: saves a new bankaccount
+      description: saves a  newbankaccount
       tags:
-        - Bankaccount
+        - BankAccount
       requestBody:
         description: bankaccount to save
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Bankaccount'
+              $ref: '#/components/schemas/BankAccount'
       responses:
-        "200":
+        "201":
           description: bankaccount succesfully saved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Bankaccount'
+                $ref: '#/components/schemas/BankAccount'
+  /bankAccount/{bankAccountId}:
+    put:
+      summary: update bank account
+      description: update bankaccount
+      tags:
+        - BankAccount
+      parameters:
+        - in: path
+          name: bankAccountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bank account to update
+      requestBody:
+        description: bankaccount to save
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankAccount'
+      responses:
+        "204":
+          description: bank account succesfully updated
+    delete:
+      summary: delete bank account
+      description: delete bank account
+      tags:
+        - BankAccount
+      parameters:
+        - in: path
+          name: bankAccountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bank account to delete
+      responses:
+        "204":
+          description: bank account succesfully deleted
+  /balances:
+    get:
+      summary: get balance
+      description: get balance for date range and bank account
+      tags:
+        - Balance
+      parameters:
+        - in: query
+          name: bankAccountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bankaccount to request the balance for
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date
+          required: true
+          description: first date to receive the balance
+        - in: query
+          name: dateUntil
+          schema:
+            type: string
+            format: date
+          required: true
+          description: end date to receive the balance
+      responses:
+        "200":
+          description: get all balances for the given bankaccount between the dateFrom and dateUntil
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BalanceHistory'
+    post:
+      summary: recalculate balance histories
+      description: recalculate balance histories for given bank account
+      tags:
+        - Balance
+      parameters:
+        - in: query
+          name: bankAccountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bankaccount for which the balances should be recalculated
+      responses:
+        "204":
+          description: balances succesfully recalculated
 components:
   schemas:
     Transaction:
       properties:
         id:
           type: integer
+          format: uuid
+        timestamp:
+          type: string
+          format: 'date-time'
         subject:
           type: string
         amount:
-          type: float
+          type: number
+          format: float
         date:
           type: string
-    Transactions:
+          format: date
+        bankAccount:
+          $ref: '#/components/schemas/BankAccount'
+        category:
+          $ref: '#/components/schemas/Category'
+        continuousTransaction:
+          $ref: '#/components/schemas/ContinuousTransaction'
+        fixCost:
+          type: boolean
+    ContinuousTransaction:
       properties:
-        transactions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Transaction'
-    Bankaccount:
+        id:
+          type: number
+          format: uuid
+        name:
+          type: string
+        amount:
+          type: number
+          format: float
+        dateBegin:
+          type: string
+          format: date
+        bankAccount:
+          $ref: '#/components/schemas/BankAccount'
+        category:
+          $ref: '#/components/schemas/Category'
+        recurrenceRule:
+          type: string
+        fixCost:
+          type: boolean
+    BankAccount:
       properties:
         id:
           type: integer
+          format: uuid
         name:
           type: string
-    Bankaccounts:
+        bankName:
+          type: string
+        iban:
+          type: string
+          format: iban
+        bic:
+          type: string
+          format: bic
+        bankAccountCategory:
+          $ref: '#/components/schemas/BankAccountCategory'
+        dateStartBalance:
+          type: string
+          format: date
+        startBalance:
+          type: number
+          format: float
+    BankAccountCategory:
       properties:
-        bankaccounts:
-          type: array
-          items:
-            $ref: '#/components/schemas/Bankaccount'
-    BankaccountNames:
+        name:
+          type: string
+        isRealAccount:
+          type: boolean
+    Category:
       properties:
-        bankaccountNames:
-          type: array
-          items:
-            type: string
+        name:
+          type: string
+        fixCost:
+          type: boolean
+    BalanceHistory:
+      properties:
+        bankAccount:
+          $ref: '#/components/schemas/BankAccount'
+        date:
+          type: string
+          format: date
+        balance:
+          type: number
+          format: float

@@ -18,6 +18,9 @@ public interface TransactionProvider {
   List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
       BankAccount bankAccount);
 
+  List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
+      String bankAccountName);
+
   /**
    * @param bankAccount
    * @return list of all transactions of the given bank account
@@ -62,9 +65,11 @@ public interface TransactionProvider {
    */
   List<Transaction> getTrandactionsWithoutAccount(LocalDate date);
 
-  void persistTransaction(Transaction transaction);
+  Transaction persistTransaction(Transaction transaction);
 
   void persistTransactions(List<Transaction> transactions);
+
+  void delete(Integer transactionId);
 
   void delete(Transaction transaction);
 

@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface TransactionRepo {
 
+  Transaction getTransaction(Integer transactionId);
+
   List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
       BankAccount bankAccount);
 
@@ -27,7 +29,7 @@ public interface TransactionRepo {
 
   List<Transaction> getTrandactionsWithoutAccount(LocalDate date);
 
-  void persistTransaction(final Transaction transaction);
+  Transaction persistTransaction(final Transaction transaction);
 
   void persistTransactions(final List<Transaction> transactions);
 

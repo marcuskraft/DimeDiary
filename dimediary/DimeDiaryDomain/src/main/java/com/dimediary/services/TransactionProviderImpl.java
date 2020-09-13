@@ -5,6 +5,7 @@ import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import com.dimediary.port.in.AccountBalanceProvider;
 import com.dimediary.port.in.TransactionProvider;
+import com.dimediary.port.out.BankAccountRepo;
 import com.dimediary.port.out.TransactionRepo;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,16 +20,17 @@ public class TransactionProviderImpl implements TransactionProvider {
 
 
   private final AccountBalanceProvider accountBalanceProvider;
-
-
   private final TransactionRepo transactionService;
+  private final BankAccountRepo bankaccountRepo;
 
 
   @Autowired
   public TransactionProviderImpl(final AccountBalanceProvider accountBalanceProvider,
-      final TransactionRepo transactionService) {
+      final TransactionRepo transactionService,
+      final BankAccountRepo bankaccountRepo) {
     this.accountBalanceProvider = accountBalanceProvider;
     this.transactionService = transactionService;
+    this.bankaccountRepo = bankaccountRepo;
   }
 
   /**
@@ -46,6 +48,13 @@ public class TransactionProviderImpl implements TransactionProvider {
     Validate.notNull(bankAccount);
 
     return this.transactionService.getTransactions(dateFrom, dateUntil, bankAccount);
+  }
+
+  @Override
+  public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
+      final String bankAccountName) {
+    final BankAccount bankAccount = this.bankaccountRepo.getBankAccount(bankAccountName);
+    return this.getTransactions(dateFrom, dateUntil, bankAccount);
   }
 
   /**
@@ -134,16 +143,17 @@ public class TransactionProviderImpl implements TransactionProvider {
   }
 
   @Override
-  public void persistTransaction(final Transaction transaction) {
+  public Transaction persistTransaction(final Transaction transaction) {
     Validate.notNull(transaction, "Transaction must not be null");
 
     this.log.info("persist transaction: " + transaction.getId());
 
-    this.transactionService.persistTransaction(transaction);
+    final Transaction persistedTransaction = this.transactionService
+        .persistTransaction(transaction);
     this.accountBalanceProvider
-        .updateBalance(transaction, AccountBalanceProvider.BalanceAction.adding);
+        .updateBalance(persistedTransaction, AccountBalanceProvider.BalanceAction.adding);
 
-
+    return persistedTransaction;
   }
 
   @Override
@@ -160,15 +170,21 @@ public class TransactionProviderImpl implements TransactionProvider {
   }
 
   @Override
+  public void delete(final Integer transactionId) {
+
+    this.log.info("delete Transaction: " + transactionId);
+
+    final Transaction transaction = this.transactionService.getTransaction(transactionId);
+
+    this.delete(transaction);
+
+  }
+
+  @Override
   public void delete(final Transaction transaction) {
-    Validate.notNull(transaction);
-
-    this.log.info("delete Transaction: " + transaction.getId());
-
     this.accountBalanceProvider
         .updateBalance(transaction, AccountBalanceProvider.BalanceAction.deleting);
     this.transactionService.delete(transaction);
-
   }
 
   @Override
@@ -182,7 +198,7 @@ public class TransactionProviderImpl implements TransactionProvider {
     for (final Transaction transaction : transactions) {
       this.delete(transaction);
     }
-    
+
   }
 
 }

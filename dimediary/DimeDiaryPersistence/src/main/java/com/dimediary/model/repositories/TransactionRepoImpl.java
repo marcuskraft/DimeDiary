@@ -4,6 +4,7 @@ import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import com.dimediary.model.converter.TransactionTransformer;
+import com.dimediary.model.entities.TransactionEntity;
 import com.dimediary.port.out.TransactionRepo;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -31,6 +32,13 @@ public class TransactionRepoImpl implements TransactionRepo {
     this.transactionTransformer = transactionTransformer;
   }
 
+
+  @Override
+  public Transaction getTransaction(final Integer transactionId) {
+    final TransactionEntity transactionEntity = this.entityManager
+        .find(TransactionEntity.class, transactionId);
+    return this.transactionTransformer.transactionEntityToTransaction(transactionEntity);
+  }
 
   @Override
   public java.util.List<Transaction> getTransactions(final java.time.LocalDate dateFrom,
@@ -200,23 +208,23 @@ public class TransactionRepoImpl implements TransactionRepo {
   }
 
   @Override
-  public void persistTransaction(final Transaction transaction) {
+  public Transaction persistTransaction(final Transaction transaction) {
     Validate.notNull(transaction, "Transaction must not be null");
     com.dimediary.model.repositories.TransactionRepoImpl.log
         .info("persist transaction: " + transaction.getId());
 
     try {
 
-      final com.dimediary.model.entities.TransactionEntity transactionEntityToSave = this
+      com.dimediary.model.entities.TransactionEntity transactionEntityToSave = this
           .domainToEntity(transaction);
       if (this.findTransaction(transaction) == null) {
         this.entityManager.persist(transactionEntityToSave);
         this.entityManager.refresh(transactionEntityToSave);
       } else {
-        this.entityManager.merge(transactionEntityToSave);
+        transactionEntityToSave = this.entityManager.merge(transactionEntityToSave);
       }
 
-      transaction.setId(transactionEntityToSave.getId());
+      return this.transactionTransformer.transactionEntityToTransaction(transactionEntityToSave);
 
 
     } catch (final Exception e) {

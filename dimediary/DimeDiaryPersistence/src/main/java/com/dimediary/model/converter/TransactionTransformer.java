@@ -19,7 +19,7 @@ public interface TransactionTransformer {
   @Mapping(source = "continuousTransactionEntity", target = "continuousTransaction")
   @Mapping(source = "categoryEntity", target = "category")
   @Mapping(source = "transaction.amount", target = "amount")
-  @Mapping(source = "transaction.timestamp", target = "timestamp")
+  @Mapping(ignore = true, target = "timestamp")
   @Mapping(source = "transaction.id", target = "id")
   @Mapping(source = "transaction.name", target = "name")
   @Mapping(source = "transaction.fixCost", target = "fixCost")

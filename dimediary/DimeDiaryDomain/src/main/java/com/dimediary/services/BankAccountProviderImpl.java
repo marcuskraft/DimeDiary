@@ -3,7 +3,7 @@ package com.dimediary.services;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.port.in.AccountBalanceProvider;
 import com.dimediary.port.in.BankAccountProvider;
-import com.dimediary.port.out.BankaccountRepo;
+import com.dimediary.port.out.BankAccountRepo;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Service;
 public class BankAccountProviderImpl implements BankAccountProvider {
 
 
-  private final BankaccountRepo bankAccountRepo;
+  private final BankAccountRepo bankAccountRepo;
 
 
   private final AccountBalanceProvider accountBalanceProvider;
 
   @Autowired
-  public BankAccountProviderImpl(final BankaccountRepo bankAccountRepo,
+  public BankAccountProviderImpl(final BankAccountRepo bankAccountRepo,
       final AccountBalanceProvider accountBalanceProvider) {
     this.bankAccountRepo = bankAccountRepo;
     this.accountBalanceProvider = accountBalanceProvider;

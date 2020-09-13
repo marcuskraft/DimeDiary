@@ -5,8 +5,7 @@ import com.dimediary.domain.BankAccountCategory;
 import com.dimediary.model.converter.BankaccountTransformer;
 import com.dimediary.model.entities.BankAccountEntity;
 import com.dimediary.model.repositories.cruds.BankAccountCrudRepository;
-import com.dimediary.port.out.BankaccountRepo;
-import java.util.UUID;
+import com.dimediary.port.out.BankAccountRepo;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @Transactional
-class BankaccountRepoImpl implements BankaccountRepo {
+class BankAccountRepoImpl implements BankAccountRepo {
 
 
   @PersistenceContext
@@ -28,7 +27,7 @@ class BankaccountRepoImpl implements BankaccountRepo {
   private final BankAccountCrudRepository bankAccountCrudRepository;
 
   @Autowired
-  public BankaccountRepoImpl(final EntityManager entityManager,
+  public BankAccountRepoImpl(final EntityManager entityManager,
       final BankaccountTransformer bankaccountTransformer,
       final BankAccountCrudRepository bankAccountCrudRepository) {
     this.entityManager = entityManager;
@@ -64,10 +63,6 @@ class BankaccountRepoImpl implements BankaccountRepo {
     return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccount);
   }
 
-  @Override
-  public BankAccount getBankAccount(final UUID bankAccountId) {
-    return null;
-  }
 
   @Override
   public java.util.List<BankAccount> getBankAccounts(
@@ -136,7 +131,7 @@ class BankaccountRepoImpl implements BankaccountRepo {
     if (bankAccount == null) {
       return null;
     }
-    BankaccountRepoImpl.log.info("persist BankAccount: " + bankAccount.getName());
+    BankAccountRepoImpl.log.info("persist BankAccount: " + bankAccount.getName());
     try {
 
       com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.bankaccountTransformer
@@ -144,6 +139,7 @@ class BankaccountRepoImpl implements BankaccountRepo {
 
       if (this.findEntity(bankAccount) == null) {
         this.entityManager.persist(bankAccountEntity);
+        this.entityManager.refresh(bankAccountEntity);
       } else {
         bankAccountEntity = this.entityManager.merge(bankAccountEntity);
       }
@@ -151,7 +147,7 @@ class BankaccountRepoImpl implements BankaccountRepo {
       return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccountEntity);
 
     } catch (final Exception e) {
-      BankaccountRepoImpl.log.error("can't persist bankaccount", e);
+      BankAccountRepoImpl.log.error("can't persist bankaccount", e);
       throw e;
     }
   }

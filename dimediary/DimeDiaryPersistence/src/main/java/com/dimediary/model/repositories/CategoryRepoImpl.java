@@ -43,7 +43,7 @@ class CategoryRepoImpl implements CategoryRepo {
   }
 
   @Override
-  public java.util.List<Category> getCategories(final java.util.ArrayList<String> categoryNames) {
+  public java.util.List<Category> getCategories(final List<String> categoryNames) {
     Validate.notNull(categoryNames);
     Validate.notEmpty(categoryNames);
 
@@ -71,22 +71,24 @@ class CategoryRepoImpl implements CategoryRepo {
   }
 
   @Override
-  public void persist(final Category category) {
+  public Category persist(final Category category) {
     if (category == null) {
-      return;
+      return null;
     }
     com.dimediary.model.repositories.CategoryRepoImpl.log
         .info("persist Category: " + category.getName());
 
-    final com.dimediary.model.entities.CategoryEntity categoryEntity = this.categoryTransformer
+    com.dimediary.model.entities.CategoryEntity categoryEntity = this.categoryTransformer
         .categoryToCategoryEntity(category);
 
     if (this.findEntity(category) != null) {
-      this.entityManager.merge(categoryEntity);
+      categoryEntity = this.entityManager.merge(categoryEntity);
+
     } else {
       this.entityManager.persist(categoryEntity);
     }
 
+    return this.categoryTransformer.categoryEntityToCategory(categoryEntity);
 
   }
 
@@ -120,13 +122,24 @@ class CategoryRepoImpl implements CategoryRepo {
 
   }
 
+  @Override
+  public void delete(final String categoryName) {
+    this.delete(this.getCategory(categoryName));
+  }
+
+  @Override
+  public List<Category> getCategories() {
+    final List<String> categoryNames = this.getCategoryNames();
+    return this.getCategories(categoryNames);
+  }
+
   private Category entityToDomain(final CategoryEntity categoryEntity) {
     return this.categoryTransformer.categoryEntityToCategory(categoryEntity);
   }
 
   private List<Category> entitiesToDomains(
       final List<CategoryEntity> categoryEntities) {
-    return categoryEntities.stream().map((categoryEntity) -> this.entityToDomain(categoryEntity))
+    return categoryEntities.stream().map(this::entityToDomain)
         .collect(Collectors.toList());
   }
 

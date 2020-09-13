@@ -17,10 +17,14 @@ public interface CategoryProvider {
 
   List<Category> getCategories(ArrayList<String> categoryNames);
 
+  List<Category> getCategories();
+
   List<String> getCategoryNames();
 
-  void persist(Category category);
+  Category persist(Category category);
 
   void deleteCategories(List<Category> categories);
+
+  void deleteCategory(String categoryName);
 
 }

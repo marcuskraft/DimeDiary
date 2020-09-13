@@ -78,18 +78,28 @@ public class CategoryProviderImpl implements CategoryProvider {
   }
 
   @Override
+  public List<Category> getCategories() {
+    return this.categoryService.getCategories();
+  }
+
+  @Override
   public List<String> getCategoryNames() {
     return this.categoryService.getCategoryNames();
   }
 
   @Override
-  public void persist(final Category category) {
-    this.categoryService.persist(category);
+  public Category persist(final Category category) {
+    return this.categoryService.persist(category);
   }
 
   @Override
   public void deleteCategories(final List<Category> categories) {
     this.categoryService.deleteCategories(categories);
+  }
+
+  @Override
+  public void deleteCategory(final String categoryName) {
+    this.categoryService.delete(categoryName);
   }
 
 }

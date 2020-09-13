@@ -210,15 +210,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankAccount'
+              $ref: '#/components/schemas/Category'
       responses:
         "201":
           description: category succesfully saved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BankAccount'
-  /categories/{categoryId}:
+                $ref: '#/components/schemas/Category'
+  /categories/{categoryName}:
     put:
       summary: update bank category
       description: update category
@@ -227,10 +227,9 @@ paths:
         - Category
       parameters:
         - in: path
-          name: categoryId
+          name: categoryName
           schema:
-            type: integer
-            format: int32
+            type: string
           required: true
           description: id of the category to update
       requestBody:
@@ -238,7 +237,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankAccount'
+              $ref: '#/components/schemas/Category'
       responses:
         "204":
           description: category succesfully updated
@@ -250,10 +249,9 @@ paths:
         - Category
       parameters:
         - in: path
-          name: categoryId
+          name: categoryName
           schema:
-            type: integer
-            format: int32
+            type: string
           required: true
           description: id of the category to delete
       responses:

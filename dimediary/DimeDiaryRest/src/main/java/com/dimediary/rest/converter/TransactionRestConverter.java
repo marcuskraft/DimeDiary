@@ -10,6 +10,7 @@ public interface TransactionRestConverter {
 
 
   @Mapping(source = "subject", target = "name")
+  @Mapping(target = "timestamp", ignore = true)
   Transaction to(com.dimediary.openapi.model.Transaction transaction);
 
   @Mapping(source = "name", target = "subject")

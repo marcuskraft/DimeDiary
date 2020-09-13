@@ -1,14 +1,15 @@
 package com.dimediary.rest.controller;
 
-import com.dimediary.domain.BankAccount;
 import com.dimediary.openapi.api.TransactionApi;
-import com.dimediary.openapi.model.Transactions;
+import com.dimediary.openapi.model.Transaction;
 import com.dimediary.port.in.BankAccountProvider;
 import com.dimediary.port.in.TransactionProvider;
-import com.dimediary.rest.converter.TransactionConverter;
+import com.dimediary.rest.converter.TransactionRestConverter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,42 +29,39 @@ public class TransactionController implements TransactionApi {
 
   private final TransactionProvider transactionProvider;
 
-  private final TransactionConverter transactionConverter;
+  private final TransactionRestConverter transactionRestConverter;
 
   @Autowired
   public TransactionController(final BankAccountProvider bankAccountProvider,
       final TransactionProvider transactionProvider,
-      final TransactionConverter transactionConverter) {
+      final TransactionRestConverter transactionRestConverter) {
     this.bankAccountProvider = bankAccountProvider;
     this.transactionProvider = transactionProvider;
-    this.transactionConverter = transactionConverter;
+    this.transactionRestConverter = transactionRestConverter;
+  }
+
+
+  @Override
+  public ResponseEntity<Transaction> createTransaction(final Transaction transaction) {
+    return null;
   }
 
   @Override
-  public ResponseEntity<Transactions> transactionGet(
-      final String dateFrom, final String dateUntil) {
+  public ResponseEntity<Void> deleteTransaction(final UUID transactionId) {
+    return null;
+  }
 
-    final LocalDate localDateFrom = LocalDate.parse(dateFrom, DATE_TIME_FORMATTER);
-    final LocalDate localDateUntil = LocalDate.parse(dateUntil, DATE_TIME_FORMATTER);
+  @Override
+  public ResponseEntity<List<Transaction>> getTransactions(final LocalDate dateFrom,
+      final LocalDate dateUntil,
+      final Optional<String> bankAccountName) {
+    return null;
+  }
 
-    final List<String> bankAccounts = this.bankAccountProvider.getBankAccountNames();
 
-    if (bankAccounts.size() == 0) {
-      return ResponseEntity.noContent().build();
-    }
-
-    final BankAccount bankAccount = this.bankAccountProvider.getBankAccount(bankAccounts.get(0));
-
-    final List<com.dimediary.domain.Transaction> transactionsDomain = this.transactionProvider
-        .getTransactions(localDateFrom, localDateUntil, bankAccount);
-
-    final Transactions transactions = new Transactions();
-    for (final com.dimediary.domain.Transaction transaction : transactionsDomain) {
-      transactions.addTransactionsItem(this.transactionConverter.from(transaction));
-    }
-
-    this.log.info("test");
-    return ResponseEntity.ok().body(transactions);
-
+  @Override
+  public ResponseEntity<Void> updateTransaction(final UUID transactionId,
+      final Transaction transaction) {
+    return null;
   }
 }

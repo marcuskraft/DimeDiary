@@ -22,7 +22,7 @@ public class ContinuousTransaction implements Serializable {
   private LocalDateTime timestamp;
   private String name;
   private Double amount;
-  private LocalDate dateBeginn;
+  private LocalDate dateBegin;
   private BankAccount bankAccount;
   private Category category;
   private String recurrenceRule;
@@ -46,7 +46,7 @@ public class ContinuousTransaction implements Serializable {
     continuousTransactionCopy.setAmount(this.getAmount());
     continuousTransactionCopy.setBankAccount(this.getBankAccount());
     continuousTransactionCopy.setCategory(this.getCategory());
-    continuousTransactionCopy.setDateBeginn(this.getDateBeginn());
+    continuousTransactionCopy.setDateBegin(this.getDateBegin());
     continuousTransactionCopy.setName(this.getName());
     continuousTransactionCopy.setRecurrenceRule(this.getRecurrenceRule());
     continuousTransactionCopy.setFixCost(this.getFixCost());

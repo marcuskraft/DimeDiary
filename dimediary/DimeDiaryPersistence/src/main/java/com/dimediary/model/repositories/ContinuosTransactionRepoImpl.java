@@ -2,7 +2,7 @@ package com.dimediary.model.repositories;
 
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
-import com.dimediary.model.converter.ContinuosTransactionTransformer;
+import com.dimediary.model.converter.ContinuousTransactionTransformer;
 import com.dimediary.port.out.ContinuosTransactionRepo;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -20,13 +20,13 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
   @PersistenceContext
   private final EntityManager entityManager;
 
-  private final ContinuosTransactionTransformer continuosTransactionTransformer;
+  private final ContinuousTransactionTransformer continuousTransactionTransformer;
 
   @Autowired
   public ContinuosTransactionRepoImpl(final EntityManager entityManager,
-      final ContinuosTransactionTransformer continuosTransactionTransformer) {
+      final ContinuousTransactionTransformer continuousTransactionTransformer) {
     this.entityManager = entityManager;
-    this.continuosTransactionTransformer = continuosTransactionTransformer;
+    this.continuousTransactionTransformer = continuousTransactionTransformer;
   }
 
 
@@ -115,7 +115,7 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
 
   private ContinuousTransaction entityToDomain(
       final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity) {
-    return this.continuosTransactionTransformer
+    return this.continuousTransactionTransformer
         .continuousTransactionEntityToContinuousTransaction(continuousTransactionEntity);
   }
 
@@ -131,7 +131,7 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
 
   private com.dimediary.model.entities.ContinuousTransactionEntity domainToEntity(
       final ContinuousTransaction continuousTransaction) {
-    return this.continuosTransactionTransformer
+    return this.continuousTransactionTransformer
         .continuousTransactionToContinuousTransactionEntity(continuousTransaction);
   }
 

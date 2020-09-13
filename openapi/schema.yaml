@@ -8,6 +8,7 @@ paths:
     get:
       summary: load transactions
       description: load transactions
+      operationId: getTransactions
       tags:
         - Transaction
       parameters:
@@ -25,6 +26,12 @@ paths:
             format: date
           required: true
           description: Load transactions until this date
+        - in: query
+          name: bankAccountName
+          schema:
+            type: string
+          required: false
+          description: bank account name for which to load transaction - if not set transaction without a bank account will be received
       responses:
         "200":
           description: get all transactions
@@ -37,6 +44,7 @@ paths:
     post:
       summary: save new transaction
       description: save new transaction
+      operationId: createTransaction
       tags:
         - Transaction
       requestBody:
@@ -56,6 +64,7 @@ paths:
     put:
       summary: update transaction
       description: update transaction
+      operationId: updateTransaction
       tags:
         - Transaction
       parameters:
@@ -78,6 +87,7 @@ paths:
     delete:
       summary: delete transaction
       description: delete transaction
+      operationId: deleteTransaction
       tags:
         - Transaction
       parameters:
@@ -95,6 +105,7 @@ paths:
     post:
       summary: save new continuous transaction
       description: save new continuous transaction
+      operationId: createContinuousTransaction
       tags:
         - ContinuousTransaction
       requestBody:
@@ -114,6 +125,7 @@ paths:
     get:
       summary: load continuous transactions
       description: load continuous transactions
+      operationId: getContinuousTransaction
       tags:
         - ContinuousTransaction
       parameters:
@@ -134,6 +146,7 @@ paths:
     put:
       summary: update continuous transaction
       description: update continuous transaction
+      operationId: updateContinuousTransaction
       tags:
         - ContinuousTransaction
       parameters:
@@ -156,6 +169,7 @@ paths:
     delete:
       summary: delete continuous transaction
       description: delete continuous transaction
+      operationId: deleteContinuousTransaction
       tags:
         - ContinuousTransaction
       parameters:
@@ -173,6 +187,7 @@ paths:
     get:
       summary: get all categories
       description: get all categories
+      operationId: getCategories
       tags:
         - Category
       responses:
@@ -187,6 +202,7 @@ paths:
     post:
       summary: saves a new category
       description: saves a  category
+      operationId: createCategory
       tags:
         - Category
       requestBody:
@@ -206,6 +222,7 @@ paths:
     put:
       summary: update bank category
       description: update category
+      operationId: updateCategory
       tags:
         - Category
       parameters:
@@ -228,6 +245,7 @@ paths:
     delete:
       summary: delete category
       description: delete category
+      operationId: deleteCategory
       tags:
         - Category
       parameters:
@@ -245,6 +263,7 @@ paths:
     get:
       summary: get all bank account categories
       description: get all bank account categories
+      operationId: getBankAccountCategory
       tags:
         - BankAccountCategory
       responses:
@@ -259,6 +278,7 @@ paths:
     post:
       summary: saves a new bank account category
       description: saves a new bank account category
+      operationId: createBankAccountCategory
       tags:
         - BankAccountCategory
       requestBody:
@@ -278,6 +298,7 @@ paths:
     put:
       summary: update bank account category
       description: update bank account category
+      operationId: updateBankAccountCategory
       tags:
         - BankAccountCategory
       parameters:
@@ -300,6 +321,7 @@ paths:
     delete:
       summary: delete bank account category
       description: delete bank account category
+      operationId: deleteBankAccountCategory
       tags:
         - BankAccountCategory
       parameters:
@@ -317,6 +339,7 @@ paths:
     get:
       summary: get all bankaccounts
       description: get all bankaccounts
+      operationId: getBankAccounts
       tags:
         - BankAccount
       responses:
@@ -331,6 +354,7 @@ paths:
     post:
       summary: saves a new bankaccount
       description: saves a  newbankaccount
+      operationId: createBankAccount
       tags:
         - BankAccount
       requestBody:
@@ -346,20 +370,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BankAccount'
-  /bankAccount/{bankAccountId}:
-    put:
-      summary: update bank account
-      description: update bankaccount
+  /bankAccount/{bankAccountName}:
+    get:
+      summary: get bankaccount
+      description: get bankaccount
+      operationId: getBankAccount
       tags:
         - BankAccount
       parameters:
         - in: path
-          name: bankAccountId
+          name: bankAccountName
           schema:
             type: string
-            format: uuid
           required: true
-          description: id of the bank account to update
+          description: name of the bank account to get
+      responses:
+        "200":
+          description: get bankaccount
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankAccount'
+    put:
+      summary: update bank account
+      description: update bankaccount
+      operationId: updateBankAccount
+      tags:
+        - BankAccount
+      parameters:
+        - in: path
+          name: bankAccountName
+          schema:
+            type: string
+          required: true
+          description: name of the bank account to update
       requestBody:
         description: bankaccount to save
         content:
@@ -372,16 +416,16 @@ paths:
     delete:
       summary: delete bank account
       description: delete bank account
+      operationId: deleteBankAccount
       tags:
         - BankAccount
       parameters:
         - in: path
-          name: bankAccountId
+          name: bankAccountName
           schema:
             type: string
-            format: uuid
           required: true
-          description: id of the bank account to delete
+          description: name of the bank account to delete
       responses:
         "204":
           description: bank account succesfully deleted
@@ -389,6 +433,7 @@ paths:
     get:
       summary: get balance
       description: get balance for date range and bank account
+      operationId: getBalances
       tags:
         - Balance
       parameters:
@@ -423,8 +468,9 @@ paths:
                 items:
                   $ref: '#/components/schemas/BalanceHistory'
     post:
-      summary: recalculate balance histories
-      description: recalculate balance histories for given bank account
+      summary: recreate balance histories
+      description: recreate balance histories for given bank account
+      operationId: recreateBalances
       tags:
         - Balance
       parameters:
@@ -434,10 +480,10 @@ paths:
             type: string
             format: uuid
           required: true
-          description: id of the bankaccount for which the balances should be recalculated
+          description: id of the bankaccount for which the balances should be recreate
       responses:
         "204":
-          description: balances succesfully recalculated
+          description: balances succesfully recreate
 components:
   schemas:
     Transaction:
@@ -487,9 +533,6 @@ components:
           type: boolean
     BankAccount:
       properties:
-        id:
-          type: integer
-          format: uuid
         name:
           type: string
         bankName:

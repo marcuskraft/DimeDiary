@@ -6,6 +6,7 @@ import com.dimediary.model.converter.BankaccountTransformer;
 import com.dimediary.model.entities.BankAccountEntity;
 import com.dimediary.model.repositories.cruds.BankAccountCrudRepository;
 import com.dimediary.port.out.BankaccountRepo;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,12 @@ class BankaccountRepoImpl implements BankaccountRepo {
         com.dimediary.model.entities.BankAccountEntity.class,
         bankAccountName);
 
-    return this.bankaccountTransformer.bankAccountEntityToBankaccount(bankAccount);
+    return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccount);
+  }
+
+  @Override
+  public BankAccount getBankAccount(final UUID bankAccountId) {
+    return null;
   }
 
   @Override
@@ -126,24 +132,26 @@ class BankaccountRepoImpl implements BankaccountRepo {
   }
 
   @Override
-  public void persist(final BankAccount bankAccount) {
+  public BankAccount persist(final BankAccount bankAccount) {
     if (bankAccount == null) {
-      return;
+      return null;
     }
-    this.log.info("persist BankAccount: " + bankAccount.getName());
+    BankaccountRepoImpl.log.info("persist BankAccount: " + bankAccount.getName());
     try {
 
-      final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.bankaccountTransformer
+      com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.bankaccountTransformer
           .bankAccountToBankAccountEntity(bankAccount);
 
       if (this.findEntity(bankAccount) == null) {
         this.entityManager.persist(bankAccountEntity);
       } else {
-        this.entityManager.merge(bankAccountEntity);
+        bankAccountEntity = this.entityManager.merge(bankAccountEntity);
       }
 
+      return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccountEntity);
+
     } catch (final Exception e) {
-      this.log.error("can't persist bankaccount", e);
+      BankaccountRepoImpl.log.error("can't persist bankaccount", e);
       throw e;
     }
   }
@@ -152,7 +160,7 @@ class BankaccountRepoImpl implements BankaccountRepo {
       final java.util.List<com.dimediary.model.entities.BankAccountEntity> bankAccounts) {
     return bankAccounts.stream()
         .map((bankAccount) -> this.bankaccountTransformer
-            .bankAccountEntityToBankaccount(bankAccount))
+            .bankAccountEntityToBankAccount(bankAccount))
         .collect(java.util.stream.Collectors.toList());
   }
 

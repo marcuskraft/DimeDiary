@@ -7,13 +7,10 @@ import com.dimediary.model.entities.ContinuousTransactionEntity;
 import com.dimediary.model.entities.TransactionEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {BankaccountTransformer.class, CategoryTransformer.class,
+    ContinuousTransactionTransformer.class})
 public interface TransactionTransformer {
-
-  TransactionTransformer INSTANCE = Mappers.getMapper(
-      TransactionTransformer.class);
 
   TransactionEntity transactionToTransactionEntity(
       Transaction transaction);

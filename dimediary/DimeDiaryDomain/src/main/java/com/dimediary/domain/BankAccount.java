@@ -22,7 +22,7 @@ public class BankAccount implements Serializable {
   private String iban;
   private String bic;
   private BankAccountCategory bankAccountCategory;
-  private LocalDate dateStartBudget;
-  private Double startBudget;
+  private LocalDate dateStartBalance;
+  private Double startBalance;
 
 }

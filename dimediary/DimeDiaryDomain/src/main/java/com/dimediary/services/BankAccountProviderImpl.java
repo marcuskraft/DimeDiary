@@ -11,18 +11,18 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class BankaccountProviderImpl implements BankAccountProvider {
+public class BankAccountProviderImpl implements BankAccountProvider {
 
 
-  private final BankaccountRepo bankaccountService;
+  private final BankaccountRepo bankAccountRepo;
 
 
   private final AccountBalanceProvider accountBalanceProvider;
 
   @Autowired
-  public BankaccountProviderImpl(final BankaccountRepo bankaccountService,
+  public BankAccountProviderImpl(final BankaccountRepo bankAccountRepo,
       final AccountBalanceProvider accountBalanceProvider) {
-    this.bankaccountService = bankaccountService;
+    this.bankAccountRepo = bankAccountRepo;
     this.accountBalanceProvider = accountBalanceProvider;
   }
 
@@ -30,7 +30,7 @@ public class BankaccountProviderImpl implements BankAccountProvider {
   public List<String> getBankAccountNames() {
     List<String> bankAccountNames = null;
     try {
-      bankAccountNames = this.bankaccountService.getBankAccountNames();
+      bankAccountNames = this.bankAccountRepo.getBankAccountNames();
     } catch (final Exception e) {
       this.log.error("error during load of bank account names", e);
     }
@@ -38,10 +38,10 @@ public class BankaccountProviderImpl implements BankAccountProvider {
   }
 
   @Override
-  public BankAccount getBankAccount(final String bankaccountName) {
+  public BankAccount getBankAccount(final String bankAccountName) {
     BankAccount bankAccount = null;
     try {
-      bankAccount = this.bankaccountService.getBankAccount(bankaccountName);
+      bankAccount = this.bankAccountRepo.getBankAccount(bankAccountName);
     } catch (final Exception e) {
       this.log.error("error during load of bank account", e);
     }
@@ -49,20 +49,21 @@ public class BankaccountProviderImpl implements BankAccountProvider {
   }
 
   @Override
-  public void deleteBankAccounts(final List<String> bankAccountNames) {
-    final List<BankAccount> bankAccounts = this.bankaccountService
-        .getBankAccounts(bankAccountNames);
-
-    for (final BankAccount bankAccount : bankAccounts) {
-      this.accountBalanceProvider.deleteBalanceHistories(bankAccount);
-      this.bankaccountService.delete(bankAccount);
-    }
-
+  public void deleteBankAccount(final String bankAccountName) {
+    final BankAccount bankAccount = this.bankAccountRepo
+        .getBankAccount(bankAccountName);
+    this.accountBalanceProvider.deleteBalanceHistories(bankAccount);
+    this.bankAccountRepo.delete(bankAccount);
   }
 
   @Override
-  public void persist(final BankAccount bankAccount) {
-    this.bankaccountService.persist(bankAccount);
+  public BankAccount persist(final BankAccount bankAccount) {
+    return this.bankAccountRepo.persist(bankAccount);
+  }
+
+  @Override
+  public void update(final BankAccount bankAccount, final String bankAccountName) {
+
   }
 
 }

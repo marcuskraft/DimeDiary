@@ -7,9 +7,11 @@ public interface BankAccountProvider {
 
   List<String> getBankAccountNames();
 
-  BankAccount getBankAccount(String bankaccountName);
+  BankAccount getBankAccount(String bankAccountName);
 
-  void deleteBankAccounts(List<String> bankAccountNames);
+  void deleteBankAccount(String bankAccountName);
 
-  void persist(BankAccount bankAccount);
+  BankAccount persist(BankAccount bankAccount);
+
+  void update(BankAccount bankAccount, String bankAccountName);
 }

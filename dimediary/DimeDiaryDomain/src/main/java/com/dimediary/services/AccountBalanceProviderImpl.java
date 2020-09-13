@@ -43,7 +43,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
    */
   @Override
   public Double getBalance(final BankAccount bankAccount, final LocalDate date) {
-    if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBudget())) {
+    if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBalance())) {
       return null;
     }
 
@@ -156,8 +156,8 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
    */
   private void initBalance(final BankAccount bankAccount, final LocalDate today) {
     this.deleteBalanceHistories(bankAccount);
-    this.generateBalances(bankAccount, bankAccount.getStartBudget(),
-        bankAccount.getDateStartBudget(), today);
+    this.generateBalances(bankAccount, bankAccount.getStartBalance(),
+        bankAccount.getDateStartBalance(), today);
 
 
   }
@@ -209,7 +209,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
     final LocalDate dateForNextBalanceHistory = DateUtils
         .getNextSundayAlways(lastBalanceHistory.getDate());
-    this.generateBalances(bankAccount, lastBalanceHistory.getAmount(), dateForNextBalanceHistory,
+    this.generateBalances(bankAccount, lastBalanceHistory.getBalance(), dateForNextBalanceHistory,
         today);
 
 
@@ -236,7 +236,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
       balanceHistory.setBankAccount(bankAccount);
       balanceHistory.setDate(sunday);
-      balanceHistory.setAmount(lastAmount);
+      balanceHistory.setBalance(lastAmount);
 
       balanceHistories.add(balanceHistory);
     }
@@ -246,7 +246,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
   private Double getBalance(final BankAccount bankAccount, final LocalDate date,
       final Double balanceDayBefore) {
-    if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBudget())) {
+    if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBalance())) {
       return null;
     }
 
@@ -274,10 +274,10 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
       final LocalDate date) {
     Double amount;
 
-    amount = bankAccount.getStartBudget();
+    amount = bankAccount.getStartBalance();
 
     final List<Transaction> transactions = this.transactionService
-        .getTransactions(bankAccount.getDateStartBudget(),
+        .getTransactions(bankAccount.getDateStartBalance(),
             date, bankAccount);
 
     for (final Transaction transaction : transactions) {
@@ -289,7 +289,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
   private Double sumAllTransactionsBetween(final BankAccount bankAccount, final LocalDate date,
       final BalanceHistory balanceHistory) {
-    Double result = balanceHistory.getAmount();
+    Double result = balanceHistory.getBalance();
     final LocalDate dateFrom = balanceHistory.getDate().plusDays(1);
 
     final List<Transaction> transactions = this.transactionService

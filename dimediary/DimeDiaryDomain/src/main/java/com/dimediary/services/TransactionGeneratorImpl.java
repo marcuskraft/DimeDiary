@@ -96,7 +96,7 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
     if (transactionDialogStatus.getChangeFromDate() == null) {
       if (transactionDialogStatus.getRecurrenceRule() != null) {
         transactionDialogStatus
-            .setDate(transactionDialogStatus.getContinuousTransaction().getDateBeginn());
+            .setDate(transactionDialogStatus.getContinuousTransaction().getDateBegin());
       }
       this.continuousTransactionProvider
           .deleteAllContinuousTransactions(transactionDialogStatus.getContinuousTransaction());
@@ -114,7 +114,7 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
 
       final LocalDate lastDateBeforeRecurrence = RecurrenceRuleUtils.getLastRecurrenceDateBefore(
           recurrenceRuleOfOldContinuousTransaction,
-          transactionDialogStatus.getContinuousTransaction().getDateBeginn(),
+          transactionDialogStatus.getContinuousTransaction().getDateBegin(),
           transactionDialogStatus.getChangeFromDate());
 
       recurrenceRuleOfOldContinuousTransaction
@@ -164,7 +164,7 @@ public class TransactionGeneratorImpl implements TransactionGenerator {
     continuousTransaction.setAmount(transactionDialogStatus.getAmount());
     continuousTransaction.setBankAccount(transactionDialogStatus.getBankaccount());
     continuousTransaction.setCategory(transactionDialogStatus.getCategory());
-    continuousTransaction.setDateBeginn(transactionDialogStatus.getDate());
+    continuousTransaction.setDateBegin(transactionDialogStatus.getDate());
     continuousTransaction.setName(transactionDialogStatus.getName());
     continuousTransaction.setRecurrenceRule(transactionDialogStatus.getRecurrenceRule().toString());
     continuousTransaction.setFixCost(Boolean.valueOf(transactionDialogStatus.isFixCost()));

@@ -109,9 +109,9 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
       final ContinuousTransaction continuousTransaction) {
     final RecurrenceRule recurrenceRule = RecurrenceRuleUtils
         .createRecurrenceRule(continuousTransaction.getRecurrenceRule());
-    final LocalDate firstDate = continuousTransaction.getDateBeginn();
+    final LocalDate firstDate = continuousTransaction.getDateBegin();
     final List<LocalDate> dates = RecurrenceRuleUtils.getDatesForRecurrenceRule(recurrenceRule,
-        DateUtils.localDateToDateTime(continuousTransaction.getDateBeginn()),
+        DateUtils.localDateToDateTime(continuousTransaction.getDateBegin()),
         DateUtils.localDateToDateTime(firstDate));
 
     final List<Transaction> transactions = new ArrayList<>();

@@ -2,6 +2,6 @@ include 'DimeDiaryPersistence'
 include 'DimeDiaryRest'
 include 'DimeDiaryDomain'
 include 'DimeDiaryApp'
-include 'frontend'
+//include 'frontend'
 include 'Utils'
 

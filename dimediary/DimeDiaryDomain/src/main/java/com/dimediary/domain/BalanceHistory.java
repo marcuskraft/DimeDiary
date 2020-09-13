@@ -19,10 +19,10 @@ public class BalanceHistory implements Serializable {
   private static final long serialVersionUID = -322723363175753187L;
   private BankAccount bankAccount;
   private LocalDate date;
-  private Double amount;
+  private Double balance;
 
   public void addAmount(final Double amount) {
-    this.amount += amount;
+    this.balance += amount;
   }
 
 }

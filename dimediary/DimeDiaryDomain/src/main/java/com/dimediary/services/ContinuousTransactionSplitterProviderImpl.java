@@ -87,9 +87,9 @@ public class ContinuousTransactionSplitterProviderImpl implements
 
     final LocalDate firstDateAfterRecurrence = RecurrenceRuleUtils
         .getFirstRecurrenceDateAfter(recurrenceRuleAfter,
-            continuousTransactionAfter.getDateBeginn(), firstDateAfter.minusDays(1));
+            continuousTransactionAfter.getDateBegin(), firstDateAfter.minusDays(1));
 
-    continuousTransactionAfter.setDateBeginn(firstDateAfterRecurrence);
+    continuousTransactionAfter.setDateBegin(firstDateAfterRecurrence);
 
     boolean continuousTransactionsAfterIsNeeded = true;
     if (recurrenceRuleOriginal.getCount() != null) {
@@ -132,7 +132,7 @@ public class ContinuousTransactionSplitterProviderImpl implements
 
     final LocalDate lastDateBeforeRecurrence = RecurrenceRuleUtils
         .getLastRecurrenceDateBefore(recurrenceRuleBefore,
-            continuousTransactionBefore.getDateBeginn(), lastDateBefore.plusDays(1));
+            continuousTransactionBefore.getDateBegin(), lastDateBefore.plusDays(1));
 
     if (lastDateBeforeRecurrence == null) {
       return null;
@@ -164,7 +164,7 @@ public class ContinuousTransactionSplitterProviderImpl implements
 
     this.continuousTransactionProvider.persist(continuousTransaction);
     this.transactionProvider.persistTransactions(transactions);
-    
+
   }
 
 }

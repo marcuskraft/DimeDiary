@@ -5,6 +5,7 @@ import com.dimediary.openapi.model.Transaction;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.TransactionRestConverter;
+import io.swagger.annotations.Api;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @RequestMapping("/api")
 @Controller
+@Api(tags = "Transaction")
 public class TransactionController implements TransactionApi {
 
 

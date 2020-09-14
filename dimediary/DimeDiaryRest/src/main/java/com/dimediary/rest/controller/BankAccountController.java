@@ -5,6 +5,7 @@ import com.dimediary.openapi.api.BankAccountApi;
 import com.dimediary.port.in.BankAccountProvider;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.BankAccountRestConverter;
+import io.swagger.annotations.Api;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @RequestMapping("/api")
 @Controller
+@Api(tags = "BankAccount")
 public class BankAccountController implements BankAccountApi {
 
   private static final long serialVersionUID = 395035858890439438L;
@@ -50,7 +52,8 @@ public class BankAccountController implements BankAccountApi {
   public ResponseEntity<com.dimediary.openapi.model.BankAccount> getBankAccount(
       final String bankAccountName) {
     return this.responseFactory
-        .ok(this.bankAccountConverter.from(this.bankAccountProvider.getBankAccount(bankAccountName)));
+        .ok(this.bankAccountConverter
+            .from(this.bankAccountProvider.getBankAccount(bankAccountName)));
   }
 
 

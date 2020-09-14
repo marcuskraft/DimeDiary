@@ -1,21 +1,21 @@
 package com.dimediary.services;
 
 import com.dimediary.domain.BankAccountCategory;
-import com.dimediary.port.in.BankaccountCategoryProvider;
-import com.dimediary.port.out.BankaccountCategoryRepo;
+import com.dimediary.port.in.BankAccountCategoryProvider;
+import com.dimediary.port.out.BankAccountCategoryRepo;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BankaccountCategoryProviderImpl implements BankaccountCategoryProvider {
+public class BankAccountCategoryProviderImpl implements BankAccountCategoryProvider {
 
 
-  private final BankaccountCategoryRepo bankaccountCategoryService;
+  private final BankAccountCategoryRepo bankaccountCategoryService;
 
   @Autowired
-  public BankaccountCategoryProviderImpl(
-      final BankaccountCategoryRepo bankaccountCategoryService) {
+  public BankAccountCategoryProviderImpl(
+      final BankAccountCategoryRepo bankaccountCategoryService) {
     this.bankaccountCategoryService = bankaccountCategoryService;
   }
 
@@ -35,8 +35,18 @@ public class BankaccountCategoryProviderImpl implements BankaccountCategoryProvi
   }
 
   @Override
-  public void persist(final BankAccountCategory bankAccountCategory) {
-    this.bankaccountCategoryService.persist(bankAccountCategory);
+  public void deleteBankAccountCategory(final String bankAccountCategoryName) {
+    this.bankaccountCategoryService.delete(bankAccountCategoryName);
+  }
+
+  @Override
+  public BankAccountCategory persist(final BankAccountCategory bankAccountCategory) {
+    return this.bankaccountCategoryService.persist(bankAccountCategory);
+  }
+
+  @Override
+  public List<BankAccountCategory> getBankAccountCategories() {
+    return this.bankaccountCategoryService.getBankAccountCategories();
   }
 
 }

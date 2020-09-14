@@ -5,6 +5,7 @@ import com.dimediary.openapi.model.Category;
 import com.dimediary.port.in.CategoryProvider;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.CategoryRestConverter;
+import io.swagger.annotations.Api;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 @RequestMapping("/api")
 @Controller
+@Api(tags = "Category")
 public class CategoryController implements CategoryApi {
 
   private final CategoryProvider categoryProvider;

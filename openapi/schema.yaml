@@ -261,7 +261,7 @@ paths:
     get:
       summary: get all bank account categories
       description: get all bank account categories
-      operationId: getBankAccountCategory
+      operationId: getBankAccountCategories
       tags:
         - BankAccountCategory
       responses:
@@ -272,7 +272,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  $ref: '#/components/schemas/BankAccountCategory'
     post:
       summary: saves a new bank account category
       description: saves a new bank account category
@@ -284,15 +284,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankAccount'
+              $ref: '#/components/schemas/BankAccountCategory'
       responses:
         "201":
           description: bank account category succesfully saved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BankAccount'
-  /bankAccountCategories/{bankAccountCategoryId}:
+                $ref: '#/components/schemas/BankAccountCategory'
+  /bankAccountCategories/{bankAccountCategoryName}:
     put:
       summary: update bank account category
       description: update bank account category
@@ -301,18 +301,17 @@ paths:
         - BankAccountCategory
       parameters:
         - in: path
-          name: bankAccountCategoryId
+          name: bankAccountCategoryName
           schema:
-            type: integer
-            format: int32
+            type: string
           required: true
-          description: id of the bank account category to update
+          description: name of the bank account category to update
       requestBody:
         description: bank account category to save
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankAccount'
+              $ref: '#/components/schemas/BankAccountCategory'
       responses:
         "204":
           description: bank account category succesfully updated
@@ -324,12 +323,11 @@ paths:
         - BankAccountCategory
       parameters:
         - in: path
-          name: bankAccountCategoryId
+          name: bankAccountCategoryName
           schema:
-            type: integer
-            format: int32
+            type: string
           required: true
-          description: id of the bank account category to delete
+          description: name of the bank account category to delete
       responses:
         "204":
           description: bank account category succesfully deleted

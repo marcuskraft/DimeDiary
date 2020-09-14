@@ -3,7 +3,7 @@ package com.dimediary.port.out;
 import com.dimediary.domain.BankAccountCategory;
 import java.util.List;
 
-public interface BankaccountCategoryRepo {
+public interface BankAccountCategoryRepo {
 
   List<String> getBankAccountCategoryNames();
 
@@ -11,10 +11,13 @@ public interface BankaccountCategoryRepo {
 
   List<BankAccountCategory> getBankAccountCategories(List<String> bankAccountCategoryNames);
 
+  List<BankAccountCategory> getBankAccountCategories();
+
   void deleteBankAccountCategories(List<String> bankAccountCategoryNames);
 
   void delete(BankAccountCategory bankAccountCategory);
 
-  void persist(BankAccountCategory bankAccountCategory);
+  BankAccountCategory persist(BankAccountCategory bankAccountCategory);
 
+  void delete(String bankAccountCategoryName);
 }

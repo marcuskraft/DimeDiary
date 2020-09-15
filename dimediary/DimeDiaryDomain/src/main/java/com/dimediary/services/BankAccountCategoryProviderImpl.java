@@ -4,6 +4,7 @@ import com.dimediary.domain.BankAccountCategory;
 import com.dimediary.port.in.BankAccountCategoryProvider;
 import com.dimediary.port.out.BankAccountCategoryRepo;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +36,8 @@ public class BankAccountCategoryProviderImpl implements BankAccountCategoryProvi
   }
 
   @Override
-  public void deleteBankAccountCategory(final String bankAccountCategoryName) {
-    this.bankaccountCategoryService.delete(bankAccountCategoryName);
+  public void deleteBankAccountCategory(final UUID bankAccountCategoryId) {
+    this.bankaccountCategoryService.delete(bankAccountCategoryId);
   }
 
   @Override

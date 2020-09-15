@@ -3,6 +3,7 @@ package com.dimediary.domain;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,10 +19,10 @@ public class ContinuousTransaction implements Serializable {
    *
    */
   private static final long serialVersionUID = 2371735569007687455L;
-  private Integer id;
+  private UUID id;
   private LocalDateTime timestamp;
   private String name;
-  private Double amount;
+  private Integer amount;
   private LocalDate dateBegin;
   private BankAccount bankAccount;
   private Category category;

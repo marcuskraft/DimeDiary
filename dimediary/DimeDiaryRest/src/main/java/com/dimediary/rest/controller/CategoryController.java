@@ -7,6 +7,7 @@ import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.CategoryRestConverter;
 import io.swagger.annotations.Api;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,8 @@ public class CategoryController implements CategoryApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteCategory(final String categoryName) {
-    this.categoryProvider.deleteCategory(categoryName);
+  public ResponseEntity<Void> deleteCategory(final UUID categoryId) {
+    this.categoryProvider.deleteCategory(categoryId);
     return this.responseFactory.okNoContent();
   }
 
@@ -55,8 +56,8 @@ public class CategoryController implements CategoryApi {
   }
 
   @Override
-  public ResponseEntity<Void> updateCategory(final String categoryName, final Category category) {
-    if (!categoryName.equals(category.getName())) {
+  public ResponseEntity<Void> updateCategory(final UUID categoryId, final Category category) {
+    if (!categoryId.equals(category.getName())) {
       return this.responseFactory.badRequest();
     }
     this.categoryProvider.persist(this.categoryRestConverter.to(category));

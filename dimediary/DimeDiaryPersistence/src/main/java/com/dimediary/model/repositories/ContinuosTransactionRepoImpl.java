@@ -5,6 +5,7 @@ import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.model.converter.ContinuousTransactionTransformer;
 import com.dimediary.model.entities.ContinuousTransactionEntity;
 import com.dimediary.port.out.ContinuosTransactionRepo;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +99,7 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
   }
 
   @Override
-  public ContinuousTransaction getContinuousTransaction(final Integer continuousTransactionId) {
+  public ContinuousTransaction getContinuousTransaction(final UUID continuousTransactionId) {
     final ContinuousTransactionEntity continuousTransactionEntity = this.entityManager
         .find(ContinuousTransactionEntity.class, continuousTransactionId);
     return this.continuousTransactionTransformer

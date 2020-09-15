@@ -3,12 +3,13 @@ package com.dimediary.services;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.port.in.BalanceProvider;
+import com.dimediary.port.in.BalanceUseCase;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.BankAccountRepo;
 import com.dimediary.port.out.TransactionRepo;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +20,16 @@ import org.springframework.stereotype.Service;
 public class TransactionProviderImpl implements TransactionProvider {
 
 
-  private final BalanceProvider balanceProvider;
+  private final BalanceService balanceService;
   private final TransactionRepo transactionService;
   private final BankAccountRepo bankaccountRepo;
 
 
   @Autowired
-  public TransactionProviderImpl(final BalanceProvider balanceProvider,
+  public TransactionProviderImpl(final BalanceService balanceService,
       final TransactionRepo transactionService,
       final BankAccountRepo bankaccountRepo) {
-    this.balanceProvider = balanceProvider;
+    this.balanceService = balanceService;
     this.transactionService = transactionService;
     this.bankaccountRepo = bankaccountRepo;
   }
@@ -52,8 +53,8 @@ public class TransactionProviderImpl implements TransactionProvider {
 
   @Override
   public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
-      final String bankAccountName) {
-    final BankAccount bankAccount = this.bankaccountRepo.getBankAccount(bankAccountName);
+      final UUID bankAccountId) {
+    final BankAccount bankAccount = this.bankaccountRepo.getBankAccount(bankAccountId);
     return this.getTransactions(dateFrom, dateUntil, bankAccount);
   }
 
@@ -150,8 +151,8 @@ public class TransactionProviderImpl implements TransactionProvider {
 
     final Transaction persistedTransaction = this.transactionService
         .persistTransaction(transaction);
-    this.balanceProvider
-        .updateBalance(persistedTransaction, BalanceProvider.BalanceAction.adding);
+    this.balanceService
+        .updateBalance(persistedTransaction, BalanceUseCase.BalanceAction.adding);
 
     return persistedTransaction;
   }
@@ -170,7 +171,7 @@ public class TransactionProviderImpl implements TransactionProvider {
   }
 
   @Override
-  public void delete(final Integer transactionId) {
+  public void delete(final UUID transactionId) {
 
     this.log.info("delete Transaction: " + transactionId);
 
@@ -182,8 +183,8 @@ public class TransactionProviderImpl implements TransactionProvider {
 
   @Override
   public void delete(final Transaction transaction) {
-    this.balanceProvider
-        .updateBalance(transaction, BalanceProvider.BalanceAction.deleting);
+    this.balanceService
+        .updateBalance(transaction, BalanceUseCase.BalanceAction.deleting);
     this.transactionService.delete(transaction);
   }
 

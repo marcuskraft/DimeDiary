@@ -1,15 +1,28 @@
 package com.dimediary.model.entities;
 
-import com.dimediary.domain.helper.AmountUtils;
-import javax.persistence.Column;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import lombok.Data;
 
-@javax.persistence.Entity
-@javax.persistence.Table(name = "CONTINUOUS_TRANSACTION")
-@javax.persistence.NamedQueries({
-    @javax.persistence.NamedQuery(name = com.dimediary.model.entities.ContinuousTransactionEntity.CONTINUOUS_TRANSACTION_FOR_BANK_ACCOUNT, query = "from ContinuousTransactionEntity WHERE bankAccount = :bankAccount"),
-    @javax.persistence.NamedQuery(name = com.dimediary.model.entities.ContinuousTransactionEntity.DELETE_ALL_CONTINUOUS_TRANSACTIONS, query = "DELETE FROM ContinuousTransactionEntity")})
-@lombok.Data
-public class ContinuousTransactionEntity implements java.io.Serializable,
+@Entity
+@Table(name = "continuous_transaction")
+@NamedQueries({
+    @NamedQuery(name = ContinuousTransactionEntity.CONTINUOUS_TRANSACTION_FOR_BANK_ACCOUNT, query = "from ContinuousTransactionEntity WHERE bankAccount = :bankAccount"),
+    @NamedQuery(name = ContinuousTransactionEntity.DELETE_ALL_CONTINUOUS_TRANSACTIONS, query = "DELETE FROM ContinuousTransactionEntity")})
+@Data
+public class ContinuousTransactionEntity implements Serializable,
     Comparable<ContinuousTransactionEntity> {
 
   public static final String DELETE_ALL_CONTINUOUS_TRANSACTIONS = "DELETE_ALL_CONTINUOUS_TRANSACTIONS";
@@ -21,60 +34,39 @@ public class ContinuousTransactionEntity implements java.io.Serializable,
    */
   private static final long serialVersionUID = 1064986628363384286L;
 
-  @javax.persistence.Id
-  @javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
-  @javax.persistence.Column(name = "ID")
-  private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private UUID id;
 
-  @javax.persistence.Column(name = "TIMESTAMP", updatable = true)
-  private java.time.LocalDateTime timestamp;
-
-  @javax.persistence.Column(name = "NAME")
+  private LocalDateTime timestamp;
   private String name;
+  private Integer amount;
+  private LocalDate dateBegin;
 
-  @javax.persistence.Column(name = "AMOUNT")
-  private Double amount;
+  @ManyToOne
+  @JoinColumn(name = "bank_account_id")
+  private BankAccountEntity bankAccount;
 
-  @javax.persistence.Column(name = "DATE_BEGINN")
-  private java.time.LocalDate dateBeginn;
+  @ManyToOne
+  @JoinColumn(name = "category_id")
+  private CategoryEntity category;
 
-  @javax.persistence.ManyToOne
-  @javax.persistence.JoinColumn(name = "BANKACCOUNT_NAME")
-  private com.dimediary.model.entities.BankAccountEntity bankAccount;
-
-  @javax.persistence.ManyToOne
-  @javax.persistence.JoinColumn(name = "CATEGORY_NAME")
-  private com.dimediary.model.entities.CategoryEntity category;
-
-  @Column(name = "RECURRENCERULE")
   private String recurrenceRule;
 
-  @Column(name = "FIXCOST")
   private Boolean fixCost;
 
-  public Double getAmount() {
-    return AmountUtils.round(this.amount);
-  }
 
-  public void setAmount(final Double amount) {
-    this.amount = AmountUtils.round(amount);
-  }
-
-  @javax.persistence.PrePersist
+  @PrePersist
   private void setTimestamp() {
     this.timestamp = java.time.LocalDateTime.now();
   }
 
-  public void setTimestamp(final java.time.LocalDateTime timestamp) {
-    this.timestamp = timestamp;
-  }
-
   @Override
-  public int compareTo(final com.dimediary.model.entities.ContinuousTransactionEntity other) {
+  public int compareTo(final ContinuousTransactionEntity other) {
     if (other == null) {
       return -1;
     }
-    return this.dateBeginn.compareTo(other.getDateBeginn());
+    return this.dateBegin.compareTo(other.getDateBegin());
   }
 
   public Boolean getFixCost() {

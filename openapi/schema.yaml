@@ -27,9 +27,10 @@ paths:
           required: true
           description: Load transactions until this date
         - in: query
-          name: bankAccountName
+          name: bankAccountId
           schema:
             type: string
+            format: uuid
           required: false
           description: bank account name for which to load transaction - if not set transaction without a bank account will be received
       responses:
@@ -71,8 +72,8 @@ paths:
         - in: path
           name: transactionId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the transaction to update
       requestBody:
@@ -94,8 +95,8 @@ paths:
         - in: path
           name: transactionId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the transaction to delete
       responses:
@@ -132,8 +133,8 @@ paths:
         - in: path
           name: continuousTransactionId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the continuous transaction to get
       responses:
@@ -153,8 +154,8 @@ paths:
         - in: path
           name: continuousTransactionId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the continuous transaction to update
       requestBody:
@@ -176,8 +177,8 @@ paths:
         - in: path
           name: continuousTransactionId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the continuous transaction to delete
       responses:
@@ -218,7 +219,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
-  /categories/{categoryName}:
+  /categories/{categoryId}:
     put:
       summary: update bank category
       description: update category
@@ -227,9 +228,10 @@ paths:
         - Category
       parameters:
         - in: path
-          name: categoryName
+          name: categoryId
           schema:
             type: string
+            format: uuid
           required: true
           description: id of the category to update
       requestBody:
@@ -249,9 +251,10 @@ paths:
         - Category
       parameters:
         - in: path
-          name: categoryName
+          name: categoryId
           schema:
             type: string
+            format: uuid
           required: true
           description: id of the category to delete
       responses:
@@ -292,7 +295,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BankAccountCategory'
-  /bankAccountCategories/{bankAccountCategoryName}:
+  /bankAccountCategories/{bankAccountCategoryId}:
     put:
       summary: update bank account category
       description: update bank account category
@@ -301,9 +304,10 @@ paths:
         - BankAccountCategory
       parameters:
         - in: path
-          name: bankAccountCategoryName
+          name: bankAccountCategoryId
           schema:
             type: string
+            format: uuid
           required: true
           description: name of the bank account category to update
       requestBody:
@@ -323,9 +327,10 @@ paths:
         - BankAccountCategory
       parameters:
         - in: path
-          name: bankAccountCategoryName
+          name: bankAccountCategoryId
           schema:
             type: string
+            format: uuid
           required: true
           description: name of the bank account category to delete
       responses:
@@ -366,7 +371,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BankAccount'
-  /bankAccount/{bankAccountName}:
+  /bankAccount/{bankAccountId}:
     get:
       summary: get bankaccount
       description: get bankaccount
@@ -375,9 +380,10 @@ paths:
         - BankAccount
       parameters:
         - in: path
-          name: bankAccountName
+          name: bankAccountId
           schema:
             type: string
+            format: uuid
           required: true
           description: name of the bank account to get
       responses:
@@ -395,9 +401,10 @@ paths:
         - BankAccount
       parameters:
         - in: path
-          name: bankAccountName
+          name: bankAccountId
           schema:
             type: string
+            format: uuid
           required: true
           description: name of the bank account to update
       requestBody:
@@ -417,9 +424,10 @@ paths:
         - BankAccount
       parameters:
         - in: path
-          name: bankAccountName
+          name: bankAccountId
           schema:
             type: string
+            format: uuid
           required: true
           description: name of the bank account to delete
       responses:
@@ -434,9 +442,10 @@ paths:
         - Balance
       parameters:
         - in: query
-          name: bankAccountName
+          name: bankAccountId
           schema:
             type: string
+            format: uuid
           required: true
           description: id of the bankaccount to request the balance for
         - in: query
@@ -472,8 +481,8 @@ paths:
         - in: query
           name: bankAccountId
           schema:
-            type: integer
-            format: int32
+            type: string
+            format: uuid
           required: true
           description: id of the bankaccount for which the balances should be recreate
       responses:
@@ -484,8 +493,8 @@ components:
     Transaction:
       properties:
         id:
-          type: integer
-          format: int32
+          type: string
+          format: uuid
         subject:
           type: string
         amount:
@@ -505,8 +514,8 @@ components:
     ContinuousTransaction:
       properties:
         id:
-          type: integer
-          format: int32
+          type: string
+          format: uuid
         name:
           type: string
         amount:
@@ -525,6 +534,9 @@ components:
           type: boolean
     BankAccount:
       properties:
+        id:
+          type: string
+          format: uuid
         name:
           type: string
         bankName:
@@ -545,12 +557,18 @@ components:
           format: float
     BankAccountCategory:
       properties:
+        id:
+          type: string
+          format: uuid
         name:
           type: string
         isRealAccount:
           type: boolean
     Category:
       properties:
+        id:
+          type: string
+          format: uuid
         name:
           type: string
         fixCost:

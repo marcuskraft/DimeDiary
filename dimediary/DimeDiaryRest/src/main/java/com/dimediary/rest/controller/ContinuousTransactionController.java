@@ -6,6 +6,7 @@ import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.ContinuousTransactionRestConverter;
 import io.swagger.annotations.Api;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -40,21 +41,21 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
   }
 
   @Override
-  public ResponseEntity<Void> deleteContinuousTransaction(final Integer continuousTransactionId) {
+  public ResponseEntity<Void> deleteContinuousTransaction(final UUID continuousTransactionId) {
     this.continuousTransactionProvider.deleteAllContinuousTransactions(continuousTransactionId);
     return this.responseFactory.okNoContent();
   }
 
   @Override
   public ResponseEntity<ContinuousTransaction> getContinuousTransaction(
-      final Integer continuousTransactionId) {
+      final UUID continuousTransactionId) {
     return this.responseFactory.ok(this.continuousTransactionRestConverter
         .from(
             this.continuousTransactionProvider.getContinuousTransactions(continuousTransactionId)));
   }
 
   @Override
-  public ResponseEntity<Void> updateContinuousTransaction(final Integer continuousTransactionId,
+  public ResponseEntity<Void> updateContinuousTransaction(final UUID continuousTransactionId,
       final ContinuousTransaction continuousTransaction) {
     if (!continuousTransactionId.equals(continuousTransaction.getId())) {
       return this.responseFactory.badRequest();

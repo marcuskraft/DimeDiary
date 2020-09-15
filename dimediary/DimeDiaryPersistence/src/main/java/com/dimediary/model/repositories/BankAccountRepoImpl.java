@@ -6,6 +6,7 @@ import com.dimediary.model.converter.BankaccountTransformer;
 import com.dimediary.model.entities.BankAccountEntity;
 import com.dimediary.model.repositories.cruds.BankAccountCrudRepository;
 import com.dimediary.port.out.BankAccountRepo;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -51,14 +52,14 @@ class BankAccountRepoImpl implements BankAccountRepo {
   }
 
   @Override
-  public BankAccount getBankAccount(final String bankAccountName) {
-    if (bankAccountName == null) {
+  public BankAccount getBankAccount(final UUID bankAccountId) {
+    if (bankAccountId == null) {
       return null;
     }
-    this.log.info("getBankAccount: " + bankAccountName);
+    this.log.info("getBankAccount: " + bankAccountId);
     final com.dimediary.model.entities.BankAccountEntity bankAccount = this.entityManager.find(
         com.dimediary.model.entities.BankAccountEntity.class,
-        bankAccountName);
+        bankAccountId);
 
     return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccount);
   }

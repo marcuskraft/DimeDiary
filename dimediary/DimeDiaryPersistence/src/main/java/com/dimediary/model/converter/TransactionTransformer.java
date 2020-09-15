@@ -12,9 +12,6 @@ import org.mapstruct.Mapping;
     ContinuousTransactionTransformer.class})
 public interface TransactionTransformer {
 
-  TransactionEntity transactionToTransactionEntity(
-      Transaction transaction);
-
   @Mapping(source = "bankAccountEntity", target = "bankAccount")
   @Mapping(source = "continuousTransactionEntity", target = "continuousTransaction")
   @Mapping(source = "categoryEntity", target = "category")

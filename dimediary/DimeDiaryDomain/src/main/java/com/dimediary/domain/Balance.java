@@ -19,9 +19,9 @@ public class Balance implements Serializable {
   private static final long serialVersionUID = -322723363175753187L;
   private BankAccount bankAccount;
   private LocalDate date;
-  private Double balance;
+  private Integer balance;
 
-  public void addAmount(final Double amount) {
+  public void addAmount(final Integer amount) {
     this.balance += amount;
   }
 

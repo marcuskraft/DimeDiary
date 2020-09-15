@@ -11,6 +11,7 @@ import com.dimediary.utils.recurrence.RecurrenceRuleUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
@@ -128,7 +129,7 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   }
 
   @Override
-  public void deleteAllContinuousTransactions(final Integer continuousTransactionId) {
+  public void deleteAllContinuousTransactions(final UUID continuousTransactionId) {
     final ContinuousTransaction continuousTransaction = this.continuosTransactionService
         .getContinuousTransaction(continuousTransactionId);
 
@@ -136,7 +137,7 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   }
 
   @Override
-  public ContinuousTransaction getContinuousTransactions(final Integer continuousTransactionId) {
+  public ContinuousTransaction getContinuousTransactions(final UUID continuousTransactionId) {
     return this.continuosTransactionService.getContinuousTransaction(continuousTransactionId);
   }
 

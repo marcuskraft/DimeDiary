@@ -5,6 +5,7 @@ import com.dimediary.model.converter.BankaccountCategoryTransformer;
 import com.dimediary.model.entities.BankAccountCategoryEntity;
 import com.dimediary.port.out.BankAccountCategoryRepo;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -163,9 +164,9 @@ class BankAccountCategoryRepoImpl implements BankAccountCategoryRepo {
   }
 
   @Override
-  public void delete(final String bankAccountCategoryName) {
+  public void delete(final UUID bankAccountCategoryId) {
     final BankAccountCategoryEntity bankAccountCategoryEntity = this.entityManager
-        .find(BankAccountCategoryEntity.class, bankAccountCategoryName);
+        .find(BankAccountCategoryEntity.class, bankAccountCategoryId);
     if (bankAccountCategoryEntity != null) {
       this.entityManager.remove(bankAccountCategoryEntity);
     }

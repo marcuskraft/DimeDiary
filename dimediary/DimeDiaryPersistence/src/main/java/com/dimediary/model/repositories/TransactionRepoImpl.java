@@ -6,6 +6,7 @@ import com.dimediary.domain.Transaction;
 import com.dimediary.model.converter.TransactionTransformer;
 import com.dimediary.model.entities.TransactionEntity;
 import com.dimediary.port.out.TransactionRepo;
+import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,7 @@ public class TransactionRepoImpl implements TransactionRepo {
 
 
   @Override
-  public Transaction getTransaction(final Integer transactionId) {
+  public Transaction getTransaction(final UUID transactionId) {
     final TransactionEntity transactionEntity = this.entityManager
         .find(TransactionEntity.class, transactionId);
     return this.transactionTransformer.transactionEntityToTransaction(transactionEntity);

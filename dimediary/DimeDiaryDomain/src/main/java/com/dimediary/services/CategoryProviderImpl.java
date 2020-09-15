@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +31,8 @@ public class CategoryProviderImpl implements CategoryProvider {
   }
 
   @Override
-  public Category getCategory(final String categoryName) {
-    return this.categoryService.getCategory(categoryName);
+  public Category getCategory(final UUID categoryId) {
+    return this.categoryService.getCategory(categoryId);
   }
 
   @Override
@@ -40,14 +41,14 @@ public class CategoryProviderImpl implements CategoryProvider {
       final LocalDate to) {
     final Map<Category, Double> calculatedPercentage = new HashMap<>();
 
-    final Map<Category, Double> calculatedAbsolute = new HashMap<>();
+    final Map<Category, Integer> calculatedAbsolute = new HashMap<>();
 
     final List<Transaction> transactions = this.transactionProvider
         .getTransactions(from, to, bankAccount);
 
-    Double amountBasis = Double.valueOf(0.0);
+    Integer amountBasis = 0;
     for (final Transaction transaction : transactions) {
-      final Double amount = transaction.getAmount();
+      final Integer amount = transaction.getAmount();
       if ((transaction.getCategory() != null) && (amount < 0)) {
         amountBasis += amount;
         final Category category = transaction.getCategory();
@@ -60,12 +61,12 @@ public class CategoryProviderImpl implements CategoryProvider {
       }
     }
 
-    if (amountBasis.equals(0.0)) {
+    if (amountBasis.equals(0)) {
       return calculatedPercentage;
     }
 
-    for (final Entry<Category, Double> entry : calculatedAbsolute.entrySet()) {
-      final Double percentage = entry.getValue() / amountBasis;
+    for (final Entry<Category, Integer> entry : calculatedAbsolute.entrySet()) {
+      final Double percentage = (double) (entry.getValue()) / amountBasis;
       calculatedPercentage.put(entry.getKey(), percentage);
     }
 
@@ -98,8 +99,8 @@ public class CategoryProviderImpl implements CategoryProvider {
   }
 
   @Override
-  public void deleteCategory(final String categoryName) {
-    this.categoryService.delete(categoryName);
+  public void deleteCategory(final UUID categoryId) {
+    this.categoryService.delete(categoryId);
   }
 
 }

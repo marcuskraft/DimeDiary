@@ -1,10 +1,10 @@
 package com.dimediary.services;
 
 import com.dimediary.domain.BankAccount;
-import com.dimediary.port.in.BalanceProvider;
 import com.dimediary.port.in.BankAccountProvider;
 import com.dimediary.port.out.BankAccountRepo;
 import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,13 +17,13 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   private final BankAccountRepo bankAccountRepo;
 
 
-  private final BalanceProvider balanceProvider;
+  private final BalanceService balanceService;
 
   @Autowired
   public BankAccountProviderImpl(final BankAccountRepo bankAccountRepo,
-      final BalanceProvider balanceProvider) {
+      final BalanceService balanceService) {
     this.bankAccountRepo = bankAccountRepo;
-    this.balanceProvider = balanceProvider;
+    this.balanceService = balanceService;
   }
 
   @Override
@@ -38,10 +38,10 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   }
 
   @Override
-  public BankAccount getBankAccount(final String bankAccountName) {
+  public BankAccount getBankAccount(final UUID bankAccountId) {
     BankAccount bankAccount = null;
     try {
-      bankAccount = this.bankAccountRepo.getBankAccount(bankAccountName);
+      bankAccount = this.bankAccountRepo.getBankAccount(bankAccountId);
     } catch (final Exception e) {
       this.log.error("error during load of bank account", e);
     }
@@ -49,10 +49,10 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   }
 
   @Override
-  public void deleteBankAccount(final String bankAccountName) {
+  public void deleteBankAccount(final UUID bankAccountId) {
     final BankAccount bankAccount = this.bankAccountRepo
-        .getBankAccount(bankAccountName);
-    this.balanceProvider.deleteBalanceHistories(bankAccount);
+        .getBankAccount(bankAccountId);
+    this.balanceService.deleteBalanceHistories(bankAccount);
     this.bankAccountRepo.delete(bankAccount);
   }
 

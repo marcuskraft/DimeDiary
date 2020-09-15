@@ -6,10 +6,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public interface CategoryProvider {
 
-  Category getCategory(final String categoryName);
+  Category getCategory(final UUID categoryId);
 
   Map<Category, Double> calculatePercentageFromTo(final BankAccount bankAccount,
       final LocalDate from,
@@ -25,6 +26,6 @@ public interface CategoryProvider {
 
   void deleteCategories(List<Category> categories);
 
-  void deleteCategory(String categoryName);
+  void deleteCategory(UUID categoryId);
 
 }

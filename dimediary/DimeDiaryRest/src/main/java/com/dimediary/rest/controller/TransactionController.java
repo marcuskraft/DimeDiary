@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +46,7 @@ public class TransactionController implements TransactionApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteTransaction(final Integer transactionId) {
+  public ResponseEntity<Void> deleteTransaction(final UUID transactionId) {
     this.transactionProvider.delete(transactionId);
     return this.responseFactory.okNoContent();
   }
@@ -53,7 +54,7 @@ public class TransactionController implements TransactionApi {
   @Override
   public ResponseEntity<List<Transaction>> getTransactions(final LocalDate dateFrom,
       final LocalDate dateUntil,
-      final Optional<String> bankAccountName) {
+      final Optional<UUID> bankAccountName) {
     final List<com.dimediary.domain.Transaction> transactions;
     if (bankAccountName.isPresent()) {
       transactions = this.transactionProvider
@@ -70,7 +71,7 @@ public class TransactionController implements TransactionApi {
   }
 
   @Override
-  public ResponseEntity<Void> updateTransaction(final Integer transactionId,
+  public ResponseEntity<Void> updateTransaction(final UUID transactionId,
       final Transaction transaction) {
     if (!transactionId.equals(transaction.getId())) {
       return this.responseFactory.badRequest();

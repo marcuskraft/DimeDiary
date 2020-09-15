@@ -5,6 +5,7 @@ import com.dimediary.model.converter.CategoryTransformer;
 import com.dimediary.model.entities.CategoryEntity;
 import com.dimediary.port.out.CategoryRepo;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -32,13 +33,11 @@ class CategoryRepoImpl implements CategoryRepo {
   }
 
   @Override
-  public Category getCategory(final String categoryName) {
-    Validate.notEmpty(categoryName);
-
-    log.info("getCategory: " + categoryName);
+  public Category getCategory(final UUID categoryId) {
+    log.info("getCategory: " + categoryId);
     final com.dimediary.model.entities.CategoryEntity categoryEntity = this.entityManager.find(
         com.dimediary.model.entities.CategoryEntity.class,
-        categoryName);
+        categoryId);
     return this.entityToDomain(categoryEntity);
   }
 
@@ -123,8 +122,8 @@ class CategoryRepoImpl implements CategoryRepo {
   }
 
   @Override
-  public void delete(final String categoryName) {
-    this.delete(this.getCategory(categoryName));
+  public void delete(final UUID categoryId) {
+    this.delete(this.getCategory(categoryId));
   }
 
   @Override

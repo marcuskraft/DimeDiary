@@ -5,10 +5,11 @@ import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface TransactionRepo {
 
-  Transaction getTransaction(Integer transactionId);
+  Transaction getTransaction(UUID transactionId);
 
   List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
       BankAccount bankAccount);

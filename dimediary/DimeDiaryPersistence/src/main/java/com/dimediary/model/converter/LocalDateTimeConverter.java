@@ -1,23 +1,29 @@
 package com.dimediary.model.converter;
 
-@javax.persistence.Converter(autoApply = true)
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import javax.persistence.AttributeConverter;
+import javax.persistence.Converter;
+
+@Converter(autoApply = true)
 public class LocalDateTimeConverter implements
-    javax.persistence.AttributeConverter<java.time.LocalDateTime, java.util.Date> {
+    AttributeConverter<LocalDateTime, Date> {
 
   @Override
-  public java.util.Date convertToDatabaseColumn(final java.time.LocalDateTime attribute) {
+  public Date convertToDatabaseColumn(final LocalDateTime attribute) {
     if (attribute == null) {
       return null;
     }
-    return java.util.Date.from(attribute.atZone(java.time.ZoneId.systemDefault()).toInstant());
+    return Date.from(attribute.atZone(ZoneId.systemDefault()).toInstant());
   }
 
   @Override
-  public java.time.LocalDateTime convertToEntityAttribute(final java.util.Date dbData) {
+  public LocalDateTime convertToEntityAttribute(final Date dbData) {
     if (dbData == null) {
       return null;
     }
-    return java.time.LocalDateTime.ofInstant(dbData.toInstant(), java.time.ZoneId.systemDefault());
+    return LocalDateTime.ofInstant(dbData.toInstant(), ZoneId.systemDefault());
   }
 
 }

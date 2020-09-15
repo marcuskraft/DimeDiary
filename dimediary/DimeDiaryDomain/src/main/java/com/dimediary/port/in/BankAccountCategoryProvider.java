@@ -2,6 +2,7 @@ package com.dimediary.port.in;
 
 import com.dimediary.domain.BankAccountCategory;
 import java.util.List;
+import java.util.UUID;
 
 public interface BankAccountCategoryProvider {
 
@@ -11,7 +12,7 @@ public interface BankAccountCategoryProvider {
 
   void deleteBankAccountCategories(List<String> bankAccountCategoryNames);
 
-  void deleteBankAccountCategory(String bankAccountCategoryName);
+  void deleteBankAccountCategory(UUID bankAccountCategoryId);
 
   BankAccountCategory persist(BankAccountCategory bankAccountCategory);
 

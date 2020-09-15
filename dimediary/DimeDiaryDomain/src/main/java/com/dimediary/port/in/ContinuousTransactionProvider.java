@@ -4,6 +4,7 @@ import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import java.util.List;
+import java.util.UUID;
 
 public interface ContinuousTransactionProvider {
 
@@ -33,7 +34,7 @@ public interface ContinuousTransactionProvider {
   List<Transaction> generateTransactionsForContinuousTransaction(
       ContinuousTransaction continuousTransaction);
 
-  void deleteAllContinuousTransactions(Integer continuousTransactionId);
+  void deleteAllContinuousTransactions(UUID continuousTransactionId);
 
-  ContinuousTransaction getContinuousTransactions(Integer continuousTransactionId);
+  ContinuousTransaction getContinuousTransactions(UUID continuousTransactionId);
 }

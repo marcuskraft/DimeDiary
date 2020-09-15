@@ -3,6 +3,7 @@ package com.dimediary.port.out;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import java.util.List;
+import java.util.UUID;
 
 public interface ContinuosTransactionRepo {
 
@@ -21,5 +22,5 @@ public interface ContinuosTransactionRepo {
 
   void delete(ContinuousTransaction continuousTransaction);
 
-  ContinuousTransaction getContinuousTransaction(Integer continuousTransactionId);
+  ContinuousTransaction getContinuousTransaction(UUID continuousTransactionId);
 }

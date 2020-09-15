@@ -5,6 +5,7 @@ import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface TransactionProvider {
 
@@ -19,7 +20,7 @@ public interface TransactionProvider {
       BankAccount bankAccount);
 
   List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
-      String bankAccountName);
+      UUID bankAccountId);
 
   /**
    * @param bankAccount
@@ -69,7 +70,7 @@ public interface TransactionProvider {
 
   void persistTransactions(List<Transaction> transactions);
 
-  void delete(Integer transactionId);
+  void delete(UUID transactionId);
 
   void delete(Transaction transaction);
 

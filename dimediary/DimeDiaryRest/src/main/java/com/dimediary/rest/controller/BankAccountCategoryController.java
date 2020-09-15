@@ -7,6 +7,7 @@ import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.BankAccountCategoryRestConverter;
 import io.swagger.annotations.Api;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -42,8 +43,8 @@ public class BankAccountCategoryController implements BankAccountCategoryApi {
   }
 
   @Override
-  public ResponseEntity<Void> deleteBankAccountCategory(final String bankAccountCategoryName) {
-    this.bankaccountCategoryProvider.deleteBankAccountCategory(bankAccountCategoryName);
+  public ResponseEntity<Void> deleteBankAccountCategory(final UUID bankAccountCategoryId) {
+    this.bankaccountCategoryProvider.deleteBankAccountCategory(bankAccountCategoryId);
     return this.responseFactory.okNoContent();
   }
 
@@ -56,9 +57,9 @@ public class BankAccountCategoryController implements BankAccountCategoryApi {
   }
 
   @Override
-  public ResponseEntity<Void> updateBankAccountCategory(final String bankAccountCategoryName,
+  public ResponseEntity<Void> updateBankAccountCategory(final UUID bankAccountCategoryId,
       final BankAccountCategory bankAccountCategory) {
-    if (!bankAccountCategoryName.equals(bankAccountCategory.getName())) {
+    if (!bankAccountCategoryId.equals(bankAccountCategory.getName())) {
       return this.responseFactory.badRequest();
     }
     this.bankaccountCategoryProvider

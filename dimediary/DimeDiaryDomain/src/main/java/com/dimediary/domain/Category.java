@@ -1,6 +1,7 @@
 package com.dimediary.domain;
 
 import java.io.Serializable;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ public class Category implements Serializable {
    *
    */
   private static final long serialVersionUID = 4930547606652766922L;
+  private UUID id;
   private String name;
   private Boolean fixCost;
 

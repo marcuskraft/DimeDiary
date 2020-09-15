@@ -2,12 +2,13 @@ package com.dimediary.rest.controller;
 
 import com.dimediary.openapi.api.BalanceApi;
 import com.dimediary.openapi.model.BalanceHistory;
-import com.dimediary.port.in.BalanceProvider;
+import com.dimediary.port.in.BalanceUseCase;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.BalanceRestConverter;
 import io.swagger.annotations.Api;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +21,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Api(tags = "Balance")
 public class BalanceController implements BalanceApi {
 
-  private final BalanceProvider balanceProvider;
+  private final BalanceUseCase balanceUseCase;
   private final BalanceRestConverter balanceRestConverter;
   private final ResponseFactory responseFactory;
 
-  public BalanceController(final BalanceProvider balanceProvider,
+  public BalanceController(final BalanceUseCase balanceUseCase,
       final BalanceRestConverter balanceRestConverter,
       final ResponseFactory responseFactory) {
-    this.balanceProvider = balanceProvider;
+    this.balanceUseCase = balanceUseCase;
     this.balanceRestConverter = balanceRestConverter;
     this.responseFactory = responseFactory;
   }
@@ -35,16 +36,16 @@ public class BalanceController implements BalanceApi {
 
   @Override
   public ResponseEntity<List<BalanceHistory>> getBalances(
-      final String bankAccountName, final LocalDate dateFrom,
+      final UUID bankAccountId, final LocalDate dateFrom,
       final LocalDate dateUntil) {
     return this.responseFactory
-        .ok(this.balanceProvider.getBalancesFollowingDays(bankAccountName, dateFrom, dateUntil)
+        .ok(this.balanceUseCase.getBalancesFollowingDays(bankAccountId, dateFrom, dateUntil)
             .stream().map(this.balanceRestConverter::from).collect(
                 Collectors.toList()));
   }
 
   @Override
-  public ResponseEntity<Void> recreateBalances(final Integer bankAccountId) {
+  public ResponseEntity<Void> recreateBalances(final UUID bankAccountId) {
     return null; // TODO: implement
   }
 }

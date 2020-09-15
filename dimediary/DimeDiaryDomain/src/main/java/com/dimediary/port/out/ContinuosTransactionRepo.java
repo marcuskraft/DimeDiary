@@ -17,8 +17,9 @@ public interface ContinuosTransactionRepo {
    *
    * @param continuousTransaction
    */
-  void persist(ContinuousTransaction continuousTransaction);
+  ContinuousTransaction persist(ContinuousTransaction continuousTransaction);
 
   void delete(ContinuousTransaction continuousTransaction);
 
+  ContinuousTransaction getContinuousTransaction(Integer continuousTransactionId);
 }

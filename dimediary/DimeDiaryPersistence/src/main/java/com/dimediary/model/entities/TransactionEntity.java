@@ -75,6 +75,7 @@ public class TransactionEntity implements java.io.Serializable {
   private java.time.LocalDateTime timestamp;
 
   @javax.persistence.ManyToOne
+  @javax.persistence.JoinColumn(name = "CONTINUOUSTRANSACTION_ID")
   private com.dimediary.model.entities.ContinuousTransactionEntity continuousTransaction;
 
   private Boolean fixCost;

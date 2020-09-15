@@ -3,6 +3,7 @@ package com.dimediary.model.repositories;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.model.converter.ContinuousTransactionTransformer;
+import com.dimediary.model.entities.ContinuousTransactionEntity;
 import com.dimediary.port.out.ContinuosTransactionRepo;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -60,25 +61,24 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
    * @param continuousTransaction
    */
   @Override
-  public void persist(final ContinuousTransaction continuousTransaction) {
+  public ContinuousTransaction persist(final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
 
     com.dimediary.model.repositories.ContinuosTransactionRepoImpl.log
         .info("persist ContinuousTransaction: " + continuousTransaction.getId());
 
-    final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
+    com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
         .domainToEntity(continuousTransaction);
 
     if (this.findEntity(continuousTransaction) != null) {
-      this.entityManager.merge(continuousTransactionEntity);
+      continuousTransactionEntity = this.entityManager.merge(continuousTransactionEntity);
     } else {
       this.entityManager.persist(continuousTransactionEntity);
       this.entityManager.refresh(continuousTransactionEntity);
     }
 
-    continuousTransaction.setId(continuousTransactionEntity.getId());
-
-
+    return this.continuousTransactionTransformer
+        .continuousTransactionEntityToContinuousTransaction(continuousTransactionEntity);
   }
 
   @Override
@@ -95,6 +95,14 @@ class ContinuosTransactionRepoImpl implements ContinuosTransactionRepo {
       this.entityManager.remove(continuousTransactionEntity);
     }
 
+  }
+
+  @Override
+  public ContinuousTransaction getContinuousTransaction(final Integer continuousTransactionId) {
+    final ContinuousTransactionEntity continuousTransactionEntity = this.entityManager
+        .find(ContinuousTransactionEntity.class, continuousTransactionId);
+    return this.continuousTransactionTransformer
+        .continuousTransactionEntityToContinuousTransaction(continuousTransactionEntity);
   }
 
   private com.dimediary.model.entities.BankAccountEntity findBankAccountEntity(

@@ -1,6 +1,7 @@
 package com.dimediary.model.entities;
 
 import com.dimediary.domain.helper.AmountUtils;
+import javax.persistence.Column;
 
 @javax.persistence.Entity
 @javax.persistence.Table(name = "CONTINUOUS_TRANSACTION")
@@ -45,8 +46,10 @@ public class ContinuousTransactionEntity implements java.io.Serializable,
   @javax.persistence.JoinColumn(name = "CATEGORY_NAME")
   private com.dimediary.model.entities.CategoryEntity category;
 
+  @Column(name = "RECURRENCERULE")
   private String recurrenceRule;
 
+  @Column(name = "FIXCOST")
   private Boolean fixCost;
 
   public Double getAmount() {

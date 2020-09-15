@@ -18,16 +18,7 @@ public interface ContinuousTransactionProvider {
    *
    * @param continuousTransaction
    */
-  void persist(ContinuousTransaction continuousTransaction);
-
-  /**
-   * persists the given continuous transaction and a list of transactions
-   *
-   * @param continuousTransaction
-   * @param transactions
-   */
-  void persistContinuousTransaction(ContinuousTransaction continuousTransaction,
-      List<Transaction> transactions);
+  ContinuousTransaction persist(ContinuousTransaction continuousTransaction);
 
   void merge(ContinuousTransaction continuousTransaction);
 
@@ -42,4 +33,7 @@ public interface ContinuousTransactionProvider {
   List<Transaction> generateTransactionsForContinuousTransaction(
       ContinuousTransaction continuousTransaction);
 
+  void deleteAllContinuousTransactions(Integer continuousTransactionId);
+
+  ContinuousTransaction getContinuousTransactions(Integer continuousTransactionId);
 }

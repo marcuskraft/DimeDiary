@@ -52,31 +52,36 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
    * @param continuousTransaction
    */
   @Override
-  public void persist(final ContinuousTransaction continuousTransaction) {
+  public ContinuousTransaction persist(final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
 
-    this.continuosTransactionService.persist(continuousTransaction);
+    if (continuousTransaction.getId() != null) {
+      this.deleteAllContinuousTransactions(continuousTransaction);
+      continuousTransaction.setId(null);
+    }
+
+    final List<Transaction> transactions = this
+        .generateTransactionsForContinuousTransaction(continuousTransaction);
+    return this.persistContinuousTransaction(continuousTransaction, transactions);
+
+
   }
 
-  /**
-   * persists the given continuous transaction and a list of transactions
-   *
-   * @param continuousTransaction
-   * @param transactions
-   */
-  @Override
-  public void persistContinuousTransaction(final ContinuousTransaction continuousTransaction,
+
+  private ContinuousTransaction persistContinuousTransaction(
+      final ContinuousTransaction continuousTransaction,
       final List<Transaction> transactions) {
     Validate.notNull(continuousTransaction);
     Validate.notNull(transactions);
     if (transactions.isEmpty()) {
-      return;
+      return null;
     }
 
-    this.persist(continuousTransaction);
+    final ContinuousTransaction continuousTransactionRet = this.continuosTransactionService
+        .persist(continuousTransaction);
     this.transactionProvider.persistTransactions(transactions);
 
-
+    return continuousTransactionRet;
   }
 
   @Override
@@ -120,6 +125,19 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
     }
 
     return transactions;
+  }
+
+  @Override
+  public void deleteAllContinuousTransactions(final Integer continuousTransactionId) {
+    final ContinuousTransaction continuousTransaction = this.continuosTransactionService
+        .getContinuousTransaction(continuousTransactionId);
+
+    this.deleteAllContinuousTransactions(continuousTransaction);
+  }
+
+  @Override
+  public ContinuousTransaction getContinuousTransactions(final Integer continuousTransactionId) {
+    return this.continuosTransactionService.getContinuousTransaction(continuousTransactionId);
   }
 
 }

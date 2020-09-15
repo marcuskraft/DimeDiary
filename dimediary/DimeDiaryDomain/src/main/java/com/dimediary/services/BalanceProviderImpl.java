@@ -1,89 +1,93 @@
 package com.dimediary.services;
 
-import com.dimediary.domain.BalanceHistory;
+import com.dimediary.domain.Balance;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.Transaction;
 import com.dimediary.domain.helper.AmountUtils;
-import com.dimediary.port.in.AccountBalanceProvider;
+import com.dimediary.port.in.BalanceProvider;
 import com.dimediary.port.out.AccountBalanceRepo;
+import com.dimediary.port.out.BankAccountRepo;
 import com.dimediary.port.out.TransactionRepo;
 import com.dimediary.utils.date.DateUtils;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class AccountBalanceProviderImpl implements AccountBalanceProvider {
+public class BalanceProviderImpl implements BalanceProvider {
 
 
   private final TransactionRepo transactionService;
-
-
   private final AccountBalanceRepo accountBalanceService;
+  private final BankAccountRepo bankAccountRepo;
 
 
   @Autowired
-  public AccountBalanceProviderImpl(final TransactionRepo transactionService,
-      final AccountBalanceRepo accountBalanceService) {
+  public BalanceProviderImpl(final TransactionRepo transactionService,
+      final AccountBalanceRepo accountBalanceService,
+      final BankAccountRepo bankAccountRepo) {
     this.transactionService = transactionService;
     this.accountBalanceService = accountBalanceService;
+    this.bankAccountRepo = bankAccountRepo;
   }
 
-  /**
-   * @param bankAccount the bank account
-   * @param date        the date
-   * @return returns the balance for this bank account and date
-   */
   @Override
-  public Double getBalance(final BankAccount bankAccount, final LocalDate date) {
+  public List<Balance> getBalancesFollowingDays(final String bankAccountName,
+      final LocalDate dateFrom,
+      final LocalDate dateUntil) {
+    final BankAccount bankAccount = this.bankAccountRepo.getBankAccount(bankAccountName);
+    final List<LocalDate> dates = DateUtils.getLocalDatesFromTo(dateFrom, dateUntil);
+
+    return this.getBalancesFollowingDays(bankAccount, dates);
+  }
+
+
+  public Balance getBalance(final BankAccount bankAccount, final LocalDate date) {
     if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBalance())) {
       return null;
     }
 
-    final BalanceHistory lastBalanceHistoryBeforeRequestedDate = this
+    final Balance lastBalanceBeforeRequestedDate = this
         .getLastBalanceHistory(bankAccount, date,
             LocalDate.now());
 
-    if (lastBalanceHistoryBeforeRequestedDate == null) {
+    if (lastBalanceBeforeRequestedDate == null) {
       return this.getBalanceWithAllTransactions(bankAccount, date);
     }
 
     final Double result = this
-        .sumAllTransactionsBetween(bankAccount, date, lastBalanceHistoryBeforeRequestedDate);
+        .sumAllTransactionsBetween(bankAccount, date, lastBalanceBeforeRequestedDate);
 
-    return AmountUtils.round(result);
+    final Balance balance = new Balance();
+    balance.setBankAccount(bankAccount);
+    balance.setDate(date);
+    balance.setBalance(AmountUtils.round(AmountUtils.round(result)));
+
+    return balance;
 
   }
 
-  /**
-   * @param bankAccount bank account for which the balances are requested
-   * @param dates       sequence of following days for which the balances are requested
-   * @return returns a HashMap with the given Dates and the corresponding balances for this bank
-   * account on this date
-   */
-  @Override
-  public Map<LocalDate, Double> getBalancesFollowingDays(final BankAccount bankAccount,
+
+  public List<Balance> getBalancesFollowingDays(final BankAccount bankAccount,
       final List<LocalDate> dates) {
-    final HashMap<LocalDate, Double> balances = new HashMap<>();
+    final List<Balance> balances = new ArrayList<>();
 
-    Double lastBalance = 0.0;
+    Balance lastBalance = null;
 
-    dates.sort(null);
+    dates.sort(LocalDate::compareTo);
 
     for (int i = 0; i < dates.size(); i++) {
       if (i == 0) {
         lastBalance = this.getBalance(bankAccount, dates.get(i));
       } else {
-        lastBalance = this.getBalance(bankAccount, dates.get(i), lastBalance);
+        lastBalance = this.getBalance(bankAccount, dates.get(i), lastBalance.getBalance());
       }
-      balances.put(dates.get(i), lastBalance);
+      balances.add(lastBalance);
     }
 
     return balances;
@@ -104,10 +108,10 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
       return;
     }
 
-    final BalanceHistory lastBalanceHistory = this.accountBalanceService
+    final Balance lastBalance = this.accountBalanceService
         .getLastBalanceHistory(transaction.getBankAccount());
 
-    this.updateBalance(transaction, action, lastBalanceHistory);
+    this.updateBalance(transaction, action, lastBalance);
   }
 
   /**
@@ -122,24 +126,24 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
   }
 
   @Override
-  public void persistBalanceHistories(final List<BalanceHistory> balanceHistories) {
+  public void persistBalanceHistories(final List<Balance> balanceHistories) {
     this.accountBalanceService.persistBalanceHistories(balanceHistories);
   }
 
   @Override
-  public BalanceHistory getBalanceHistoryBefore(final BankAccount bankAccount,
+  public Balance getBalanceHistoryBefore(final BankAccount bankAccount,
       final LocalDate date) {
     return this.accountBalanceService.getBalanceHistoryBefore(bankAccount, date);
   }
 
   @Override
-  public BalanceHistory getLastBalanceHistory(final BankAccount bankAccount) {
+  public Balance getLastBalanceHistory(final BankAccount bankAccount) {
     this.log.info("getLastBalanceHistory for bankaccount {}", bankAccount.getName());
     return this.accountBalanceService.getLastBalanceHistory(bankAccount);
   }
 
   @Override
-  public BalanceHistory getLastBalanceHistory(final BankAccount bankAccount, final LocalDate date,
+  public Balance getLastBalanceHistory(final BankAccount bankAccount, final LocalDate date,
       final LocalDate today) {
     this.log
         .info("getLastBalanceHistory for bankaccount {} and date {}", bankAccount.getName(), date);
@@ -163,27 +167,27 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
   }
 
   private boolean checkBalanceHistories(final BankAccount bankAccount, final LocalDate today) {
-    final BalanceHistory lastBalanceHistory = this.getLastBalanceHistory(bankAccount);
+    final Balance lastBalance = this.getLastBalanceHistory(bankAccount);
 
-    if (lastBalanceHistory == null) {
-      this.generateMissingBalanceHistories(bankAccount, lastBalanceHistory, today);
+    if (lastBalance == null) {
+      this.generateMissingBalanceHistories(bankAccount, lastBalance, today);
       return true;
     }
 
-    final LocalDate dateOfLastBalance = lastBalanceHistory.getDate();
+    final LocalDate dateOfLastBalance = lastBalance.getDate();
 
     if (!dateOfLastBalance.getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
       this.log.error(
           "Balancehistories should only be on Sundays but was {} for bankaccount {} and date {}",
-          dateOfLastBalance.getDayOfWeek(), lastBalanceHistory.getBankAccount().getName(),
-          lastBalanceHistory.getDate());
+          dateOfLastBalance.getDayOfWeek(), lastBalance.getBankAccount().getName(),
+          lastBalance.getDate());
       throw new IllegalStateException("Balancehistories should only be on Sundays");
     }
 
     final LocalDate lastSundayBeforeToday = DateUtils.getLastSunday(today);
 
     if (dateOfLastBalance.isBefore(lastSundayBeforeToday)) {
-      this.generateMissingBalanceHistories(bankAccount, lastBalanceHistory, today);
+      this.generateMissingBalanceHistories(bankAccount, lastBalance, today);
       return true;
     }
 
@@ -194,22 +198,22 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
    * proofs the balance history of this bank account. Initialize the balance history if no exists.
    * Corrects wrong entries in the balance history if there are some.
    *
-   * @param bankAccount        bank account to proof
-   * @param lastBalanceHistory
+   * @param bankAccount bank account to proof
+   * @param lastBalance
    * @throws Exception
    */
   private void generateMissingBalanceHistories(final BankAccount bankAccount,
-      final BalanceHistory lastBalanceHistory,
+      final Balance lastBalance,
       final LocalDate today) {
 
-    if (lastBalanceHistory == null) {
+    if (lastBalance == null) {
       this.initBalance(bankAccount, today);
       return;
     }
 
     final LocalDate dateForNextBalanceHistory = DateUtils
-        .getNextSundayAlways(lastBalanceHistory.getDate());
-    this.generateBalances(bankAccount, lastBalanceHistory.getBalance(), dateForNextBalanceHistory,
+        .getNextSundayAlways(lastBalance.getDate());
+    this.generateBalances(bankAccount, lastBalance.getBalance(), dateForNextBalanceHistory,
         today);
 
 
@@ -221,9 +225,9 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
         .getAllSundayForBalancing(dateForNextBalanceHistory, today);
 
     LocalDate lastSunday;
-    final ArrayList<BalanceHistory> balanceHistories = new ArrayList<>();
+    final ArrayList<Balance> balanceHistories = new ArrayList<>();
     for (final LocalDate sunday : sundays) {
-      final BalanceHistory balanceHistory = new BalanceHistory();
+      final Balance balance = new Balance();
 
       lastSunday = DateUtils.getLastSundayAlways(sunday);
       final List<Transaction> transactions = this.transactionService
@@ -234,17 +238,17 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
         lastAmount += transaction.getAmount();
       }
 
-      balanceHistory.setBankAccount(bankAccount);
-      balanceHistory.setDate(sunday);
-      balanceHistory.setBalance(lastAmount);
+      balance.setBankAccount(bankAccount);
+      balance.setDate(sunday);
+      balance.setBalance(lastAmount);
 
-      balanceHistories.add(balanceHistory);
+      balanceHistories.add(balance);
     }
 
     this.persistBalanceHistories(balanceHistories);
   }
 
-  private Double getBalance(final BankAccount bankAccount, final LocalDate date,
+  private Balance getBalance(final BankAccount bankAccount, final LocalDate date,
       final Double balanceDayBefore) {
     if (bankAccount == null || date == null || date.isBefore(bankAccount.getDateStartBalance())) {
       return null;
@@ -255,7 +259,7 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
 
     Double result;
     if (balanceDayBefore == null) {
-      result = this.getBalance(bankAccount, date.minusDays(1));
+      result = this.getBalance(bankAccount, date.minusDays(1)).getBalance();
       if (result == null) {
         result = 0.0;
       }
@@ -267,10 +271,15 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
       result += transaction.getAmount();
     }
 
-    return AmountUtils.round(result);
+    final Balance balance = new Balance();
+    balance.setBankAccount(bankAccount);
+    balance.setDate(date);
+    balance.setBalance(AmountUtils.round(AmountUtils.round(result)));
+
+    return balance;
   }
 
-  private Double getBalanceWithAllTransactions(final BankAccount bankAccount,
+  private Balance getBalanceWithAllTransactions(final BankAccount bankAccount,
       final LocalDate date) {
     Double amount;
 
@@ -284,13 +293,18 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
       amount += transaction.getAmount();
     }
 
-    return AmountUtils.round(amount);
+    final Balance balance = new Balance();
+    balance.setBankAccount(bankAccount);
+    balance.setDate(date);
+    balance.setBalance(AmountUtils.round(amount));
+
+    return balance;
   }
 
   private Double sumAllTransactionsBetween(final BankAccount bankAccount, final LocalDate date,
-      final BalanceHistory balanceHistory) {
-    Double result = balanceHistory.getBalance();
-    final LocalDate dateFrom = balanceHistory.getDate().plusDays(1);
+      final Balance balance) {
+    Double result = balance.getBalance();
+    final LocalDate dateFrom = balance.getDate().plusDays(1);
 
     final List<Transaction> transactions = this.transactionService
         .getTransactions(dateFrom, date, bankAccount);
@@ -302,23 +316,23 @@ public class AccountBalanceProviderImpl implements AccountBalanceProvider {
   }
 
   private void updateBalance(final Transaction transaction, final BalanceAction action,
-      final BalanceHistory lastBalanceHistory) {
-    if (lastBalanceHistory == null || transaction.getDate().isAfter(lastBalanceHistory.getDate())) {
+      final Balance lastBalance) {
+    if (lastBalance == null || transaction.getDate().isAfter(lastBalance.getDate())) {
       return;
     }
 
-    final List<BalanceHistory> balanceHistories = this.accountBalanceService
+    final List<Balance> balanceHistories = this.accountBalanceService
         .getBalanceHistoriesAfterDate(transaction.getBankAccount(), transaction.getDate());
 
     switch (action) {
       case adding:
-        for (final BalanceHistory balanceHistory : balanceHistories) {
-          balanceHistory.addAmount(transaction.getAmount());
+        for (final Balance balance : balanceHistories) {
+          balance.addAmount(transaction.getAmount());
         }
         break;
       case deleting:
-        for (final BalanceHistory balanceHistory : balanceHistories) {
-          balanceHistory.addAmount(-transaction.getAmount());
+        for (final Balance balance : balanceHistories) {
+          balance.addAmount(-transaction.getAmount());
         }
         break;
       default:

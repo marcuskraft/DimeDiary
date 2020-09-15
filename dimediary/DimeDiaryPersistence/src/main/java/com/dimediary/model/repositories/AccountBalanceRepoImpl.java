@@ -1,6 +1,6 @@
 package com.dimediary.model.repositories;
 
-import com.dimediary.domain.BalanceHistory;
+import com.dimediary.domain.Balance;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.model.converter.BalanceHistoryTransformer;
 import com.dimediary.port.out.AccountBalanceRepo;
@@ -31,7 +31,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public java.util.List<BalanceHistory> getBalanceHistories(final BankAccount bankAccount) {
+  public java.util.List<Balance> getBalanceHistories(final BankAccount bankAccount) {
     Validate.notNull(bankAccount);
 
     this.log.info("getBalanceHistories for bank account: " + bankAccount.getName());
@@ -46,7 +46,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public java.util.List<BalanceHistory> getBalanceHistoriesAfterDate(final BankAccount bankAccount,
+  public java.util.List<Balance> getBalanceHistoriesAfterDate(final BankAccount bankAccount,
       final java.time.LocalDate date) {
     Validate.notNull(bankAccount);
     Validate.notNull(date);
@@ -65,7 +65,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public BalanceHistory getBalanceHistory(final BankAccount bankAccount,
+  public Balance getBalanceHistory(final BankAccount bankAccount,
       final java.time.LocalDate date) {
     Validate.notNull(bankAccount);
     Validate.notNull(date);
@@ -85,7 +85,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public BalanceHistory getBalanceHistoryBefore(final BankAccount bankAccount,
+  public Balance getBalanceHistoryBefore(final BankAccount bankAccount,
       final java.time.LocalDate date) {
     Validate.notNull(bankAccount);
     Validate.notNull(date);
@@ -114,7 +114,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public BalanceHistory getLastBalanceHistory(final BankAccount bankAccount) {
+  public Balance getLastBalanceHistory(final BankAccount bankAccount) {
     Validate.notNull(bankAccount);
 
     this.log.info("getLastBalanceHistory for bank account: " + bankAccount.getName());
@@ -135,17 +135,17 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public void persist(final BalanceHistory balanceHistory) {
-    Validate.notNull(balanceHistory);
-    this.log.info("persist BalanceHistory for bank account: " + balanceHistory.getBankAccount()
+  public void persist(final Balance balance) {
+    Validate.notNull(balance);
+    this.log.info("persist BalanceHistory for bank account: " + balance.getBankAccount()
         + " and date: "
-        + balanceHistory.getDate());
+        + balance.getDate());
     try {
       final com.dimediary.model.entities.BalanceHistoryEntity balanceHistoryEntity = this.balanceHistoryTransformer
-          .balanceHistoryToBalanceHistoryEntity(balanceHistory,
-              this.findBankAccount(balanceHistory.getBankAccount()));
+          .balanceHistoryToBalanceHistoryEntity(balance,
+              this.findBankAccount(balance.getBankAccount()));
 
-      if (this.findBalanceHistoryEntity(balanceHistory) == null) {
+      if (this.findBalanceHistoryEntity(balance) == null) {
         this.entityManager.persist(balanceHistoryEntity);
       } else {
         this.entityManager.merge(balanceHistoryEntity);
@@ -158,31 +158,31 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   @Override
-  public void persistBalanceHistories(final java.util.List<BalanceHistory> balanceHistories) {
+  public void persistBalanceHistories(final java.util.List<Balance> balanceHistories) {
     Validate.notNull(balanceHistories);
     if (balanceHistories.isEmpty()) {
       return;
     }
 
-    for (final BalanceHistory balanceHistory : balanceHistories) {
-      this.persist(balanceHistory);
+    for (final Balance balance : balanceHistories) {
+      this.persist(balance);
     }
 
   }
 
   @Override
-  public void delete(final BalanceHistory balanceHistory) {
-    Validate.notNull(balanceHistory);
+  public void delete(final Balance balance) {
+    Validate.notNull(balance);
 
     try {
-      if (balanceHistory.getBankAccount() != null) {
-        this.log.info("delete BalanceHistory for bank account: " + balanceHistory.getBankAccount()
+      if (balance.getBankAccount() != null) {
+        this.log.info("delete BalanceHistory for bank account: " + balance.getBankAccount()
             .getBankName()
-            + " and date: " + balanceHistory.getDate());
+            + " and date: " + balance.getDate());
       }
 
       final com.dimediary.model.entities.BalanceHistoryEntity balanceHistoryEntity = this
-          .findBalanceHistoryEntity(balanceHistory);
+          .findBalanceHistoryEntity(balance);
 
       if (balanceHistoryEntity != null) {
         this.entityManager.remove(balanceHistoryEntity);
@@ -191,7 +191,7 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
 
     } catch (final Exception e) {
       this.log.error("can't delete BalanceHistory for bank account: {} and date: {}",
-          balanceHistory.getBankAccount().getBankName(), balanceHistory.getDate(), e);
+          balance.getBankAccount().getBankName(), balance.getDate(), e);
       throw e;
     }
   }
@@ -200,14 +200,14 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
    * @param balanceHistories list of balance histories to delete
    */
   @Override
-  public void deleteBalanceHistories(final java.util.List<BalanceHistory> balanceHistories) {
+  public void deleteBalanceHistories(final java.util.List<Balance> balanceHistories) {
     Validate.notNull(balanceHistories);
     if (balanceHistories.isEmpty()) {
       return;
     }
 
-    for (final BalanceHistory balanceHistory : balanceHistories) {
-      this.delete(balanceHistory);
+    for (final Balance balance : balanceHistories) {
+      this.delete(balance);
     }
 
   }
@@ -219,20 +219,20 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   public void deleteBalanceHistories(final BankAccount bankAccount) {
     Validate.notNull(bankAccount);
 
-    final java.util.List<BalanceHistory> balanceHistories = this.getBalanceHistories(bankAccount);
+    final java.util.List<Balance> balanceHistories = this.getBalanceHistories(bankAccount);
     if (!balanceHistories.isEmpty()) {
       this.deleteBalanceHistories(balanceHistories);
     }
 
   }
 
-  private java.util.List<BalanceHistory> entitiesToDomains(
+  private java.util.List<Balance> entitiesToDomains(
       final java.util.List<com.dimediary.model.entities.BalanceHistoryEntity> balanceHistories) {
     return balanceHistories.stream().map((balance) -> this.entityToDomain(balance)).collect(
         java.util.stream.Collectors.toList());
   }
 
-  private BalanceHistory entityToDomain(
+  private Balance entityToDomain(
       final com.dimediary.model.entities.BalanceHistoryEntity balanceEntity) {
     return this.balanceHistoryTransformer.balanceHistoryEntityToBalanceHistory(balanceEntity);
   }
@@ -252,11 +252,11 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
   }
 
   private com.dimediary.model.entities.BalanceHistoryEntity findBalanceHistoryEntity(
-      final BalanceHistory balanceHistory) {
-    if (balanceHistory != null && balanceHistory.getBankAccount() != null
-        && balanceHistory.getDate() != null) {
+      final Balance balance) {
+    if (balance != null && balance.getBankAccount() != null
+        && balance.getDate() != null) {
       final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
-          .findBankAccount(balanceHistory.getBankAccount());
+          .findBankAccount(balance.getBankAccount());
       if (bankAccountEntity != null) {
 
         try {
@@ -265,10 +265,10 @@ class AccountBalanceRepoImpl implements AccountBalanceRepo {
                   com.dimediary.model.entities.BalanceHistoryEntity.ACCOUNT_BALANCE_EXACT_DATE,
                   com.dimediary.model.entities.BalanceHistoryEntity.class)
               .setParameter("bankAccount", bankAccountEntity)
-              .setParameter("date", balanceHistory.getDate()).getSingleResult();
+              .setParameter("date", balance.getDate()).getSingleResult();
         } catch (final javax.persistence.NoResultException e) {
           this.log.info("No balance history found for bank account{} and date {}",
-              balanceHistory.getBankAccount().getName(), balanceHistory.getDate().toString());
+              balance.getBankAccount().getName(), balance.getDate().toString());
         }
       }
     }

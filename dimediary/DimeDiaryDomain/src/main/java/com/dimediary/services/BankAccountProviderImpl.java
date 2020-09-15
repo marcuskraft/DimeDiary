@@ -1,7 +1,7 @@
 package com.dimediary.services;
 
 import com.dimediary.domain.BankAccount;
-import com.dimediary.port.in.AccountBalanceProvider;
+import com.dimediary.port.in.BalanceProvider;
 import com.dimediary.port.in.BankAccountProvider;
 import com.dimediary.port.out.BankAccountRepo;
 import java.util.List;
@@ -17,13 +17,13 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   private final BankAccountRepo bankAccountRepo;
 
 
-  private final AccountBalanceProvider accountBalanceProvider;
+  private final BalanceProvider balanceProvider;
 
   @Autowired
   public BankAccountProviderImpl(final BankAccountRepo bankAccountRepo,
-      final AccountBalanceProvider accountBalanceProvider) {
+      final BalanceProvider balanceProvider) {
     this.bankAccountRepo = bankAccountRepo;
-    this.accountBalanceProvider = accountBalanceProvider;
+    this.balanceProvider = balanceProvider;
   }
 
   @Override
@@ -52,7 +52,7 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   public void deleteBankAccount(final String bankAccountName) {
     final BankAccount bankAccount = this.bankAccountRepo
         .getBankAccount(bankAccountName);
-    this.accountBalanceProvider.deleteBalanceHistories(bankAccount);
+    this.balanceProvider.deleteBalanceHistories(bankAccount);
     this.bankAccountRepo.delete(bankAccount);
   }
 

@@ -434,10 +434,9 @@ paths:
         - Balance
       parameters:
         - in: query
-          name: bankAccountId
+          name: bankAccountName
           schema:
-            type: integer
-            format: int32
+            type: string
           required: true
           description: id of the bankaccount to request the balance for
         - in: query
@@ -558,8 +557,8 @@ components:
           type: boolean
     BalanceHistory:
       properties:
-        bankAccount:
-          $ref: '#/components/schemas/BankAccount'
+        bankAccountName:
+          type: string
         date:
           type: string
           format: date

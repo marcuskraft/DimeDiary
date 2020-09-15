@@ -3,7 +3,7 @@ package com.dimediary.services;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
-import com.dimediary.port.in.AccountBalanceProvider;
+import com.dimediary.port.in.BalanceProvider;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.BankAccountRepo;
 import com.dimediary.port.out.TransactionRepo;
@@ -19,16 +19,16 @@ import org.springframework.stereotype.Service;
 public class TransactionProviderImpl implements TransactionProvider {
 
 
-  private final AccountBalanceProvider accountBalanceProvider;
+  private final BalanceProvider balanceProvider;
   private final TransactionRepo transactionService;
   private final BankAccountRepo bankaccountRepo;
 
 
   @Autowired
-  public TransactionProviderImpl(final AccountBalanceProvider accountBalanceProvider,
+  public TransactionProviderImpl(final BalanceProvider balanceProvider,
       final TransactionRepo transactionService,
       final BankAccountRepo bankaccountRepo) {
-    this.accountBalanceProvider = accountBalanceProvider;
+    this.balanceProvider = balanceProvider;
     this.transactionService = transactionService;
     this.bankaccountRepo = bankaccountRepo;
   }
@@ -150,8 +150,8 @@ public class TransactionProviderImpl implements TransactionProvider {
 
     final Transaction persistedTransaction = this.transactionService
         .persistTransaction(transaction);
-    this.accountBalanceProvider
-        .updateBalance(persistedTransaction, AccountBalanceProvider.BalanceAction.adding);
+    this.balanceProvider
+        .updateBalance(persistedTransaction, BalanceProvider.BalanceAction.adding);
 
     return persistedTransaction;
   }
@@ -182,8 +182,8 @@ public class TransactionProviderImpl implements TransactionProvider {
 
   @Override
   public void delete(final Transaction transaction) {
-    this.accountBalanceProvider
-        .updateBalance(transaction, AccountBalanceProvider.BalanceAction.deleting);
+    this.balanceProvider
+        .updateBalance(transaction, BalanceProvider.BalanceAction.deleting);
     this.transactionService.delete(transaction);
   }
 

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BalanceHistory implements Serializable {
+public class Balance implements Serializable {
 
   /**
    *

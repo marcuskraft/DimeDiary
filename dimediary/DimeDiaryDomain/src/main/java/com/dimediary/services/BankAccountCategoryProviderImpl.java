@@ -12,42 +12,27 @@ import org.springframework.stereotype.Service;
 public class BankAccountCategoryProviderImpl implements BankAccountCategoryProvider {
 
 
-  private final BankAccountCategoryRepo bankaccountCategoryService;
+  private final BankAccountCategoryRepo bankAccountCategoryService;
 
   @Autowired
   public BankAccountCategoryProviderImpl(
-      final BankAccountCategoryRepo bankaccountCategoryService) {
-    this.bankaccountCategoryService = bankaccountCategoryService;
-  }
-
-  @Override
-  public List<String> getBankAccountCategoryNames() {
-    return this.bankaccountCategoryService.getBankAccountCategoryNames();
-  }
-
-  @Override
-  public BankAccountCategory getBankAccountCategory(final String bankaccountCategoryName) {
-    return this.bankaccountCategoryService.getBankAccountCategory(bankaccountCategoryName);
-  }
-
-  @Override
-  public void deleteBankAccountCategories(final List<String> bankAccountCategoryNames) {
-    this.bankaccountCategoryService.deleteBankAccountCategories(bankAccountCategoryNames);
+      final BankAccountCategoryRepo bankAccountCategoryService) {
+    this.bankAccountCategoryService = bankAccountCategoryService;
   }
 
   @Override
   public void deleteBankAccountCategory(final UUID bankAccountCategoryId) {
-    this.bankaccountCategoryService.delete(bankAccountCategoryId);
+    this.bankAccountCategoryService.delete(bankAccountCategoryId);
   }
 
   @Override
   public BankAccountCategory persist(final BankAccountCategory bankAccountCategory) {
-    return this.bankaccountCategoryService.persist(bankAccountCategory);
+    return this.bankAccountCategoryService.persist(bankAccountCategory);
   }
 
   @Override
   public List<BankAccountCategory> getBankAccountCategories() {
-    return this.bankaccountCategoryService.getBankAccountCategories();
+    return this.bankAccountCategoryService.getBankAccountCategories();
   }
 
 }

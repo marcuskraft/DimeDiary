@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public interface BankAccountProvider {
 
-  List<String> getBankAccountNames();
+  List<BankAccount> getBankAccounts();
 
   BankAccount getBankAccount(UUID bankAccountId);
 
@@ -14,5 +14,4 @@ public interface BankAccountProvider {
 
   BankAccount persist(BankAccount bankAccount);
 
-  void update(BankAccount bankAccount, String bankAccountName);
 }

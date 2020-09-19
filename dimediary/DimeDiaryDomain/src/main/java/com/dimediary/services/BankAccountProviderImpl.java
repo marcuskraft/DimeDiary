@@ -15,8 +15,6 @@ public class BankAccountProviderImpl implements BankAccountProvider {
 
 
   private final BankAccountRepo bankAccountRepo;
-
-
   private final BalanceService balanceService;
 
   @Autowired
@@ -27,14 +25,8 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   }
 
   @Override
-  public List<String> getBankAccountNames() {
-    List<String> bankAccountNames = null;
-    try {
-      bankAccountNames = this.bankAccountRepo.getBankAccountNames();
-    } catch (final Exception e) {
-      this.log.error("error during load of bank account names", e);
-    }
-    return bankAccountNames;
+  public List<BankAccount> getBankAccounts() {
+    return this.bankAccountRepo.getBankAccount();
   }
 
   @Override
@@ -43,7 +35,7 @@ public class BankAccountProviderImpl implements BankAccountProvider {
     try {
       bankAccount = this.bankAccountRepo.getBankAccount(bankAccountId);
     } catch (final Exception e) {
-      this.log.error("error during load of bank account", e);
+      BankAccountProviderImpl.log.error("error during load of bank account", e);
     }
     return bankAccount;
   }
@@ -59,11 +51,6 @@ public class BankAccountProviderImpl implements BankAccountProvider {
   @Override
   public BankAccount persist(final BankAccount bankAccount) {
     return this.bankAccountRepo.persist(bankAccount);
-  }
-
-  @Override
-  public void update(final BankAccount bankAccount, final String bankAccountName) {
-
   }
 
 }

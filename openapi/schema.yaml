@@ -221,7 +221,7 @@ paths:
                 $ref: '#/components/schemas/Category'
   /categories/{categoryId}:
     put:
-      summary: update bank category
+      summary: update category
       description: update category
       operationId: updateCategory
       tags:
@@ -351,7 +351,7 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/schemas/BankAccount'
     post:
       summary: saves a new bankaccount
       description: saves a  newbankaccount
@@ -497,9 +497,8 @@ components:
           format: uuid
         subject:
           type: string
-        amount:
-          type: number
-          format: float
+        amountEuroCent:
+          type: integer
         date:
           type: string
           format: date
@@ -518,9 +517,8 @@ components:
           format: uuid
         name:
           type: string
-        amount:
-          type: number
-          format: float
+        amountEuroCent:
+          type: integer
         dateBegin:
           type: string
           format: date
@@ -552,9 +550,8 @@ components:
         dateStartBalance:
           type: string
           format: date
-        startBalance:
-          type: number
-          format: float
+        startBalanceEuroCent:
+          type: integer
     BankAccountCategory:
       properties:
         id:
@@ -580,6 +577,5 @@ components:
         date:
           type: string
           format: date
-        balance:
-          type: number
-          format: float
+        balanceEuroCent:
+          type: integer

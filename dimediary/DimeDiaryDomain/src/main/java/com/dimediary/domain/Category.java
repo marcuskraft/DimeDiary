@@ -12,10 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Category implements Serializable {
-
-  /**
-   *
-   */
+  
   private static final long serialVersionUID = 4930547606652766922L;
   private UUID id;
   private String name;

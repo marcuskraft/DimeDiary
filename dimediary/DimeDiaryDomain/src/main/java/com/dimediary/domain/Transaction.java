@@ -15,13 +15,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Transaction implements Serializable {
 
-  /**
-   *
-   */
+
   private static final long serialVersionUID = 5747032574494786944L;
   private UUID id;
   private String name;
-  private Integer amount;
+  private Integer amountEuroCent;
   private BankAccount bankAccount;
   private Category category;
   private LocalDate date;

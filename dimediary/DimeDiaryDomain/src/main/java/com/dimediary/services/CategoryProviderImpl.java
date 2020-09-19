@@ -1,17 +1,9 @@
 package com.dimediary.services;
 
-import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.Category;
-import com.dimediary.domain.Transaction;
 import com.dimediary.port.in.CategoryProvider;
-import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.CategoryRepo;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,61 +13,9 @@ public class CategoryProviderImpl implements CategoryProvider {
 
   private final CategoryRepo categoryService;
 
-  private final TransactionProvider transactionProvider;
-
   @Autowired
-  public CategoryProviderImpl(final CategoryRepo categoryService,
-      final TransactionProvider transactionProvider) {
+  public CategoryProviderImpl(final CategoryRepo categoryService) {
     this.categoryService = categoryService;
-    this.transactionProvider = transactionProvider;
-  }
-
-  @Override
-  public Category getCategory(final UUID categoryId) {
-    return this.categoryService.getCategory(categoryId);
-  }
-
-  @Override
-  public Map<Category, Double> calculatePercentageFromTo(final BankAccount bankAccount,
-      final LocalDate from,
-      final LocalDate to) {
-    final Map<Category, Double> calculatedPercentage = new HashMap<>();
-
-    final Map<Category, Integer> calculatedAbsolute = new HashMap<>();
-
-    final List<Transaction> transactions = this.transactionProvider
-        .getTransactions(from, to, bankAccount);
-
-    Integer amountBasis = 0;
-    for (final Transaction transaction : transactions) {
-      final Integer amount = transaction.getAmount();
-      if ((transaction.getCategory() != null) && (amount < 0)) {
-        amountBasis += amount;
-        final Category category = transaction.getCategory();
-
-        if (!calculatedAbsolute.containsKey(category)) {
-          calculatedAbsolute.put(category, amount);
-        } else {
-          calculatedAbsolute.replace(category, calculatedAbsolute.get(category) + amount);
-        }
-      }
-    }
-
-    if (amountBasis.equals(0)) {
-      return calculatedPercentage;
-    }
-
-    for (final Entry<Category, Integer> entry : calculatedAbsolute.entrySet()) {
-      final Double percentage = (double) (entry.getValue()) / amountBasis;
-      calculatedPercentage.put(entry.getKey(), percentage);
-    }
-
-    return calculatedPercentage;
-  }
-
-  @Override
-  public List<Category> getCategories(final ArrayList<String> categoryNames) {
-    return this.categoryService.getCategories(categoryNames);
   }
 
   @Override
@@ -84,18 +24,8 @@ public class CategoryProviderImpl implements CategoryProvider {
   }
 
   @Override
-  public List<String> getCategoryNames() {
-    return this.categoryService.getCategoryNames();
-  }
-
-  @Override
   public Category persist(final Category category) {
     return this.categoryService.persist(category);
-  }
-
-  @Override
-  public void deleteCategories(final List<Category> categories) {
-    this.categoryService.deleteCategories(categories);
   }
 
   @Override

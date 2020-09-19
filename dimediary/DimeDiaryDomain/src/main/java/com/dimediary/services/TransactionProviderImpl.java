@@ -34,22 +34,6 @@ public class TransactionProviderImpl implements TransactionProvider {
     this.bankaccountRepo = bankaccountRepo;
   }
 
-  /**
-   * @param dateFrom
-   * @param dateUntil
-   * @param bankAccount
-   * @return list of transactions belonging to the given bank account between the two dates
-   * (including both days)
-   */
-  @Override
-  public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
-      final BankAccount bankAccount) {
-    Validate.notNull(dateFrom);
-    Validate.notNull(dateUntil);
-    Validate.notNull(bankAccount);
-
-    return this.transactionService.getTransactions(dateFrom, dateUntil, bankAccount);
-  }
 
   @Override
   public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
@@ -58,36 +42,6 @@ public class TransactionProviderImpl implements TransactionProvider {
     return this.getTransactions(dateFrom, dateUntil, bankAccount);
   }
 
-  /**
-   * @param bankAccount
-   * @return list of all transactions of the given bank account
-   */
-  @Override
-  public List<Transaction> getTransactions(final BankAccount bankAccount) {
-    Validate.notNull(bankAccount);
-
-    return this.transactionService.getTransactions(bankAccount);
-  }
-
-  /**
-   * @param bankAccount
-   * @param date
-   * @return list of transactions at the given date for the given bank account
-   */
-  @Override
-  public List<Transaction> getTransactions(final BankAccount bankAccount, final LocalDate date) {
-    Validate.notNull(bankAccount);
-    Validate.notNull(date);
-
-    return this.transactionService.getTransactions(bankAccount, date);
-  }
-
-  /**
-   * @param continuousTransaction
-   * @param date
-   * @return list of transactions belonging to this continuous transaction after the given date
-   * (inclusive)
-   */
   @Override
   public List<Transaction> getTransactionsFromDate(
       final ContinuousTransaction continuousTransaction,
@@ -107,10 +61,7 @@ public class TransactionProviderImpl implements TransactionProvider {
     return this.transactionService.getTransactionsUntil(continuousTransaction, dateUntil);
   }
 
-  /**
-   * @param continuousTransaction
-   * @return list of all transactions belonging to the given continuous transaction
-   */
+
   @Override
   public List<Transaction> getTransactions(final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
@@ -118,11 +69,6 @@ public class TransactionProviderImpl implements TransactionProvider {
     return this.transactionService.getTransactions(continuousTransaction);
   }
 
-  /**
-   * @param dateFrom
-   * @param dateUntil
-   * @return all transactions in the given date range (both inclusive) with no bank account
-   */
   @Override
   public List<Transaction> getTransactionsWithoutAccount(final LocalDate dateFrom,
       final LocalDate dateUntil) {
@@ -132,22 +78,11 @@ public class TransactionProviderImpl implements TransactionProvider {
     return this.transactionService.getTransactionsWithoutAccount(dateFrom, dateUntil);
   }
 
-  /**
-   * @param date
-   * @return all transaction on the given date without a bank account
-   */
-  @Override
-  public List<Transaction> getTrandactionsWithoutAccount(final LocalDate date) {
-    Validate.notNull(date);
-
-    return this.transactionService.getTrandactionsWithoutAccount(date);
-  }
-
   @Override
   public Transaction persistTransaction(final Transaction transaction) {
     Validate.notNull(transaction, "Transaction must not be null");
 
-    this.log.info("persist transaction: " + transaction.getId());
+    TransactionProviderImpl.log.info("persist transaction: " + transaction.getId());
 
     final Transaction persistedTransaction = this.transactionService
         .persistTransaction(transaction);
@@ -173,19 +108,12 @@ public class TransactionProviderImpl implements TransactionProvider {
   @Override
   public void delete(final UUID transactionId) {
 
-    this.log.info("delete Transaction: " + transactionId);
+    TransactionProviderImpl.log.info("delete Transaction: " + transactionId);
 
     final Transaction transaction = this.transactionService.getTransaction(transactionId);
 
     this.delete(transaction);
 
-  }
-
-  @Override
-  public void delete(final Transaction transaction) {
-    this.balanceService
-        .updateBalance(transaction, BalanceUseCase.BalanceAction.deleting);
-    this.transactionService.delete(transaction);
   }
 
   @Override
@@ -199,7 +127,21 @@ public class TransactionProviderImpl implements TransactionProvider {
     for (final Transaction transaction : transactions) {
       this.delete(transaction);
     }
+  }
 
+  private List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
+      final BankAccount bankAccount) {
+    Validate.notNull(dateFrom);
+    Validate.notNull(dateUntil);
+    Validate.notNull(bankAccount);
+
+    return this.transactionService.getTransactions(dateFrom, dateUntil, bankAccount);
+  }
+
+  private void delete(final Transaction transaction) {
+    this.balanceService
+        .updateBalance(transaction, BalanceUseCase.BalanceAction.deleting);
+    this.transactionService.delete(transaction);
   }
 
 }

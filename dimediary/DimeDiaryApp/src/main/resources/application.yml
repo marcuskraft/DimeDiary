@@ -3,7 +3,7 @@ spring:
     name: dimediary
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     database-platform: org.hibernate.dialect.DerbyTenSevenDialect
   datasource:
     url: "jdbc:derby:..\\DB;create=true" # for local run

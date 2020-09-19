@@ -63,11 +63,8 @@ public class TransactionController implements TransactionApi {
       transactions = this.transactionProvider.getTransactionsWithoutAccount(dateFrom, dateUntil);
     }
 
-    return this.responseFactory
-        .ok(transactions.stream()
-            .map(transaction -> this.transactionRestConverter.from(transaction))
-            .collect(
-                Collectors.toList()));
+    return this.responseFactory.ok(transactions.stream().map(this.transactionRestConverter::from)
+        .collect(Collectors.toList()));
   }
 
   @Override

@@ -1,11 +1,10 @@
 package com.dimediary.services;
 
-import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.port.in.TransactionProvider;
-import com.dimediary.port.out.ContinuosTransactionRepo;
+import com.dimediary.port.out.ContinuousTransactionRepo;
 import com.dimediary.utils.date.DateUtils;
 import com.dimediary.utils.recurrence.RecurrenceRuleUtils;
 import java.time.LocalDate;
@@ -26,32 +25,17 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   private final TransactionProvider transactionProvider;
 
 
-  private final ContinuosTransactionRepo continuosTransactionService;
+  private final ContinuousTransactionRepo continuousTransactionService;
 
   @Autowired
   public ContinuousTransactionProviderImpl(
       final TransactionProvider transactionProvider,
-      final ContinuosTransactionRepo continuosTransactionService) {
+      final ContinuousTransactionRepo continuousTransactionService) {
     this.transactionProvider = transactionProvider;
-    this.continuosTransactionService = continuosTransactionService;
+    this.continuousTransactionService = continuousTransactionService;
   }
 
-  /**
-   * @param bankAccount
-   * @return all ContinuousTransactions belonging to this account
-   */
-  @Override
-  public List<ContinuousTransaction> getContinuousTransactions(final BankAccount bankAccount) {
-    Validate.notNull(bankAccount);
 
-    return this.continuosTransactionService.getContinuousTransactions(bankAccount);
-  }
-
-  /**
-   * persists the given continuous transaction
-   *
-   * @param continuousTransaction
-   */
   @Override
   public ContinuousTransaction persist(final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
@@ -64,8 +48,31 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
     final List<Transaction> transactions = this
         .generateTransactionsForContinuousTransaction(continuousTransaction);
     return this.persistContinuousTransaction(continuousTransaction, transactions);
+  }
+
+  @Override
+  public void deleteAllContinuousTransactions(final ContinuousTransaction continuousTransaction) {
+    Validate.notNull(continuousTransaction);
+
+    final List<Transaction> transactions = this.transactionProvider
+        .getTransactions(continuousTransaction);
+    this.transactionProvider.deleteTransactions(transactions);
+    this.continuousTransactionService.delete(continuousTransaction);
 
 
+  }
+
+  @Override
+  public void deleteAllContinuousTransactions(final UUID continuousTransactionId) {
+    final ContinuousTransaction continuousTransaction = this.continuousTransactionService
+        .getContinuousTransaction(continuousTransactionId);
+
+    this.deleteAllContinuousTransactions(continuousTransaction);
+  }
+
+  @Override
+  public ContinuousTransaction getContinuousTransactions(final UUID continuousTransactionId) {
+    return this.continuousTransactionService.getContinuousTransaction(continuousTransactionId);
   }
 
 
@@ -78,40 +85,15 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
       return null;
     }
 
-    final ContinuousTransaction continuousTransactionRet = this.continuosTransactionService
+    final ContinuousTransaction continuousTransactionRet = this.continuousTransactionService
         .persist(continuousTransaction);
     this.transactionProvider.persistTransactions(transactions);
 
     return continuousTransactionRet;
   }
 
-  @Override
-  public void merge(final ContinuousTransaction continuousTransaction) {
-    Validate.notNull(continuousTransaction);
 
-    this.continuosTransactionService.persist(continuousTransaction);
-  }
-
-  @Override
-  public void deleteAllContinuousTransactions(final ContinuousTransaction continuousTransaction) {
-    Validate.notNull(continuousTransaction);
-
-    final List<Transaction> transactions = this.transactionProvider
-        .getTransactions(continuousTransaction);
-    this.transactionProvider.deleteTransactions(transactions);
-    this.continuosTransactionService.delete(continuousTransaction);
-
-
-  }
-
-  /**
-   * generates all transactions belonging to this continuous transaction
-   *
-   * @param continuousTransaction
-   * @return
-   */
-  @Override
-  public List<Transaction> generateTransactionsForContinuousTransaction(
+  private List<Transaction> generateTransactionsForContinuousTransaction(
       final ContinuousTransaction continuousTransaction) {
     final RecurrenceRule recurrenceRule = RecurrenceRuleUtils
         .createRecurrenceRule(continuousTransaction.getRecurrenceRule());
@@ -126,19 +108,6 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
     }
 
     return transactions;
-  }
-
-  @Override
-  public void deleteAllContinuousTransactions(final UUID continuousTransactionId) {
-    final ContinuousTransaction continuousTransaction = this.continuosTransactionService
-        .getContinuousTransaction(continuousTransactionId);
-
-    this.deleteAllContinuousTransactions(continuousTransaction);
-  }
-
-  @Override
-  public ContinuousTransaction getContinuousTransactions(final UUID continuousTransactionId) {
-    return this.continuosTransactionService.getContinuousTransaction(continuousTransactionId);
   }
 
 }

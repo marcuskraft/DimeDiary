@@ -1,14 +1,15 @@
 package com.dimediary.model.repositories;
 
 import com.dimediary.domain.BankAccount;
-import com.dimediary.domain.BankAccountCategory;
-import com.dimediary.model.converter.BankaccountTransformer;
+import com.dimediary.model.converter.BankAccountTransformer;
 import com.dimediary.model.entities.BankAccountEntity;
 import com.dimediary.model.repositories.cruds.BankAccountCrudRepository;
+import com.dimediary.model.repositories.utils.RepoUtils;
 import com.dimediary.port.out.BankAccountRepo;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.persistence.RollbackException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,35 +21,26 @@ import org.springframework.transaction.annotation.Transactional;
 class BankAccountRepoImpl implements BankAccountRepo {
 
 
-  @PersistenceContext
-  private final EntityManager entityManager;
-
-  private final BankaccountTransformer bankaccountTransformer;
+  private final BankAccountTransformer bankaccountTransformer;
 
   private final BankAccountCrudRepository bankAccountCrudRepository;
 
   @Autowired
-  public BankAccountRepoImpl(final EntityManager entityManager,
-      final BankaccountTransformer bankaccountTransformer,
+  public BankAccountRepoImpl(final BankAccountTransformer bankaccountTransformer,
       final BankAccountCrudRepository bankAccountCrudRepository) {
-    this.entityManager = entityManager;
     this.bankaccountTransformer = bankaccountTransformer;
     this.bankAccountCrudRepository = bankAccountCrudRepository;
   }
 
 
   @Override
-  public java.util.List<String> getBankAccountNames() {
-    this.log.info("getBankAccountNames");
-    final java.util.List<String> names = new java.util.ArrayList<>();
-
-    final Iterable<BankAccountEntity> ban = this.bankAccountCrudRepository.findAll();
-
-    for (final com.dimediary.model.entities.BankAccountEntity bankAccount : ban) {
-      names.add(bankAccount.getName());
-    }
-
-    return names;
+  public List<BankAccount> getBankAccount() {
+    BankAccountRepoImpl.log.info("getBankAccountNames");
+    final List<BankAccount> bankAccounts = new ArrayList<>();
+    this.bankAccountCrudRepository.findAll()
+        .forEach(bankAccountEntity -> bankAccounts
+            .add(this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccountEntity)));
+    return bankAccounts;
   }
 
   @Override
@@ -56,75 +48,21 @@ class BankAccountRepoImpl implements BankAccountRepo {
     if (bankAccountId == null) {
       return null;
     }
-    this.log.info("getBankAccount: " + bankAccountId);
-    final com.dimediary.model.entities.BankAccountEntity bankAccount = this.entityManager.find(
-        com.dimediary.model.entities.BankAccountEntity.class,
-        bankAccountId);
-
-    return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccount);
+    BankAccountRepoImpl.log.info("getBankAccount: " + bankAccountId);
+    return this.bankaccountTransformer
+        .bankAccountEntityToBankAccount(this.bankAccountCrudRepository
+            .findById(bankAccountId.toString())
+            .orElseThrow(() -> RepoUtils.getNoResultException("bank account", bankAccountId)));
   }
 
 
   @Override
-  public java.util.List<BankAccount> getBankAccounts(
-      final java.util.List<String> bankAccountsNames) {
-
-    if (bankAccountsNames.isEmpty()) {
-      return null;
-    }
-
-    for (final String string : bankAccountsNames) {
-      this.log.info("getBankAccounts: " + string);
-    }
-
-    final java.util.List<com.dimediary.model.entities.BankAccountEntity> bankAccounts = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.BankAccountEntity.FIND_BANK_ACCOUNTS,
-            com.dimediary.model.entities.BankAccountEntity.class)
-        .setParameter("namesList", bankAccountsNames).getResultList();
-    return this.entitiesToDomains(bankAccounts);
-  }
-
-  @Override
-  public void delete(final BankAccount bankAccount) throws javax.persistence.RollbackException {
+  public void delete(final BankAccount bankAccount) throws RollbackException {
     if (bankAccount == null) {
       return;
     }
-    try {
-      this.log.info("delete BankAccount: " + bankAccount.getName());
-
-      final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
-          .findEntity(bankAccount);
-
-      if (bankAccountEntity != null) {
-        this.entityManager.remove(bankAccountEntity);
-      }
-
-    } catch (final javax.persistence.RollbackException e) {
-      throw new javax.persistence.RollbackException(
-          "can't delete bank account: " + bankAccount.getName(), e);
-    }
-  }
-
-  @Override
-  public java.util.List<BankAccount> getBankAccounts(
-      final BankAccountCategory bankAccountCategory) {
-    if (bankAccountCategory == null) {
-      return null;
-    }
-    this.log.info("getBankAccounts by Category: " + bankAccountCategory);
-
-    final com.dimediary.model.entities.BankAccountCategoryEntity bankAccountCategoryEntity = this.entityManager
-        .find(com.dimediary.model.entities.BankAccountCategoryEntity.class,
-            bankAccountCategory.getName());
-
-    final java.util.List<com.dimediary.model.entities.BankAccountEntity> bankAccounts = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.BankAccountEntity.FIND_BANKACCOUNTS_WITH_CATEGORY,
-            com.dimediary.model.entities.BankAccountEntity.class)
-        .setParameter("bankAccountCategory", bankAccountCategoryEntity).getResultList();
-
-    return this.entitiesToDomains(bankAccounts);
+    BankAccountRepoImpl.log.info("delete BankAccount: {}", bankAccount.getName());
+    this.bankAccountCrudRepository.deleteById(bankAccount.getId().toString());
   }
 
   @Override
@@ -133,40 +71,17 @@ class BankAccountRepoImpl implements BankAccountRepo {
       return null;
     }
     BankAccountRepoImpl.log.info("persist BankAccount: " + bankAccount.getName());
-    try {
 
-      com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this.bankaccountTransformer
-          .bankAccountToBankAccountEntity(bankAccount);
-
-      if (this.findEntity(bankAccount) == null) {
-        this.entityManager.persist(bankAccountEntity);
-        this.entityManager.refresh(bankAccountEntity);
-      } else {
-        bankAccountEntity = this.entityManager.merge(bankAccountEntity);
-      }
-
-      return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccountEntity);
-
-    } catch (final Exception e) {
-      BankAccountRepoImpl.log.error("can't persist bankaccount", e);
-      throw e;
+    if (bankAccount.getId() == null) {
+      bankAccount.setId(UUID.randomUUID());
     }
-  }
 
-  private java.util.List<BankAccount> entitiesToDomains(
-      final java.util.List<com.dimediary.model.entities.BankAccountEntity> bankAccounts) {
-    return bankAccounts.stream()
-        .map((bankAccount) -> this.bankaccountTransformer
-            .bankAccountEntityToBankAccount(bankAccount))
-        .collect(java.util.stream.Collectors.toList());
-  }
+    BankAccountEntity bankAccountEntity = this.bankaccountTransformer
+        .bankAccountToBankAccountEntity(bankAccount);
 
-  private com.dimediary.model.entities.BankAccountEntity findEntity(final BankAccount bankAccount) {
-    if (bankAccount != null && bankAccount.getName() != null) {
-      return this.entityManager.find(
-          com.dimediary.model.entities.BankAccountEntity.class, bankAccount.getName());
-    }
-    return null;
+    bankAccountEntity = this.bankAccountCrudRepository.save(bankAccountEntity);
+
+    return this.bankaccountTransformer.bankAccountEntityToBankAccount(bankAccountEntity);
   }
 
 }

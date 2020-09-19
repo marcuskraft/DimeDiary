@@ -8,6 +8,7 @@ import com.dimediary.rest.converter.BankAccountRestConverter;
 import io.swagger.annotations.Api;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Api(tags = "BankAccount")
 public class BankAccountController implements BankAccountApi {
 
-  private static final long serialVersionUID = 395035858890439438L;
   private final BankAccountProvider bankAccountProvider;
   private final BankAccountRestConverter bankAccountConverter;
   private final ResponseFactory responseFactory;
@@ -59,15 +59,15 @@ public class BankAccountController implements BankAccountApi {
 
 
   @Override
-  public ResponseEntity<List<String>> getBankAccounts() {
-    return this.responseFactory.ok((this.bankAccountProvider.getBankAccountNames()));
+  public ResponseEntity<List<com.dimediary.openapi.model.BankAccount>> getBankAccounts() {
+    return this.responseFactory.ok((this.bankAccountProvider.getBankAccounts().stream()
+        .map(this.bankAccountConverter::from).collect(Collectors.toList())));
   }
 
   @Override
   public ResponseEntity<Void> updateBankAccount(final UUID bankAccountId,
       final com.dimediary.openapi.model.BankAccount bankAccount) {
-    if (!bankAccountId.equals(bankAccount
-        .getName())) { // TODO: we need a id for bank account so that we can also change the name properly
+    if (!bankAccountId.equals(bankAccount.getId())) {
       return this.responseFactory.badRequest();
     }
     this.bankAccountProvider

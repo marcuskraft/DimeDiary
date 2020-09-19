@@ -59,7 +59,7 @@ public class BankAccountCategoryController implements BankAccountCategoryApi {
   @Override
   public ResponseEntity<Void> updateBankAccountCategory(final UUID bankAccountCategoryId,
       final BankAccountCategory bankAccountCategory) {
-    if (!bankAccountCategoryId.equals(bankAccountCategory.getName())) {
+    if (!bankAccountCategoryId.equals(bankAccountCategory.getId())) {
       return this.responseFactory.badRequest();
     }
     this.bankaccountCategoryProvider

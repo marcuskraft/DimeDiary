@@ -57,7 +57,7 @@ public class CategoryController implements CategoryApi {
 
   @Override
   public ResponseEntity<Void> updateCategory(final UUID categoryId, final Category category) {
-    if (!categoryId.equals(category.getName())) {
+    if (!categoryId.equals(category.getId())) {
       return this.responseFactory.badRequest();
     }
     this.categoryProvider.persist(this.categoryRestConverter.to(category));

@@ -9,11 +9,11 @@ import org.mapstruct.Mapper;
 public interface LocalDateTimeOffSetDateTimeConverter {
 
 
-  public static OffsetDateTime from(final LocalDateTime localDateTime) {
+  static OffsetDateTime from(final LocalDateTime localDateTime) {
     return localDateTime.atOffset(ZoneId.of("Europe/Berlin").getRules().getOffset(localDateTime));
   }
 
-  public static LocalDateTime to(final OffsetDateTime offsetDateTime) {
+  static LocalDateTime to(final OffsetDateTime offsetDateTime) {
     return offsetDateTime.toLocalDateTime();
   }
 

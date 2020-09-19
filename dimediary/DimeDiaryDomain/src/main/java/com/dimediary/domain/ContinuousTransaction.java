@@ -15,14 +15,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ContinuousTransaction implements Serializable {
 
-  /**
-   *
-   */
+
   private static final long serialVersionUID = 2371735569007687455L;
   private UUID id;
   private LocalDateTime timestamp;
   private String name;
-  private Integer amount;
+  private Integer amountEuroCent;
   private LocalDate dateBegin;
   private BankAccount bankAccount;
   private Category category;
@@ -31,7 +29,7 @@ public class ContinuousTransaction implements Serializable {
 
   public Transaction createTransaction(final LocalDate date) {
     final Transaction transaction = new Transaction();
-    transaction.setAmount(this.getAmount());
+    transaction.setAmountEuroCent(this.getAmountEuroCent());
     transaction.setBankAccount(this.getBankAccount());
     transaction.setCategory(this.getCategory());
     transaction.setContinuousTransaction(this);
@@ -44,7 +42,7 @@ public class ContinuousTransaction implements Serializable {
   public ContinuousTransaction getCopy() {
     final ContinuousTransaction continuousTransactionCopy = new ContinuousTransaction();
 
-    continuousTransactionCopy.setAmount(this.getAmount());
+    continuousTransactionCopy.setAmountEuroCent(this.getAmountEuroCent());
     continuousTransactionCopy.setBankAccount(this.getBankAccount());
     continuousTransactionCopy.setCategory(this.getCategory());
     continuousTransactionCopy.setDateBegin(this.getDateBegin());

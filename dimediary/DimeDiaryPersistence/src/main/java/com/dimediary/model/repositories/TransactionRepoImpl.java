@@ -4,11 +4,20 @@ import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
 import com.dimediary.model.converter.TransactionTransformer;
+import com.dimediary.model.entities.BankAccountEntity;
+import com.dimediary.model.entities.CategoryEntity;
+import com.dimediary.model.entities.ContinuousTransactionEntity;
 import com.dimediary.model.entities.TransactionEntity;
+import com.dimediary.model.repositories.cruds.BankAccountCrudRepository;
+import com.dimediary.model.repositories.cruds.CategoryCrudRepository;
+import com.dimediary.model.repositories.cruds.ContinuousTransactionCrudRepository;
+import com.dimediary.model.repositories.cruds.TransactionCrudRepository;
+import com.dimediary.model.repositories.utils.RepoUtils;
 import com.dimediary.port.out.TransactionRepo;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,299 +29,177 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TransactionRepoImpl implements TransactionRepo {
 
-  @PersistenceContext
-  private final EntityManager entityManager;
-
-
   private final TransactionTransformer transactionTransformer;
+  private final TransactionCrudRepository transactionCrudRepository;
+  private final CategoryCrudRepository categoryCrudRepository;
+  private final BankAccountCrudRepository bankAccountCrudRepository;
+  private final ContinuousTransactionCrudRepository continuousTransactionCrudRepository;
 
   @Autowired
-  public TransactionRepoImpl(final EntityManager entityManager,
-      final TransactionTransformer transactionTransformer) {
-    this.entityManager = entityManager;
+  public TransactionRepoImpl(final TransactionTransformer transactionTransformer,
+      final TransactionCrudRepository transactionCrudRepository,
+      final CategoryCrudRepository categoryCrudRepository,
+      final BankAccountCrudRepository bankAccountCrudRepository,
+      final ContinuousTransactionCrudRepository continuousTransactionCrudRepository) {
     this.transactionTransformer = transactionTransformer;
+    this.transactionCrudRepository = transactionCrudRepository;
+    this.categoryCrudRepository = categoryCrudRepository;
+    this.bankAccountCrudRepository = bankAccountCrudRepository;
+    this.continuousTransactionCrudRepository = continuousTransactionCrudRepository;
   }
 
 
   @Override
   public Transaction getTransaction(final UUID transactionId) {
-    final TransactionEntity transactionEntity = this.entityManager
-        .find(TransactionEntity.class, transactionId);
-    return this.transactionTransformer.transactionEntityToTransaction(transactionEntity);
+    return this.transactionTransformer.transactionEntityToTransaction(this.transactionCrudRepository
+        .findById(transactionId.toString())
+        .orElseThrow(() -> RepoUtils.getNoResultException("transaction", transactionId)));
   }
 
   @Override
-  public java.util.List<Transaction> getTransactions(final java.time.LocalDate dateFrom,
-      final java.time.LocalDate dateUntil,
+  public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
       final BankAccount bankAccount) {
     Validate.notNull(dateFrom);
     Validate.notNull(dateUntil);
     Validate.notNull(bankAccount);
+    Validate.notNull(bankAccount.getId());
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
+    TransactionRepoImpl.log
         .info("getTransactions from date: " + dateFrom.toString() + " until date: "
             + dateUntil.toString() + " for bank account: " + bankAccount.getName());
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions;
 
-    final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
-        .findBankAccount(bankAccount);
-
-    final javax.persistence.TypedQuery<com.dimediary.model.entities.TransactionEntity> query = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.TransactionEntity.TRANSACTIONS_BETWEEN,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("bankAccount", bankAccountEntity).setParameter("dateFrom", dateFrom)
-        .setParameter("dateUntil", dateUntil);
-
-    transactions = query.getResultList();
-
-    return this.entitiesToDomains(transactions);
+    return this.transactionCrudRepository
+        .getAllByBankAccountIdAndDateIsGreaterThanEqualAndDateIsLessThanEqual(
+            bankAccount.getId().toString(),
+            dateFrom, dateUntil).stream()
+        .map(this.transactionTransformer::transactionEntityToTransaction).collect(
+            Collectors.toList());
   }
 
   @Override
-  public java.util.List<Transaction> getTransactions(final BankAccount bankAccount) {
-    Validate.notNull(bankAccount);
-
-    com.dimediary.model.repositories.TransactionRepoImpl.log
-        .info("getTransactions for bank account: " + bankAccount.getName());
-
-    final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
-        .findBankAccount(bankAccount);
-
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(com.dimediary.model.entities.TransactionEntity.ALL_ACCOUNT_TRANSACTIONS,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("bankAccount", bankAccountEntity).getResultList();
-    return this.entitiesToDomains(transactions);
-  }
-
-  @Override
-  public java.util.List<Transaction> getTransactions(final BankAccount bankAccount,
-      final java.time.LocalDate date) {
+  public List<Transaction> getTransactions(final BankAccount bankAccount,
+      final LocalDate date) {
     Validate.notNull(bankAccount);
     Validate.notNull(date);
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
+    TransactionRepoImpl.log
         .info("getTransactions for bank account: " + bankAccount.getName() + " at date: " + date
             .toString());
 
-    final com.dimediary.model.entities.BankAccountEntity bankAccountEntity = this
-        .findBankAccount(bankAccount);
+    return this.transactionCrudRepository
+        .getAllByBankAccountIdAndDateOrderByTimestamp(bankAccount.getId().toString(), date).stream()
+        .map(
+            this.transactionTransformer::transactionEntityToTransaction).collect(
+            Collectors.toList());
 
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.TransactionEntity.TRANSACTIONS_AT_DAY,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("bankAccount", bankAccountEntity).setParameter("date", date).getResultList();
-    return this.entitiesToDomains(transactions);
   }
 
   @Override
-  public java.util.List<Transaction> getTransactionsFromDate(
+  public List<Transaction> getTransactionsFromDate(
       final ContinuousTransaction continuousTransaction,
-      final java.time.LocalDate date) {
+      final LocalDate date) {
     Validate.notNull(continuousTransaction);
+    Validate.notNull(continuousTransaction.getId());
     Validate.notNull(date);
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
-        .info(
-            "getTransactionsFromDate for continuous transaction: " + continuousTransaction.getName()
-                + " ("
-                + continuousTransaction.getId() + ") " + " at date: " + date.toString());
+    TransactionRepoImpl.log.info(
+        "getTransactionsFromDate for continuous transaction: " + continuousTransaction.getName()
+            + " (" + continuousTransaction.getId() + ") " + " at date: " + date.toString());
 
-    final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
-        .findContinuousTransaction(continuousTransaction);
-
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery("ContinuousTransansactionFromDate",
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("continuousTransaction", continuousTransactionEntity)
-        .setParameter("date", date)
-        .getResultList();
-    return this.entitiesToDomains(transactions);
+    return this.transactionCrudRepository
+        .getAllByContinuousTransactionIdAndDateIsGreaterThanEqual(
+            continuousTransaction.getId().toString(),
+            date).stream().map(this.transactionTransformer::transactionEntityToTransaction).collect(
+            Collectors.toList());
   }
 
   @Override
-  public java.util.List<Transaction> getTransactionsUntil(
+  public List<Transaction> getTransactionsUntil(
       final ContinuousTransaction continuousTransaction,
-      final java.time.LocalDate dateUntil) {
+      final LocalDate dateUntil) {
     Validate.notNull(continuousTransaction);
     Validate.notNull(dateUntil);
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
-        .info(
-            "getTransactionsFromDate for continuous transaction: " + continuousTransaction.getName()
-                + " ("
-                + continuousTransaction.getId() + ") " + " until at date: " + dateUntil.toString());
+    TransactionRepoImpl.log.info(
+        "getTransactionsFromDate for continuous transaction: " + continuousTransaction.getName()
+            + " (" + continuousTransaction.getId() + ") " + " until at date: " + dateUntil
+            .toString());
 
-    final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
-        .findContinuousTransaction(continuousTransaction);
-
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.TransactionEntity.CONTINUOUS_TRANSANSACTION_UNTIL_DATE,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("continuousTransaction", continuousTransactionEntity)
-        .setParameter("date", dateUntil)
-        .getResultList();
-    return this.entitiesToDomains(transactions);
+    return this.transactionCrudRepository
+        .getAllByContinuousTransactionIdAndDateIsLessThanEqual(
+            continuousTransaction.getId().toString(),
+            dateUntil).stream().map(this.transactionTransformer::transactionEntityToTransaction)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public java.util.List<Transaction> getTransactions(
+  public List<Transaction> getTransactions(
       final ContinuousTransaction continuousTransaction) {
     Validate.notNull(continuousTransaction);
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
+    TransactionRepoImpl.log
         .info("getTransactions for continuous transaction: " + continuousTransaction.getName()
             + " (" + continuousTransaction.getId() + ") ");
 
-    final com.dimediary.model.entities.ContinuousTransactionEntity continuousTransactionEntity = this
-        .findContinuousTransaction(continuousTransaction);
-
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(com.dimediary.model.entities.TransactionEntity.CONTINUOUS_TRANSACTIONS,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("continuousTransaction", continuousTransactionEntity).getResultList();
-    return this.entitiesToDomains(transactions);
+    return this.transactionCrudRepository
+        .getAllByContinuousTransactionIdOrderByDate(continuousTransaction.getId().toString())
+        .stream()
+        .map(this.transactionTransformer::transactionEntityToTransaction)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public java.util.List<Transaction> getTransactionsWithoutAccount(
-      final java.time.LocalDate dateFrom, final java.time.LocalDate dateUntil) {
+  public List<Transaction> getTransactionsWithoutAccount(
+      final LocalDate dateFrom, final LocalDate dateUntil) {
     Validate.notNull(dateFrom);
     Validate.notNull(dateUntil);
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
+    TransactionRepoImpl.log
         .info("getTransactionsWithoutAccount from date: " + dateFrom.toString() + " until date: "
             + dateUntil.toString());
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.TransactionEntity.TRANSACTIONS_WITHOUT_ACCOUNT_BETWEEN,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("dateFrom", dateFrom).setParameter("dateUntil", dateUntil).getResultList();
-    return this.entitiesToDomains(transactions);
-  }
-
-  @Override
-  public java.util.List<Transaction> getTrandactionsWithoutAccount(final java.time.LocalDate date) {
-    Validate.notNull(date);
-
-    com.dimediary.model.repositories.TransactionRepoImpl.log
-        .info("getTransactionsWithoutAccount at date: " + date.toString());
-    final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions = this.entityManager
-        .createNamedQuery(
-            com.dimediary.model.entities.TransactionEntity.TRANSACTIONS_WITHOUT_ACCOUNT,
-            com.dimediary.model.entities.TransactionEntity.class)
-        .setParameter("date", date).getResultList();
-    return this.entitiesToDomains(transactions);
+    return this.transactionCrudRepository
+        .getAllByBankAccountNullAndDateIsGreaterThanEqualAndDateIsLessThanEqual(dateFrom, dateUntil)
+        .stream().map(this.transactionTransformer::transactionEntityToTransaction)
+        .collect(Collectors.toList());
   }
 
   @Override
   public Transaction persistTransaction(final Transaction transaction) {
     Validate.notNull(transaction, "Transaction must not be null");
-    com.dimediary.model.repositories.TransactionRepoImpl.log
-        .info("persist transaction: " + transaction.getId());
+    TransactionRepoImpl.log.info("persist transaction: " + transaction.getId());
 
-    try {
-
-      com.dimediary.model.entities.TransactionEntity transactionEntityToSave = this
-          .domainToEntity(transaction);
-      if (this.findTransaction(transaction) == null) {
-        this.entityManager.persist(transactionEntityToSave);
-        this.entityManager.refresh(transactionEntityToSave);
-      } else {
-        transactionEntityToSave = this.entityManager.merge(transactionEntityToSave);
-      }
-
-      return this.transactionTransformer.transactionEntityToTransaction(transactionEntityToSave);
-
-
-    } catch (final Exception e) {
-      com.dimediary.model.repositories.TransactionRepoImpl.log
-          .error("can't persist transaction", e);
-      throw e;
+    if (transaction.getId() == null) {
+      transaction.setId(UUID.randomUUID());
     }
 
-  }
+    TransactionEntity transactionEntityToSave = this
+        .domainToEntity(transaction);
 
-  @Override
-  public void persistTransactions(final java.util.List<Transaction> transactions) {
-    Validate.notNull(transactions, "Transactions must not be null");
-    if (transactions.isEmpty()) {
-      return;
-    }
+    transactionEntityToSave = this.transactionCrudRepository.save(transactionEntityToSave);
 
-    for (final Transaction transaction : transactions) {
-      this.persistTransaction(transaction);
-    }
-
+    return this.transactionTransformer.transactionEntityToTransaction(transactionEntityToSave);
   }
 
   @Override
   public void delete(final Transaction transaction) {
     Validate.notNull(transaction);
+    Validate.notNull(transaction.getId());
 
-    com.dimediary.model.repositories.TransactionRepoImpl.log
+    TransactionRepoImpl.log
         .info("delete Transaction: " + transaction.getId());
 
-    try {
-      final com.dimediary.model.entities.TransactionEntity transactionEntity = this
-          .findTransaction(transaction);
-
-      if (transactionEntity != null) {
-        this.entityManager.remove(transactionEntity);
-      }
-
-    } catch (final Exception e) {
-      com.dimediary.model.repositories.TransactionRepoImpl.log
-          .error("can't delete transaction: " + transaction.getId(), e);
-      throw e;
-    }
+    this.transactionCrudRepository.deleteById(transaction.getId().toString());
 
   }
 
-  @Override
-  public void deleteTransactions(final java.util.List<Transaction> transactions) {
-    Validate.notNull(transactions, "transactions must not be null");
-    if (transactions.isEmpty()) {
-      return;
-
-    }
-
-    for (final Transaction transaction : transactions) {
-      this.delete(transaction);
-    }
-
-  }
-
-  private java.util.List<Transaction> entitiesToDomains(
-      final java.util.List<com.dimediary.model.entities.TransactionEntity> transactions) {
-    return transactions.stream()
-        .map((transaction) -> this.transactionTransformer
-            .transactionEntityToTransaction(transaction))
-        .collect(java.util.stream.Collectors.toList());
-  }
-
-  private com.dimediary.model.entities.TransactionEntity findTransaction(
-      final Transaction transaction) {
-    if (transaction != null && transaction.getId() != null) {
-      return this.entityManager.find(
-          com.dimediary.model.entities.TransactionEntity.class, transaction.getId());
-    } else {
-      return null;
-    }
-
-  }
-
-  private com.dimediary.model.entities.TransactionEntity domainToEntity(
+  private TransactionEntity domainToEntity(
       final Transaction transaction) {
     return this.transactionTransformer.transactionToTransactionEntity(transaction,
         this.findBankAccount(transaction), this.findContinuousTransaction(transaction),
         this.findCategory(transaction));
   }
 
-  private com.dimediary.model.entities.ContinuousTransactionEntity findContinuousTransaction(
+  private ContinuousTransactionEntity findContinuousTransaction(
       final Transaction transaction) {
     if (transaction != null && transaction.getContinuousTransaction() != null) {
       return this.findContinuousTransaction(transaction.getContinuousTransaction());
@@ -321,28 +208,30 @@ public class TransactionRepoImpl implements TransactionRepo {
     }
   }
 
-  private com.dimediary.model.entities.ContinuousTransactionEntity findContinuousTransaction(
+  private ContinuousTransactionEntity findContinuousTransaction(
       final ContinuousTransaction continuousTransaction) {
     if (continuousTransaction != null && continuousTransaction.getId() != null) {
-      return this.entityManager.find(
-          com.dimediary.model.entities.ContinuousTransactionEntity.class,
-          continuousTransaction.getId());
+      return this.continuousTransactionCrudRepository
+          .findById(continuousTransaction.getId().toString())
+          .orElseThrow(() -> RepoUtils.getNoResultException("continuousTransaction",
+              continuousTransaction.getId()));
     } else {
       return null;
     }
   }
 
-  private com.dimediary.model.entities.CategoryEntity findCategory(final Transaction transaction) {
-    if (transaction.getCategory() != null && transaction.getCategory().getName() != null) {
-      return this.entityManager.find(
-          com.dimediary.model.entities.CategoryEntity.class,
-          transaction.getCategory().getName());
+
+  private CategoryEntity findCategory(final Transaction transaction) {
+    if (transaction.getCategory() != null) {
+      return this.categoryCrudRepository
+          .findById(transaction.getCategory().getId().toString()).orElseThrow(
+              () -> RepoUtils.getNoResultException("category", transaction.getCategory().getId()));
     } else {
       return null;
     }
   }
 
-  private com.dimediary.model.entities.BankAccountEntity findBankAccount(
+  private BankAccountEntity findBankAccount(
       final Transaction transaction) {
     if (transaction != null && transaction.getBankAccount() != null) {
       return this.findBankAccount(transaction.getBankAccount());
@@ -351,11 +240,11 @@ public class TransactionRepoImpl implements TransactionRepo {
     }
   }
 
-  private com.dimediary.model.entities.BankAccountEntity findBankAccount(
+  private BankAccountEntity findBankAccount(
       final BankAccount bankAccount) {
-    if (bankAccount != null && bankAccount.getName() != null) {
-      return this.entityManager.find(
-          com.dimediary.model.entities.BankAccountEntity.class, bankAccount.getName());
+    if (bankAccount != null) {
+      return this.bankAccountCrudRepository.findById(bankAccount.getId().toString())
+          .orElseThrow(() -> RepoUtils.getNoResultException("bank account", bankAccount.getId()));
     } else {
       return null;
     }

@@ -4,11 +4,11 @@ import com.dimediary.domain.BankAccountCategory;
 import com.dimediary.model.entities.BankAccountCategoryEntity;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
-public interface BankaccountCategoryTransformer {
+@Mapper(componentModel = "spring", uses = {UUIDTransformer.class})
+public interface BankAccountCategoryTransformer {
 
 
-  BankAccountCategoryEntity bankAccountCategoryToBankaccountCategoryEntity(
+  BankAccountCategoryEntity bankAccountCategoryToBankAccountCategoryEntity(
       BankAccountCategory bankAccountCategory);
 
   BankAccountCategory bankAccountCategoryEntityToBankAccountCategory(

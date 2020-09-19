@@ -21,10 +21,6 @@ public class ResponseFactory {
     return ResponseEntity.ok(body);
   }
 
-  public ResponseEntity<String> badRequest(final String message) {
-    return ResponseEntity.badRequest().body(message);
-  }
-
   public ResponseEntity<Void> badRequest() {
     return ResponseEntity.badRequest().build();
   }

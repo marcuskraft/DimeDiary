@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - include:
+      file: 2020_09_19_initial/category.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/bankAccountCategory.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/bankAccount.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/balances.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/continuousTransaction.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/transaction.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/index.sql
+      relativeToChangelogFile: true

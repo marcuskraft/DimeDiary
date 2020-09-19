@@ -13,16 +13,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Balance implements Serializable {
 
-  /**
-   *
-   */
+
   private static final long serialVersionUID = -322723363175753187L;
+  private String id;
   private BankAccount bankAccount;
   private LocalDate date;
-  private Integer balance;
+  private Integer balanceEuroCent;
 
-  public void addAmount(final Integer amount) {
-    this.balance += amount;
+  public void addAmount(final Integer amountEuroCent) {
+    this.balanceEuroCent += amountEuroCent;
   }
 
 }

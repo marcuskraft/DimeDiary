@@ -4,7 +4,7 @@ import com.dimediary.domain.Balance;
 import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.Transaction;
 import com.dimediary.port.in.BalanceUseCase;
-import com.dimediary.port.out.AccountBalanceRepo;
+import com.dimediary.port.out.BalanceRepo;
 import com.dimediary.port.out.BankAccountRepo;
 import com.dimediary.port.out.TransactionRepo;
 import com.dimediary.utils.date.DateUtils;
@@ -23,16 +23,16 @@ public class BalanceService implements BalanceUseCase {
 
 
   private final TransactionRepo transactionService;
-  private final AccountBalanceRepo accountBalanceRepo;
+  private final BalanceRepo balanceRepo;
   private final BankAccountRepo bankAccountRepo;
 
 
   @Autowired
   public BalanceService(final TransactionRepo transactionService,
-      final AccountBalanceRepo accountBalanceRepo,
+      final BalanceRepo balanceRepo,
       final BankAccountRepo bankAccountRepo) {
     this.transactionService = transactionService;
-    this.accountBalanceRepo = accountBalanceRepo;
+    this.balanceRepo = balanceRepo;
     this.bankAccountRepo = bankAccountRepo;
   }
 
@@ -47,14 +47,6 @@ public class BalanceService implements BalanceUseCase {
   }
 
 
-  /**
-   * updates the balance history after adding or deleting a transaction if the transaction belongs
-   * to a bank account
-   *
-   * @param transaction the transaction for the updates; only this transaction will be considered
-   *                    for update
-   * @param action      defines whether the transaction is added or deleted
-   */
   public void updateBalance(final Transaction transaction, final BalanceAction action) {
     BalanceService.log
         .info("updateBalance for transaction {} and action {}", transaction, action.name());
@@ -62,20 +54,17 @@ public class BalanceService implements BalanceUseCase {
       return;
     }
 
-    final Balance lastBalance = this.accountBalanceRepo
+    final Balance lastBalance = this.balanceRepo
         .getLastBalanceHistory(transaction.getBankAccount());
 
     this.updateBalance(transaction, action, lastBalance);
   }
 
-  /**
-   * @param bankAccount bank account for which all balance histories will be deleted
-   */
   public void deleteBalanceHistories(final BankAccount bankAccount) {
     if (bankAccount == null) {
       return;
     }
-    this.accountBalanceRepo.deleteBalanceHistories(bankAccount);
+    this.balanceRepo.deleteBalanceHistories(bankAccount);
   }
 
 
@@ -91,7 +80,7 @@ public class BalanceService implements BalanceUseCase {
       if (i == 0) {
         lastBalance = this.getBalance(bankAccount, dates.get(i));
       } else {
-        lastBalance = this.getBalance(bankAccount, dates.get(i), lastBalance.getBalance());
+        lastBalance = this.getBalance(bankAccount, dates.get(i), lastBalance.getBalanceEuroCent());
       }
       balances.add(lastBalance);
     }
@@ -118,24 +107,24 @@ public class BalanceService implements BalanceUseCase {
     final Balance balance = new Balance();
     balance.setBankAccount(bankAccount);
     balance.setDate(date);
-    balance.setBalance(result);
+    balance.setBalanceEuroCent(result);
 
     return balance;
 
   }
 
   private void persistBalanceHistories(final List<Balance> balanceHistories) {
-    this.accountBalanceRepo.persistBalanceHistories(balanceHistories);
+    this.balanceRepo.persistBalanceHistories(balanceHistories);
   }
 
   private Balance getBalanceHistoryBefore(final BankAccount bankAccount,
       final LocalDate date) {
-    return this.accountBalanceRepo.getBalanceHistoryBefore(bankAccount, date);
+    return this.balanceRepo.getBalanceHistoryBefore(bankAccount, date);
   }
 
   private Balance getLastBalanceHistory(final BankAccount bankAccount) {
     BalanceService.log.info("getLastBalanceHistory for bankaccount {}", bankAccount.getName());
-    return this.accountBalanceRepo.getLastBalanceHistory(bankAccount);
+    return this.balanceRepo.getLastBalanceHistory(bankAccount);
   }
 
   private Balance getLastBalanceHistory(final BankAccount bankAccount, final LocalDate date,
@@ -147,18 +136,10 @@ public class BalanceService implements BalanceUseCase {
     return this.getBalanceHistoryBefore(bankAccount, date);
   }
 
-  /**
-   * initialize the balance history for this bank account. All old balance histories will be
-   * deleted.
-   *
-   * @param bankAccount bank account to initialize
-   */
   private void initBalance(final BankAccount bankAccount, final LocalDate today) {
     this.deleteBalanceHistories(bankAccount);
     this.generateBalances(bankAccount, bankAccount.getStartBalanceEuroCent(),
         bankAccount.getDateStartBalance(), today);
-
-
   }
 
   private void checkBalanceHistories(final BankAccount bankAccount, final LocalDate today) {
@@ -187,14 +168,6 @@ public class BalanceService implements BalanceUseCase {
 
   }
 
-  /**
-   * proofs the balance history of this bank account. Initialize the balance history if no exists.
-   * Corrects wrong entries in the balance history if there are some.
-   *
-   * @param bankAccount bank account to proof
-   * @param lastBalance last balance
-   * @throws Exception
-   */
   private void generateMissingBalanceHistories(final BankAccount bankAccount,
       final Balance lastBalance,
       final LocalDate today) {
@@ -206,10 +179,8 @@ public class BalanceService implements BalanceUseCase {
 
     final LocalDate dateForNextBalanceHistory = DateUtils
         .getNextSundayAlways(lastBalance.getDate());
-    this.generateBalances(bankAccount, lastBalance.getBalance(), dateForNextBalanceHistory,
+    this.generateBalances(bankAccount, lastBalance.getBalanceEuroCent(), dateForNextBalanceHistory,
         today);
-
-
   }
 
   private void generateBalances(final BankAccount bankAccount, Integer lastAmount,
@@ -228,12 +199,12 @@ public class BalanceService implements BalanceUseCase {
               sunday, bankAccount);
 
       for (final Transaction transaction : transactions) {
-        lastAmount += transaction.getAmount();
+        lastAmount += transaction.getAmountEuroCent();
       }
 
       balance.setBankAccount(bankAccount);
       balance.setDate(sunday);
-      balance.setBalance(lastAmount);
+      balance.setBalanceEuroCent(lastAmount);
 
       balanceHistories.add(balance);
     }
@@ -252,7 +223,7 @@ public class BalanceService implements BalanceUseCase {
 
     Integer result;
     if (balanceDayBefore == null) {
-      result = this.getBalance(bankAccount, date.minusDays(1)).getBalance();
+      result = this.getBalance(bankAccount, date.minusDays(1)).getBalanceEuroCent();
       if (result == null) {
         result = 0;
       }
@@ -261,13 +232,13 @@ public class BalanceService implements BalanceUseCase {
     }
 
     for (final Transaction transaction : transactions) {
-      result += transaction.getAmount();
+      result += transaction.getAmountEuroCent();
     }
 
     final Balance balance = new Balance();
     balance.setBankAccount(bankAccount);
     balance.setDate(date);
-    balance.setBalance(result);
+    balance.setBalanceEuroCent(result);
 
     return balance;
   }
@@ -283,27 +254,27 @@ public class BalanceService implements BalanceUseCase {
             date, bankAccount);
 
     for (final Transaction transaction : transactions) {
-      amount += transaction.getAmount();
+      amount += transaction.getAmountEuroCent();
     }
 
     final Balance balance = new Balance();
     balance.setBankAccount(bankAccount);
     balance.setDate(date);
-    balance.setBalance(amount);
+    balance.setBalanceEuroCent(amount);
 
     return balance;
   }
 
   private Integer sumAllTransactionsBetween(final BankAccount bankAccount, final LocalDate date,
       final Balance balance) {
-    Integer result = balance.getBalance();
+    Integer result = balance.getBalanceEuroCent();
     final LocalDate dateFrom = balance.getDate().plusDays(1);
 
     final List<Transaction> transactions = this.transactionService
         .getTransactions(dateFrom, date, bankAccount);
 
     for (final Transaction transaction : transactions) {
-      result += transaction.getAmount();
+      result += transaction.getAmountEuroCent();
     }
     return result;
   }
@@ -314,18 +285,18 @@ public class BalanceService implements BalanceUseCase {
       return;
     }
 
-    final List<Balance> balanceHistories = this.accountBalanceRepo
+    final List<Balance> balanceHistories = this.balanceRepo
         .getBalanceHistoriesAfterDate(transaction.getBankAccount(), transaction.getDate());
 
     switch (action) {
       case adding:
         for (final Balance balance : balanceHistories) {
-          balance.addAmount(transaction.getAmount());
+          balance.addAmount(transaction.getAmountEuroCent());
         }
         break;
       case deleting:
         for (final Balance balance : balanceHistories) {
-          balance.addAmount(-transaction.getAmount());
+          balance.addAmount(-transaction.getAmountEuroCent());
         }
         break;
       default:
@@ -333,7 +304,7 @@ public class BalanceService implements BalanceUseCase {
 
     }
 
-    this.accountBalanceRepo.persistBalanceHistories(balanceHistories);
+    this.balanceRepo.persistBalanceHistories(balanceHistories);
   }
 
 }

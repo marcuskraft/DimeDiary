@@ -26,7 +26,7 @@ public class TransactionDialogStatus {
   private final BankAccount bankaccount;
 
   private final boolean noCategory;
-  private final boolean noBankaccount;
+  private final boolean noBankAccount;
 
   private final boolean fixCost;
 

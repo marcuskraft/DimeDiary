@@ -6,13 +6,14 @@ import com.dimediary.model.entities.BankAccountEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = BankaccountTransformer.class)
+@Mapper(componentModel = "spring", uses = {BankAccountTransformer.class, UUIDTransformer.class})
 public interface BalanceHistoryTransformer {
 
   @Mapping(source = "bankAccountEntityToUse", target = "bankAccount")
+  @Mapping(source = "balance.id", target = "id")
   BalanceEntity balanceHistoryToBalanceHistoryEntity(Balance balance,
       BankAccountEntity bankAccountEntityToUse);
-  
+
   Balance balanceHistoryEntityToBalanceHistory(
       BalanceEntity balanceEntity);
 

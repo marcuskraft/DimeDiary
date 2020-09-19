@@ -5,7 +5,7 @@ import com.dimediary.domain.BankAccount;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface AccountBalanceRepo {
+public interface BalanceRepo {
 
 
   List<Balance> getBalanceHistoriesAfterDate(BankAccount bankAccount, LocalDate date);

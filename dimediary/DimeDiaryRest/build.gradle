@@ -15,8 +15,7 @@ plugins {
 dependencies {
     // Use JUnit test framework
     implementation project(':DimeDiaryDomain')
-
-    testImplementation 'junit:junit:4.12'
+    
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'

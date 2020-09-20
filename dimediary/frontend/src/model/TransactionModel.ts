@@ -2,69 +2,46 @@ import {LocalDate} from '@js-joda/core';
 
 export default class TransactionModel {
 
-  private _id?: number;
-  private _subject?: string;
-  private _date?: LocalDate;
-  private _amount?: number;
+  private readonly _id?: string;
+  private _subject: string;
+  private _date: LocalDate;
+  private _amount: number;
 
 
-  constructor(id?: number, subject?: string, date?: LocalDate, amount?: number) {
+  constructor(subject: string, date: LocalDate, amount: number, id?: string) {
     this._id = id;
     this._subject = subject;
     this._date = date;
     this._amount = amount;
   }
 
-  /**
-   * Getter $subject
-   * @return {string}
-   */
-  public get subject(): string | undefined {
+
+  get subject(): string {
     return this._subject;
   }
 
-  /**
-   * Getter $date
-   * @return {LocalDate}
-   */
-  public get date(): LocalDate | undefined {
-    return this._date;
-  }
-
-  /**
-   * Getter $amount
-   * @return {number}
-   */
-  public get amount(): number | undefined {
-    return this._amount;
-  }
-
-  /**
-   * Setter $subject
-   * @param {string} value
-   */
-  public set subject(value: string | undefined) {
+  set subject(value: string) {
     this._subject = value;
   }
 
-  /**
-   * Setter $date
-   * @param {LocalDate} value
-   */
-  public set date(value: LocalDate | undefined) {
+  get date(): LocalDate {
+    return this._date;
+  }
+
+  set date(value: LocalDate) {
     this._date = value;
   }
 
-  /**
-   * Setter $amount
-   * @param {number} value
-   */
-  public set amount(value: number | undefined) {
-    this._amount = value;
+  get amount(): number {
+    return this._amount;
   }
 
+  set amount(value: number) {
+    this._amount = value;
+  }
+  
 
-  get id(): number | undefined {
+  get id(): string | undefined {
     return this._id;
   }
 }

@@ -7,19 +7,13 @@ import TimeService from '@/helper/TimeService';
 export class TransactionTransformer {
 
   public static from(transaction: Transaction): TransactionModel {
-    let date: LocalDate | undefined = undefined;
-    if (transaction.date != undefined) {
-      date = TimeService.parseLocalDateRest(transaction.date);
-    }
-    return new TransactionModel(transaction.id, transaction.subject, date, transaction.amount)
+    let date: LocalDate = TimeService.dateToLocalDate(transaction.date!);
+    return new TransactionModel(transaction.subject!, date, transaction.amountEuroCent!, transaction.id)
   }
 
-  public to(transactionModel: TransactionModel): Transaction {
-    let dateString: string | undefined = undefined;
-    if (transactionModel.date != undefined) {
-      dateString = TimeService.formatLocalDateRest(transactionModel.date);
-    }
-    return new TransactionForRequest(transactionModel.id, transactionModel.subject, dateString, transactionModel.amount);
+  public static to(transactionModel: TransactionModel): Transaction {
+    let date: Date = TimeService.localDateToDate(transactionModel.date);
+    return new TransactionForRequest(transactionModel.id, transactionModel.subject, transactionModel.amount, date);
   }
 
 }
@@ -27,20 +21,16 @@ export class TransactionTransformer {
 class TransactionForRequest implements Transaction {
 
 
-  id?: number;
-
+  id?: string;
   subject?: string;
-
   amount?: number;
+  date?: Date;
 
-  date?: string;
 
-  constructor(id?: number, subject?: string, date?: string, amount?: number) {
+  constructor(id: string | undefined, subject: string, amount: number, date: Date) {
     this.id = id;
     this.subject = subject;
-    this.date = date;
     this.amount = amount;
+    this.date = date;
   }
-
-
 }

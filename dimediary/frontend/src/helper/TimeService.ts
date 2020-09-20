@@ -10,6 +10,14 @@ export default class TimeService {
     return TimeService.dateFormatter.format(date);
   }
 
+  public static dateToLocalDate(date: Date): LocalDate {
+    return LocalDate.of(date.getFullYear(), date.getMonth() + 1, date.getDate() - 1);
+  }
+
+  public static localDateToDate(localDate: LocalDate): Date {
+    return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth() + 1);
+  }
+
 
   public static parseLocalDateRest(dateString: string): LocalDate {
     return LocalDate.from(TimeService.dateFormatter.parse(dateString));

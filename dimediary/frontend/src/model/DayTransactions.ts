@@ -59,6 +59,5 @@ export class DayTransactionsArray {
 
   clear() {
     this._dayTransactions.forEach(value => value.clear());
-    this._dayTransactions = [];
   }
 }

@@ -1,7 +1,6 @@
 import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decorators'
 import store from '@/store'
 import TransactionModel from '@/model/TransactionModel';
-import {TransactionTransformer} from '@/services/transformer/TransactionTransformer';
 import {TransactionGetRequestImpl, TransactionService} from '@/services/TransactionService';
 import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
 
@@ -46,11 +45,11 @@ export class TransactionStore extends VuexModule {
   @Action
   loadTransactions(transactionGetRequest: TransactionGetRequestImpl) {
     let transactionsService: TransactionService = new TransactionService();
-    transactionsService.getTransactions(transactionGetRequest).then((transactionArray) => {
+    transactionsService.getTransactions(transactionGetRequest).then((transactionModels) => {
       this.clearTransactions();
-      if (transactionArray.transactions != undefined) {
-        transactionArray.transactions!.forEach(transaction => {
-          this.addTransaction(TransactionTransformer.from(transaction));
+      if (transactionModels != undefined && transactionModels.length != 0) {
+        transactionModels!.forEach(transaction => {
+          this.addTransaction(transaction);
         })
       }
     })
@@ -59,7 +58,7 @@ export class TransactionStore extends VuexModule {
   @Mutation
   private clearTransactions() {
     this._transactions.clear();
-    this._transactions = new DayTransactionsArray([]);
+
   }
 }
 

@@ -15,7 +15,7 @@ plugins {
 dependencies {
     // Use JUnit test framework
     implementation project(':DimeDiaryDomain')
-    
+
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
@@ -32,7 +32,7 @@ dependencies {
 
 
 compileJava.dependsOn('openApiGenerate')
-//processResources.dependsOn('copyFrontend')
+processResources.dependsOn('copyFrontend')
 
 
 sourceSets {
@@ -44,11 +44,11 @@ sourceSets {
 
 }
 
-/*task copyFrontend(type: Copy) {
+task copyFrontend(type: Copy) {
     dependsOn ':frontend:assemble'
     from "${rootDir}/frontend/dist"
     into "${buildDir}/resources/main/public"
-}*/
+}
 
 
 openApiValidate {

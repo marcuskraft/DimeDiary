@@ -1,26 +1,30 @@
 import {LocalDate} from "@js-joda/core";
+import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
 
 export default class BankAccountModel {
 
   private _name: string;
   private _dateStartBalance: LocalDate;
   private _startBalanceEuroCent: number;
+  private _bankAccountCategory: BankAccountCategoryModel;
   private _id?: string;
   private _bankName?: string;
   private _iban?: string;
   private _bic?: string;
 
 
-  constructor(name: string, dateStartBalance: LocalDate, startBalanceEuroCent: number, id?: string, bankName?: string, iban?: string, bic?: string) {
+  constructor(name: string, dateStartBalance: LocalDate, startBalanceEuroCent: number,
+      bankAccountCategory: BankAccountCategoryModel, id?: string, bankName?: string,
+      iban?: string, bic?: string) {
     this._name = name;
     this._dateStartBalance = dateStartBalance;
     this._startBalanceEuroCent = startBalanceEuroCent;
+    this._bankAccountCategory = bankAccountCategory;
     this._id = id;
     this._bankName = bankName;
     this._iban = iban;
     this._bic = bic;
   }
-
 
   get name(): string {
     return this._name;
@@ -76,5 +80,14 @@ export default class BankAccountModel {
 
   set bic(value: string | undefined) {
     this._bic = value;
+  }
+
+
+  get bankAccountCategory(): BankAccountCategoryModel {
+    return this._bankAccountCategory;
+  }
+
+  set bankAccountCategory(value: BankAccountCategoryModel) {
+    this._bankAccountCategory = value;
   }
 }

@@ -14,11 +14,13 @@ export class TransactionRestService {
 
 
   public getTransactions(transactionGetRequest: GetTransactionsRequest): Promise<TransactionModel[]> {
-    let transactionsPromise: Promise<Array<Transaction>> = this.transactionApi.getTransactions(transactionGetRequest);
+    let transactionsPromise: Promise<Array<Transaction>> = this.transactionApi.getTransactions(
+        transactionGetRequest);
     let transactionModels: TransactionModel[] = [];
     return new Promise<TransactionModel[]>(resolve => {
       transactionsPromise.then(transactions => {
-        transactions.forEach(transaction => transactionModels.push(TransactionTransformer.from(transaction)));
+        transactions.forEach(
+            transaction => transactionModels.push(TransactionTransformer.to(transaction)));
         resolve(transactionModels);
       });
     });

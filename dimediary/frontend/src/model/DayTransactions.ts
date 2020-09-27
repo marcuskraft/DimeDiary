@@ -45,8 +45,10 @@ export class DayTransactionsArray {
   addDayTransactions(dayTransactions: DayTransactions) {
     if (this.getDayTransaction(dayTransactions.date) == undefined) {
       this._dayTransactions.push(dayTransactions);
-    } else {
-      let message = 'there is still a dayTransactions for this date: ' + dayTransactions.date.toString();
+    }
+    else {
+      let message = 'there is still a dayTransactions for this date: ' +
+          dayTransactions.date.toString();
       console.error(message);
       throw new Error(message);
     }

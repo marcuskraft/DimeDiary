@@ -1,19 +1,32 @@
 import {Transaction} from '../../../build/openapi/models/Transaction';
 import TransactionModel from '../../model/TransactionModel';
-import {LocalDate} from '@js-joda/core';
 import TimeService from '@/helper/TimeService';
+import {BankAccountTransformer} from "@/rest-services/transformer/BankAccountTransformer";
+import {CategoryTransformer} from "@/rest-services/transformer/CategoryTransformer";
+import {ContinuousTransactionTransformer} from "@/rest-services/transformer/ContinuousTransactionTransformer";
+import {BankAccount} from 'build/openapi/models/BankAccount';
+import {Category} from 'build/openapi/models/Category';
+import {ContinuousTransaction} from 'build/openapi/models/ContinuousTransaction';
 
 
 export class TransactionTransformer {
 
-  public static from(transaction: Transaction): TransactionModel {
-    let date: LocalDate = TimeService.dateToLocalDate(transaction.date!);
-    return new TransactionModel(transaction.subject!, date, transaction.amountEuroCent!, transaction.id)
+  public static to(transaction: Transaction): TransactionModel {
+    return new TransactionModel(transaction.subject!,
+        TimeService.dateToLocalDate(transaction.date)!,
+        transaction.amountEuroCent!, transaction.fixCost!,
+        BankAccountTransformer.to(transaction.bankAccount),
+        CategoryTransformer.to(transaction.category),
+        ContinuousTransactionTransformer.to(transaction.continuousTransaction), transaction.id);
   }
 
-  public static to(transactionModel: TransactionModel): Transaction {
-    let date: Date = TimeService.localDateToDate(transactionModel.date);
-    return new TransactionForRequest(transactionModel.id, transactionModel.subject, transactionModel.amount, date);
+  public static from(transactionModel: TransactionModel): Transaction {
+    return new TransactionForRequest(transactionModel.id!, transactionModel.name,
+        transactionModel.amountEuroCent, TimeService.localDateToDate(transactionModel.date)!,
+        BankAccountTransformer.from(transactionModel.bankAccount),
+        CategoryTransformer.from(transactionModel.category),
+        ContinuousTransactionTransformer.from(transactionModel.continuousTransaction),
+        transactionModel.fixCost);
   }
 
 }
@@ -21,16 +34,59 @@ export class TransactionTransformer {
 class TransactionForRequest implements Transaction {
 
 
-  id?: string;
-  subject?: string;
-  amount?: number;
-  date?: Date;
+  private _id?: string;
+  private _subject?: string;
+  private _amountEuroCent?: number;
+  private _date?: Date;
+  private _bankAccount?: BankAccount;
+  private _category?: Category;
+  private _continuousTransaction?: ContinuousTransaction;
+  private _fixCost?: boolean;
 
 
-  constructor(id: string | undefined, subject: string, amount: number, date: Date) {
-    this.id = id;
-    this.subject = subject;
-    this.amount = amount;
-    this.date = date;
+  constructor(id?: string, subject?: string, amountEuroCent?: number, date?: Date,
+      bankAccount?: BankAccount, category?: Category, continuousTransaction?: ContinuousTransaction,
+      fixCost?: boolean) {
+    this._id = id;
+    this._subject = subject;
+    this._amountEuroCent = amountEuroCent;
+    this._date = date;
+    this._bankAccount = bankAccount;
+    this._category = category;
+    this._continuousTransaction = continuousTransaction;
+    this._fixCost = fixCost;
+  }
+
+
+  get id(): string | undefined {
+    return this._id;
+  }
+
+  get subject(): string | undefined {
+    return this._subject;
+  }
+
+  get amountEuroCent(): number | undefined {
+    return this._amountEuroCent;
+  }
+
+  get date(): Date | undefined {
+    return this._date;
+  }
+
+  get bankAccount(): BankAccount | undefined {
+    return this._bankAccount;
+  }
+
+  get category(): Category | undefined {
+    return this._category;
+  }
+
+  get continuousTransaction(): ContinuousTransaction | undefined {
+    return this._continuousTransaction;
+  }
+
+  get fixCost(): boolean | undefined {
+    return this._fixCost;
   }
 }

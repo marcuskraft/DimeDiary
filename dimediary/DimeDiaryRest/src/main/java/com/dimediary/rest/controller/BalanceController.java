@@ -1,7 +1,7 @@
 package com.dimediary.rest.controller;
 
 import com.dimediary.openapi.api.BalanceApi;
-import com.dimediary.openapi.model.BalanceHistory;
+import com.dimediary.openapi.model.Balance;
 import com.dimediary.port.in.BalanceUseCase;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.BalanceRestConverter;
@@ -35,7 +35,7 @@ public class BalanceController implements BalanceApi {
 
 
   @Override
-  public ResponseEntity<List<BalanceHistory>> getBalances(
+  public ResponseEntity<List<Balance>> getBalances(
       final UUID bankAccountId, final LocalDate dateFrom,
       final LocalDate dateUntil) {
     return this.responseFactory

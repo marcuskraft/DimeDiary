@@ -470,7 +470,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/BalanceHistory'
+                  $ref: '#/components/schemas/Balance'
     post:
       summary: recreate balance histories
       description: recreate balance histories for given bank account
@@ -570,7 +570,7 @@ components:
           type: string
         fixCost:
           type: boolean
-    BalanceHistory:
+    Balance:
       properties:
         bankAccountName:
           type: string

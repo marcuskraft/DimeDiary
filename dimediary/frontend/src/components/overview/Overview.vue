@@ -62,8 +62,9 @@ export default class Overview extends Vue {
   }
 
   fetchTransactions() {
-    let transactionGetRequest: TransactionGetRequestImpl = new TransactionGetRequestImpl("941d4a63-72a7-4fcd-a669-742323b486c5",
-        TimeService.localDateToDate(this.firstDate), TimeService.localDateToDate(this.lastDate));
+    let transactionGetRequest: TransactionGetRequestImpl = new TransactionGetRequestImpl(
+        "941d4a63-72a7-4fcd-a669-742323b486c5",
+        TimeService.localDateToDate(this.firstDate)!, TimeService.localDateToDate(this.lastDate)!);
     TransactionStore.loadTransactions(transactionGetRequest);
   }
 

@@ -10,11 +10,17 @@ export default class TimeService {
     return TimeService.dateFormatter.format(date);
   }
 
-  public static dateToLocalDate(date: Date): LocalDate {
+  public static dateToLocalDate(date?: Date): LocalDate | undefined {
+    if (date == undefined) {
+      return undefined;
+    }
     return LocalDate.of(date.getFullYear(), date.getMonth() + 1, date.getDate() - 1);
   }
 
-  public static localDateToDate(localDate: LocalDate): Date {
+  public static localDateToDate(localDate: LocalDate | undefined): Date | undefined {
+    if (localDate == undefined) {
+      return undefined;
+    }
     return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth() + 1);
   }
 

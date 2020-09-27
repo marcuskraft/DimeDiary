@@ -25,7 +25,7 @@
 import {Component, Vue} from "vue-property-decorator";
 import OverviewNavigationStore from "@/store/modules/OverviewNavigationStore";
 import TimeService from "@/helper/TimeService";
-import {TransactionGetRequestImpl} from "@/services/TransactionService";
+import {TransactionGetRequestImpl} from "@/rest-services/TransactionRestService";
 import TransactionStore from "@/store/modules/TransactionStore";
 import {DateTimeFormatter, LocalDate, Month} from "@js-joda/core";
 import OverviewGrid from "@/components/overview/OverviewGrid.vue";

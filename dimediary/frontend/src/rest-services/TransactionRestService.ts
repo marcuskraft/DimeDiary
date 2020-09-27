@@ -1,10 +1,10 @@
 import {GetTransactionsRequest, TransactionApi} from '../../build/openapi/apis/TransactionApi';
 import TransactionModel from "@/model/TransactionModel";
-import {TransactionTransformer} from "@/services/transformer/TransactionTransformer";
+import {TransactionTransformer} from "@/rest-services/transformer/TransactionTransformer";
 import {Transaction} from "../../build/openapi/models";
 
 
-export class TransactionService {
+export class TransactionRestService {
   private readonly transactionApi: TransactionApi;
 
 

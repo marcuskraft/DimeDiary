@@ -1,42 +1,30 @@
 <template>
   <div id="app">
     <!-- App.vue -->
-
     <v-app>
-      <app-bar></app-bar>
+      <v-navigation-drawer app>
+        <left-navigation></left-navigation>
+      </v-navigation-drawer>
 
-      <v-content app>
-        <overview/>
-      </v-content>
+      <v-main>
+        <transaction-overview></transaction-overview> <!-- TODO: replace with router -->
+      </v-main>
     </v-app>
   </div>
 </template>
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import OverviewGrid from "@/components/overview/OverviewGrid.vue";
-import {DayTransactionsArray} from "@/model/DayTransactions";
-import TransactionStore from "@/store/modules/TransactionStore";
-import AppBar from "@/components/overview/Appbar.vue";
-import Overview from "@/components/overview/Overview.vue";
+import LeftNavigation from "@/components/LeftNavigation.vue";
+import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
 
 @Component({
   components: {
-    Overview,
-    OverviewGrid,
-    AppBar
+    TransactionOverview,
+    LeftNavigation
   }
 })
 export default class App extends Vue {
-  get showOverviewGrid(): boolean {
-    return this.dayTransactionArray.dayTransactions.length != 0;
-  }
-
-  get dayTransactionArray(): DayTransactionsArray {
-    return TransactionStore.transactions;
-  }
-
-
 }
 </script>
 

@@ -14,14 +14,17 @@ export default class TimeService {
     if (date == undefined) {
       return undefined;
     }
-    return LocalDate.of(date.getFullYear(), date.getMonth() + 1, date.getDate() - 1);
+    let month = date.getMonth() + 1;
+    let dayOfMonth = date.getDate();
+    let fullYear = date.getFullYear();
+    return LocalDate.of(fullYear, month, dayOfMonth);
   }
 
   public static localDateToDate(localDate: LocalDate | undefined): Date | undefined {
     if (localDate == undefined) {
       return undefined;
     }
-    return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth() + 1);
+    return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth());
   }
 
 

@@ -5,7 +5,6 @@ import {
   TransactionGetRequestImpl,
   TransactionRestService
 } from '@/rest-services/TransactionRestService';
-import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
 
 
 @Module({
@@ -17,31 +16,16 @@ import DayTransactions, {DayTransactionsArray} from "@/model/DayTransactions";
 export class TransactionStore extends VuexModule {
 
 
-  private _transactions: DayTransactionsArray = new DayTransactionsArray([]);
+  private _transactions: TransactionModel[] = [];
 
 
-  public get transactions(): DayTransactionsArray {
+  public get transactions(): TransactionModel[] {
     return this._transactions;
   }
 
   @Mutation
   addTransaction(transaction: TransactionModel) {
-    if (transaction.date == undefined) {
-      console.error("date must not be null");
-      throw console.error("date must not be null");
-    }
-
-    let dayTransactions = this._transactions.getDayTransaction(transaction.date);
-    if (dayTransactions == undefined) {
-      dayTransactions = new DayTransactions(transaction.date, []);
-      this._transactions.addDayTransactions(dayTransactions);
-    }
-    dayTransactions.push(transaction);
-  }
-
-  @Mutation
-  addDayTransaction(dayTransactions: DayTransactions) {
-    this._transactions.addDayTransactions(dayTransactions);
+    this._transactions.push(transaction);
   }
 
 
@@ -60,7 +44,7 @@ export class TransactionStore extends VuexModule {
 
   @Mutation
   private clearTransactions() {
-    this._transactions.clear();
+    this._transactions = [];
 
   }
 }

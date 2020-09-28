@@ -1,7 +1,6 @@
 import {GetTransactionsRequest, TransactionApi} from '../../build/openapi/apis/TransactionApi';
 import TransactionModel from "@/model/TransactionModel";
 import {TransactionTransformer} from "@/rest-services/transformer/TransactionTransformer";
-import {Transaction} from "../../build/openapi/models";
 
 
 export class TransactionRestService {
@@ -14,11 +13,9 @@ export class TransactionRestService {
 
 
   public getTransactions(transactionGetRequest: GetTransactionsRequest): Promise<TransactionModel[]> {
-    let transactionsPromise: Promise<Array<Transaction>> = this.transactionApi.getTransactions(
-        transactionGetRequest);
     let transactionModels: TransactionModel[] = [];
     return new Promise<TransactionModel[]>(resolve => {
-      transactionsPromise.then(transactions => {
+      this.transactionApi.getTransactions(transactionGetRequest).then(transactions => {
         transactions.forEach(
             transaction => transactionModels.push(TransactionTransformer.to(transaction)));
         resolve(transactionModels);

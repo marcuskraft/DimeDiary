@@ -12,6 +12,7 @@ import {Month} from "@js-joda/core";
 })
 export class OverviewNavigationStore extends VuexModule {
 
+  
   private _year: number = TimeService.actualYear();
   private _month: Month = TimeService.actualMonth();
 

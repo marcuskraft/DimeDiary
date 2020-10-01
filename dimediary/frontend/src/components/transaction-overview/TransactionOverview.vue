@@ -4,6 +4,8 @@
       <v-col cols="2">
         <v-select
             :items="bankAccounts"
+            item-text="name"
+            :value="selectedBankAccount"
             :menu-props="{ maxHeight: '400'}"
             label="Bankkonten"
             multiple
@@ -64,6 +66,8 @@ import {TransactionGetRequestImpl} from "@/rest-services/TransactionRestService"
 import TimeService from "@/helper/TimeService";
 import TransactionGroup from "@/components/transaction-overview/TransactionGroup.vue";
 import {DateTimeFormatter, YearMonth, ZonedDateTime, ZoneId} from "@js-joda/core";
+import BankAccountStore from "@/store/modules/BankAccountStore";
+import BankAccountModel from "@/model/BankAccountModel";
 
 
 require('@js-joda/timezone');
@@ -84,6 +88,10 @@ export default class TransactionOverview extends Vue {
 
   datePicker: boolean = false;
 
+  mounted() {
+    BankAccountStore.loadBankAccounts();
+  }
+
   private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
   private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");
 
@@ -96,7 +104,6 @@ export default class TransactionOverview extends Vue {
   }
 
   get dateString(): string {
-
     let zonedDateTime = ZonedDateTime.of(this.yearMonth.year(), this.yearMonth.month().value(), 1,
         0, 0, 0,
         0,
@@ -105,22 +112,33 @@ export default class TransactionOverview extends Vue {
         this.dateFormatterUser.withLocale(Locale.GERMANY));
   }
 
-  get bankAccounts(): string[] {
-    return ["Sparkasse", "N26"];
+
+  get bankAccounts(): BankAccountModel[] {
+    return BankAccountStore.bankAccounts;
   }
 
   get transactions(): TransactionModel[] {
     return TransactionStore.transactions;
   }
 
+  set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
+    BankAccountStore.setBankAccountSelected(bankAccount);
+  }
+
+  get selectedBankAccount(): BankAccountModel | undefined {
+    return BankAccountStore.bankAccountSelected;
+  }
+
   private loadTransactions() {
     this.datePicker = false;
 
-    let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
-        "941d4a63-72a7-4fcd-a669-742323b486c5",
-        TimeService.localDateToDate(this.yearMonth.atDay(1))!,
-        TimeService.localDateToDate(this.yearMonth.atEndOfMonth())!);
-    TransactionStore.loadTransactions(request);
+    if (this.selectedBankAccount != undefined) {
+      let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
+          this.selectedBankAccount.id!,
+          TimeService.localDateToDate(this.yearMonth.atDay(1))!,
+          TimeService.localDateToDate(this.yearMonth.atEndOfMonth())!);
+      TransactionStore.loadTransactions(request);
+    }
 
   }
 

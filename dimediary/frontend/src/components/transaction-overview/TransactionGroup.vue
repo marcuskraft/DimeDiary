@@ -12,21 +12,23 @@
             min-width="290px">
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
-                v-model="date"
+                v-model="dateString"
                 readonly
                 v-on="on"
+                solo
             ></v-text-field>
           </template>
           <v-date-picker
               v-model="date"
               no-title
-              scrollable>
+              scrollable
+              locale="GERMANY">
             <v-spacer></v-spacer>
             <v-btn
                 text
                 color="primary"
                 @click="menu = false">
-              Cancel
+              Abbrechen
             </v-btn>
             <v-btn
                 text
@@ -60,6 +62,7 @@ export default class TransactionGroup extends Vue {
   @Prop({type: TransactionModel}) transactionProp!: TransactionModel;
 
   private readonly dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+  private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
   private menu: boolean = false;
 
   get date(): string {
@@ -68,6 +71,10 @@ export default class TransactionGroup extends Vue {
 
   set date(date: string) {
     this.transactionProp.date = LocalDate.parse(date, this.dateTimeFormatter);
+  }
+
+  get dateString(): string {
+    return this.transactionProp.date.format(this.dateTimeFormatterUser)
   }
 
   get name(): string {

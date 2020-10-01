@@ -15,13 +15,13 @@
             ref="menu"
             v-model="datePicker"
             :close-on-content-click="false"
-            :return-value.sync="date"
+            :return-value.sync="yearMonthString"
             transition="scale-transition"
             offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
                 v-model="dateString"
-                label="Datumsbereich"
+                label="Monat"
                 prepend-icon="mdi-calendar"
                 readonly
                 v-bind="attrs"
@@ -29,10 +29,9 @@
             ></v-text-field>
           </template>
           <v-date-picker
-              v-model="date"
-              no-title
-              scrollable
-              range>
+              v-model="yearMonthString"
+              type="month"
+              locale="GERMANY">
             <v-spacer></v-spacer>
             <v-btn
                 text
@@ -43,7 +42,7 @@
             <v-btn
                 text
                 color="primary"
-                @click="$refs.menu.save(date); loadTransactions();">
+                @click="$refs.menu.save(yearMonthString); loadTransactions();">
               OK
             </v-btn>
           </v-date-picker>
@@ -57,12 +56,22 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {DateTimeFormatter, LocalDate} from "@js-joda/core";
+
+
 import TransactionModel from "@/model/TransactionModel";
 import TransactionStore from "@/store/modules/TransactionStore";
 import {TransactionGetRequestImpl} from "@/rest-services/TransactionRestService";
 import TimeService from "@/helper/TimeService";
 import TransactionGroup from "@/components/transaction-overview/TransactionGroup.vue";
+import {DateTimeFormatter, YearMonth, ZonedDateTime, ZoneId} from "@js-joda/core";
+
+
+require('@js-joda/timezone');
+
+const {
+  Locale,
+} = require("@js-joda/locale_de-de")
+
 
 @Component({
   components: {
@@ -71,57 +80,29 @@ import TransactionGroup from "@/components/transaction-overview/TransactionGroup
 })
 export default class TransactionOverview extends Vue {
 
-  actualLocalDate: LocalDate = LocalDate.now();
-  firstLocalDate: LocalDate | undefined = LocalDate.of(this.actualLocalDate.year(),
-      this.actualLocalDate.month(), 1);
-  lastLocalDate: LocalDate | undefined = LocalDate.of(this.actualLocalDate.year(),
-      this.actualLocalDate.month(), this.actualLocalDate.lengthOfMonth())
+  yearMonth: YearMonth = YearMonth.now();
 
   datePicker: boolean = false;
 
-  private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  private readonly dateFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+  private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
+  private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");
 
-  get date(): string[] {
-    let dateStrings: string[] = [];
-    if (this.firstLocalDate !== undefined) {
-      dateStrings.push(this.dateFormatterTechnical.format(this.firstLocalDate));
-    }
-    if (this.lastLocalDate !== undefined) {
-      dateStrings.push(this.dateFormatterTechnical.format(this.lastLocalDate));
-    }
-    return dateStrings;
+  get yearMonthString(): string {
+    return this.dateFormatterTechnical.format(this.yearMonth);
   }
 
-  set date(dates: string[]) {
-    if (dates.length == 0) {
-      this.firstLocalDate = undefined;
-      this.lastLocalDate = undefined;
-    }
-    else if (dates.length == 1) {
-      this.firstLocalDate = LocalDate.parse(dates[0], this.dateFormatterTechnical);
-      this.lastLocalDate = undefined;
-    }
-    else {
-      let firstLocalDateTemp = LocalDate.parse(dates[0], this.dateFormatterTechnical);
-      let lastLocalDateTemp = LocalDate.parse(dates[1], this.dateFormatterTechnical);
-      this.firstLocalDate =
-          firstLocalDateTemp.isBefore(lastLocalDateTemp) ? firstLocalDateTemp : lastLocalDateTemp;
-      this.lastLocalDate =
-          lastLocalDateTemp.isAfter(firstLocalDateTemp) ? lastLocalDateTemp : firstLocalDateTemp;
-    }
+  set yearMonthString(date: string) {
+    this.yearMonth = YearMonth.parse(date, this.dateFormatterTechnical);
   }
 
   get dateString(): string {
-    let value: string = "";
 
-    if (this.firstLocalDate !== undefined) {
-      value = this.dateFormatterUser.format(this.firstLocalDate);
-      if (this.lastLocalDate !== undefined) {
-        value += " - " + this.dateFormatterUser.format(this.lastLocalDate);
-      }
-    }
-    return value;
+    let zonedDateTime = ZonedDateTime.of(this.yearMonth.year(), this.yearMonth.month().value(), 1,
+        0, 0, 0,
+        0,
+        ZoneId.of('Europe/Berlin'));
+    return zonedDateTime.format(
+        this.dateFormatterUser.withLocale(Locale.GERMANY));
   }
 
   get bankAccounts(): string[] {
@@ -134,13 +115,13 @@ export default class TransactionOverview extends Vue {
 
   private loadTransactions() {
     this.datePicker = false;
-    if (this.firstLocalDate !== undefined && this.lastLocalDate !== undefined) {
-      let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
-          "941d4a63-72a7-4fcd-a669-742323b486c5",
-          TimeService.localDateToDate(this.firstLocalDate)!,
-          TimeService.localDateToDate(this.lastLocalDate)!);
-      TransactionStore.loadTransactions(request);
-    }
+
+    let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
+        "941d4a63-72a7-4fcd-a669-742323b486c5",
+        TimeService.localDateToDate(this.yearMonth.atDay(1))!,
+        TimeService.localDateToDate(this.yearMonth.atEndOfMonth())!);
+    TransactionStore.loadTransactions(request);
+
   }
 
 }

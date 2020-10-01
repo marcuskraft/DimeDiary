@@ -1,5 +1,5 @@
 <template>
-  <div style="border: #0d47a1; border-style: solid; margin: 2px">
+  <div class="transaction-group">
     <v-row>
       <v-col cols="1">
         <v-menu
@@ -31,7 +31,7 @@
             <v-btn
                 text
                 color="primary"
-                @click="$refs.menu.save(date)">
+                @click="$refs.menu.save(date); save();">
               OK
             </v-btn>
           </v-date-picker>
@@ -39,8 +39,10 @@
       </v-col>
       <v-col cols="1">
         <v-text-field
-            :value="transactionProp.name"
+            v-model="name"
+            type="text"
             solo
+            @change="save"
         ></v-text-field>
       </v-col>
     </v-row>
@@ -68,9 +70,26 @@ export default class TransactionGroup extends Vue {
     this.transactionProp.date = LocalDate.parse(date, this.dateTimeFormatter);
   }
 
+  get name(): string {
+    return this.transactionProp.name;
+  }
+
+  set name(value: string) {
+    this.transactionProp.name = value;
+  }
+
+  save() {
+    console.info("saved");
+  }
+
 }
 </script>
 
 <style scoped>
+
+.transaction-group {
+  background-color: #00b0ff;
+  margin: 5px;
+}
 
 </style>

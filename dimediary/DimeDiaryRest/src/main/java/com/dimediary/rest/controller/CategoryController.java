@@ -36,7 +36,7 @@ public class CategoryController implements CategoryApi {
 
 
   @Override
-  public ResponseEntity<Category> createCategory(final Category category) {
+  public ResponseEntity<Category> saveCategory(final Category category) {
     return this.responseFactory.created(
         this.categoryRestConverter
             .from(this.categoryProvider.persist(this.categoryRestConverter.to(category))));
@@ -54,13 +54,5 @@ public class CategoryController implements CategoryApi {
         this.categoryRestConverter::from).collect(
         Collectors.toList()));
   }
-
-  @Override
-  public ResponseEntity<Void> updateCategory(final UUID categoryId, final Category category) {
-    if (!categoryId.equals(category.getId())) {
-      return this.responseFactory.badRequest();
-    }
-    this.categoryProvider.persist(this.categoryRestConverter.to(category));
-    return this.responseFactory.okNoContent();
-  }
+  
 }

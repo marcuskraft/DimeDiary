@@ -36,7 +36,7 @@ public class BankAccountController implements BankAccountApi {
 
 
   @Override
-  public ResponseEntity<com.dimediary.openapi.model.BankAccount> createBankAccount(
+  public ResponseEntity<com.dimediary.openapi.model.BankAccount> saveBankAccount(
       final com.dimediary.openapi.model.BankAccount bankAccount) {
     final BankAccount bankAccountPersisted = this.bankAccountProvider
         .persist(this.bankAccountConverter.to(bankAccount));
@@ -62,17 +62,6 @@ public class BankAccountController implements BankAccountApi {
   public ResponseEntity<List<com.dimediary.openapi.model.BankAccount>> getBankAccounts() {
     return this.responseFactory.ok((this.bankAccountProvider.getBankAccounts().stream()
         .map(this.bankAccountConverter::from).collect(Collectors.toList())));
-  }
-
-  @Override
-  public ResponseEntity<Void> updateBankAccount(final UUID bankAccountId,
-      final com.dimediary.openapi.model.BankAccount bankAccount) {
-    if (!bankAccountId.equals(bankAccount.getId())) {
-      return this.responseFactory.badRequest();
-    }
-    this.bankAccountProvider
-        .persist(this.bankAccountConverter.to(bankAccount));
-    return this.responseFactory.okNoContent();
   }
 
 

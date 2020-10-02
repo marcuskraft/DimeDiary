@@ -6,7 +6,7 @@
             ref="menu"
             v-model="menu"
             :close-on-content-click="false"
-            :return-value.sync="date"
+            :return-value.sync="dateTemp"
             transition="scale-transition"
             offset-y
             min-width="290px">
@@ -19,7 +19,7 @@
             ></v-text-field>
           </template>
           <v-date-picker
-              v-model="date"
+              v-model="dateTemp"
               no-title
               scrollable
               locale="GERMANY">
@@ -33,7 +33,7 @@
             <v-btn
                 text
                 color="primary"
-                @click="$refs.menu.save(date); save();">
+                @click="$refs.menu.save(dateTemp); save();">
               OK
             </v-btn>
           </v-date-picker>
@@ -47,6 +47,18 @@
             @change="save"
         ></v-text-field>
       </v-col>
+      <v-col cols="1">
+        <v-form>
+          <v-text-field
+              v-model="amount"
+              type="number"
+              solo
+              suffix="€"
+              @change="save"
+              :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
+          ></v-text-field>
+        </v-form>
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -55,6 +67,7 @@
 import {Component, Prop, Vue} from "vue-property-decorator";
 import TransactionModel from "@/model/TransactionModel";
 import {DateTimeFormatter, LocalDate} from "@js-joda/core";
+import TransactionService from "@/service/TransactionService";
 
 @Component
 export default class TransactionGroup extends Vue {
@@ -65,13 +78,13 @@ export default class TransactionGroup extends Vue {
   private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
   private menu: boolean = false;
 
-  get date(): string {
-    return this.transactionProp.date.format(this.dateTimeFormatter)
+  private dateTemp: string;
+
+  constructor() {
+    super();
+    this.dateTemp = this.transactionProp.date.format(this.dateTimeFormatter);
   }
 
-  set date(date: string) {
-    this.transactionProp.date = LocalDate.parse(date, this.dateTimeFormatter);
-  }
 
   get dateString(): string {
     return this.transactionProp.date.format(this.dateTimeFormatterUser)
@@ -85,8 +98,29 @@ export default class TransactionGroup extends Vue {
     this.transactionProp.name = value;
   }
 
+  get amount(): number {
+    return this.transactionProp.amountEuroCent / 100;
+  }
+
+  set amount(amount: number) {
+    this.transactionProp.amountEuroCent = amount * 100;
+  }
+
+  onlyTwoPrecision(value: number): boolean {
+    if (value != null && value.toLocaleString().indexOf(",") > -1 &&
+        (value.toLocaleString().split(',')[1].length > 2)) {
+      return false;
+    }
+    return true;
+  }
+
   save() {
-    console.info("saved");
+    if (this.onlyTwoPrecision(this.amount)) {
+      let transactionService: TransactionService = new TransactionService();
+      this.transactionProp.date = LocalDate.parse(this.dateTemp, this.dateTimeFormatter);
+      transactionService.saveTransaction(this.transactionProp);
+      console.info("saved");
+    }
   }
 
 }
@@ -97,6 +131,12 @@ export default class TransactionGroup extends Vue {
 .transaction-group {
   background-color: #00b0ff;
   margin: 5px;
+}
+
+::v-deep input::-webkit-outer-spin-button,
+::v-deep input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 </style>

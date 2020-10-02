@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {BankAccountRestConverter.class,
-    CategoryRestConverter.class})
+    CategoryRestConverter.class, LocalDateConverter.class})
 public interface ContinuousTransactionRestConverter {
 
   ContinuousTransaction from(com.dimediary.domain.ContinuousTransaction continuousTransaction);

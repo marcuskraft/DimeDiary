@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {ContinuousTransactionRestConverter.class,
-    LocalDateTimeOffSetDateTimeConverter.class})
+    LocalDateTimeOffSetDateTimeConverter.class, LocalDateConverter.class})
 public interface TransactionRestConverter {
 
 

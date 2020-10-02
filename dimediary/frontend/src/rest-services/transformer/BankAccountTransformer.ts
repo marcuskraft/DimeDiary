@@ -13,7 +13,7 @@ export class BankAccountTransformer {
     return new BankAccountRest(bankAccount.id, bankAccount.name, bankAccount.bankName,
         bankAccount.iban, bankAccount.bic,
         BankAccountCategoryTransformer.from(bankAccount.bankAccountCategory),
-        TimeService.localDateToDate(bankAccount.dateStartBalance),
+        TimeService.localDateToIsoString(bankAccount.dateStartBalance),
         bankAccount.startBalanceEuroCent);
   }
 
@@ -22,7 +22,7 @@ export class BankAccountTransformer {
       return undefined;
     }
     return new BankAccountModel(bankAccount.name!,
-        TimeService.dateToLocalDate(bankAccount.dateStartBalance)!,
+        TimeService.isoStringToLocalDate(bankAccount.dateStartBalance!),
         bankAccount.startBalanceEuroCent!,
         BankAccountCategoryTransformer.to(bankAccount.bankAccountCategory!), bankAccount.id,
         bankAccount.bankName, bankAccount.iban, bankAccount.bic);
@@ -39,12 +39,12 @@ class BankAccountRest {
   iban?: string;
   bic?: string;
   bankAccountCategory?: BankAccountCategory;
-  dateStartBalance?: Date;
+  dateStartBalance?: string;
   startBalanceEuroCent?: number;
 
 
   constructor(id?: string, name?: string, bankName?: string, iban?: string, bic?: string,
-      bankAccountCategory?: BankAccountCategory, dateStartBalance?: Date,
+      bankAccountCategory?: BankAccountCategory, dateStartBalance?: string,
       startBalanceEuroCent?: number) {
     this.id = id;
     this.name = name;

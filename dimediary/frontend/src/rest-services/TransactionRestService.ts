@@ -11,6 +11,15 @@ export class TransactionRestService {
     this.transactionApi = new TransactionApi();
   }
 
+  public saveTransaction(transaction: TransactionModel): Promise<TransactionModel> {
+    return new Promise<TransactionModel>(resolve => {
+      this.transactionApi.saveTransaction({transaction: TransactionTransformer.from(transaction)}).
+      then(transactionRet => {
+        resolve(TransactionTransformer.to(transactionRet));
+      })
+    })
+  }
+
 
   public getTransactions(transactionGetRequest: GetTransactionsRequest): Promise<TransactionModel[]> {
     let transactionModels: TransactionModel[] = [];
@@ -27,13 +36,14 @@ export class TransactionRestService {
 export class TransactionGetRequestImpl implements GetTransactionsRequest {
 
   bankAccountId: string;
-  dateFrom: Date;
-  dateUntil: Date;
+  dateFrom: string;
+  dateUntil: string;
 
 
-  constructor(bankAccountId: string, dateFrom: Date, dateUntil: Date) {
+  constructor(bankAccountId: string, dateFrom: string, dateUntil: string) {
     this.bankAccountId = bankAccountId;
     this.dateFrom = dateFrom;
     this.dateUntil = dateUntil;
   }
 }
+

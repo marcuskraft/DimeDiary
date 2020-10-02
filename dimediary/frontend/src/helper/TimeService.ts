@@ -10,6 +10,15 @@ export default class TimeService {
     return TimeService.dateFormatter.format(date);
   }
 
+  public static localDateToIsoString(localDate: LocalDate): string {
+    return localDate.format(this.dateFormatter);
+  }
+
+  public static isoStringToLocalDate(isoString: string): LocalDate {
+    return LocalDate.parse(isoString, this.dateFormatter);
+  }
+
+
   public static dateToLocalDate(date?: Date): LocalDate | undefined {
     if (date == undefined) {
       return undefined;
@@ -24,7 +33,8 @@ export default class TimeService {
     if (localDate == undefined) {
       return undefined;
     }
-    return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth());
+    return new Date(localDate.year(), localDate.month().value() - 1, localDate.dayOfMonth(), 0, 0,
+        0, 0,);
   }
 
 

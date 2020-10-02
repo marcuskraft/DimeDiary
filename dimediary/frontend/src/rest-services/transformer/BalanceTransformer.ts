@@ -5,7 +5,8 @@ import TimeService from "@/helper/TimeService";
 export default class BalanceTransformer {
 
   public static to(balance: Balance): BalanceModel {
-    return new BalanceModel(balance.bankAccountName!, TimeService.dateToLocalDate(balance.date)!,
+    return new BalanceModel(balance.bankAccountName!,
+        TimeService.isoStringToLocalDate(balance.date!),
         balance.balanceEuroCent!);
   }
 

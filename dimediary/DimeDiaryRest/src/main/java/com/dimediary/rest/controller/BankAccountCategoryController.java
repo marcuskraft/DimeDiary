@@ -35,7 +35,7 @@ public class BankAccountCategoryController implements BankAccountCategoryApi {
 
 
   @Override
-  public ResponseEntity<BankAccountCategory> createBankAccountCategory(
+  public ResponseEntity<BankAccountCategory> saveBankAccountCategory(
       final BankAccountCategory bankAccountCategory) {
     return this.responseFactory.created(this.bankAccountCategoryRestConverter
         .from(this.bankaccountCategoryProvider
@@ -54,17 +54,6 @@ public class BankAccountCategoryController implements BankAccountCategoryApi {
         .ok(this.bankaccountCategoryProvider.getBankAccountCategories().stream()
             .map(this.bankAccountCategoryRestConverter::from).collect(
                 Collectors.toList()));
-  }
-
-  @Override
-  public ResponseEntity<Void> updateBankAccountCategory(final UUID bankAccountCategoryId,
-      final BankAccountCategory bankAccountCategory) {
-    if (!bankAccountCategoryId.equals(bankAccountCategory.getId())) {
-      return this.responseFactory.badRequest();
-    }
-    this.bankaccountCategoryProvider
-        .persist(this.bankAccountCategoryRestConverter.to(bankAccountCategory));
-    return this.responseFactory.okNoContent();
   }
 
 

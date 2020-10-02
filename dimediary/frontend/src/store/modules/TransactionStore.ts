@@ -15,17 +15,27 @@ import {
 })
 export class TransactionStore extends VuexModule {
 
-
   private _transactions: TransactionModel[] = [];
-
 
   public get transactions(): TransactionModel[] {
     return this._transactions;
   }
 
   @Mutation
-  addTransaction(transaction: TransactionModel) {
+  private addTransaction(transaction: TransactionModel) {
+    let index = this._transactions.findIndex(value => value.id === transaction.id);
+    if (index !== -1) {
+      this._transactions.splice(index, 1);
+    }
     this._transactions.push(transaction);
+  }
+
+
+  @Action
+  public saveTransaction(transaction: TransactionModel) {
+    let transactionsService: TransactionRestService = new TransactionRestService();
+    transactionsService.saveTransaction(transaction).
+    then(transactionReceived => this.addTransaction(transactionReceived));
   }
 
 
@@ -33,7 +43,6 @@ export class TransactionStore extends VuexModule {
   loadTransactions(transactionGetRequest: TransactionGetRequestImpl) {
     let transactionsService: TransactionRestService = new TransactionRestService();
     transactionsService.getTransactions(transactionGetRequest).then((transactionModels) => {
-      this.clearTransactions();
       if (transactionModels != undefined && transactionModels.length != 0) {
         transactionModels!.forEach(transaction => {
           this.addTransaction(transaction);
@@ -42,11 +51,7 @@ export class TransactionStore extends VuexModule {
     })
   }
 
-  @Mutation
-  private clearTransactions() {
-    this._transactions = [];
 
-  }
 }
 
 export default getModule(TransactionStore);

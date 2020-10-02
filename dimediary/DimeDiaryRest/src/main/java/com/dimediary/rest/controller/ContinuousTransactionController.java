@@ -33,7 +33,7 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
 
 
   @Override
-  public ResponseEntity<ContinuousTransaction> createContinuousTransaction(
+  public ResponseEntity<ContinuousTransaction> saveContinuousTransaction(
       final ContinuousTransaction continuousTransaction) {
     return this.responseFactory.created(this.continuousTransactionRestConverter.from(
         this.continuousTransactionProvider
@@ -54,14 +54,5 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
             this.continuousTransactionProvider.getContinuousTransactions(continuousTransactionId)));
   }
 
-  @Override
-  public ResponseEntity<Void> updateContinuousTransaction(final UUID continuousTransactionId,
-      final ContinuousTransaction continuousTransaction) {
-    if (!continuousTransactionId.equals(continuousTransaction.getId())) {
-      return this.responseFactory.badRequest();
-    }
-    this.continuousTransactionProvider
-        .persist(this.continuousTransactionRestConverter.to(continuousTransaction));
-    return this.responseFactory.okNoContent();
-  }
+
 }

@@ -14,7 +14,7 @@ export class ContinuousTransactionTransformer {
     }
     return new ContinuousTransactionRest(continuousTransaction.id, continuousTransaction.name,
         continuousTransaction.amountEuroCent,
-        TimeService.localDateToDate(continuousTransaction.dateBegin),
+        TimeService.localDateToIsoString(continuousTransaction.dateBegin),
         BankAccountTransformer.from(continuousTransaction.bankAccount),
         CategoryTransformer.from(continuousTransaction.category),
         continuousTransaction.recurrenceRule, continuousTransaction.fixCost);
@@ -26,7 +26,7 @@ export class ContinuousTransactionTransformer {
     }
     return new ContinuousTransactionModel(continuousTransaction.name!,
         continuousTransaction.amountEuroCent!,
-        TimeService.dateToLocalDate(continuousTransaction.dateBegin)!,
+        TimeService.isoStringToLocalDate(continuousTransaction.dateBegin!),
         BankAccountTransformer.to(continuousTransaction.bankAccount)!,
         CategoryTransformer.to(continuousTransaction.category)!,
         continuousTransaction.recurrenceRule!, continuousTransaction.fixCost!,
@@ -40,14 +40,14 @@ class ContinuousTransactionRest implements ContinuousTransaction {
   private _id?: string;
   private _name?: string;
   private _amountEuroCent?: number;
-  private _dateBegin?: Date;
+  private _dateBegin?: string;
   private _bankAccount?: BankAccount;
   private _category?: Category;
   private _recurrenceRule?: string;
   private _fixCost?: boolean;
 
 
-  constructor(id?: string, name?: string, amountEuroCent?: number, dateBegin?: Date,
+  constructor(id?: string, name?: string, amountEuroCent?: number, dateBegin?: string,
       bankAccount?: BankAccount, category?: Category, recurrenceRule?: string, fixCost?: boolean) {
     this._id = id;
     this._name = name;
@@ -72,7 +72,7 @@ class ContinuousTransactionRest implements ContinuousTransaction {
     return this._amountEuroCent;
   }
 
-  get dateBegin(): Date | undefined {
+  get dateBegin(): string | undefined {
     return this._dateBegin;
   }
 

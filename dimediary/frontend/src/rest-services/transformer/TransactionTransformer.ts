@@ -13,7 +13,7 @@ export class TransactionTransformer {
 
   public static to(transaction: Transaction): TransactionModel {
     return new TransactionModel(transaction.subject!,
-        TimeService.dateToLocalDate(transaction.date)!,
+        TimeService.isoStringToLocalDate(transaction.date!),
         transaction.amountEuroCent!, transaction.fixCost!,
         BankAccountTransformer.to(transaction.bankAccount),
         CategoryTransformer.to(transaction.category),
@@ -22,7 +22,7 @@ export class TransactionTransformer {
 
   public static from(transactionModel: TransactionModel): Transaction {
     return new TransactionForRequest(transactionModel.id!, transactionModel.name,
-        transactionModel.amountEuroCent, TimeService.localDateToDate(transactionModel.date)!,
+        transactionModel.amountEuroCent, TimeService.localDateToIsoString(transactionModel.date!),
         BankAccountTransformer.from(transactionModel.bankAccount),
         CategoryTransformer.from(transactionModel.category),
         ContinuousTransactionTransformer.from(transactionModel.continuousTransaction),
@@ -37,14 +37,14 @@ class TransactionForRequest implements Transaction {
   private _id?: string;
   private _subject?: string;
   private _amountEuroCent?: number;
-  private _date?: Date;
+  private _date?: string;
   private _bankAccount?: BankAccount;
   private _category?: Category;
   private _continuousTransaction?: ContinuousTransaction;
   private _fixCost?: boolean;
 
 
-  constructor(id?: string, subject?: string, amountEuroCent?: number, date?: Date,
+  constructor(id?: string, subject?: string, amountEuroCent?: number, date?: string,
       bankAccount?: BankAccount, category?: Category, continuousTransaction?: ContinuousTransaction,
       fixCost?: boolean) {
     this._id = id;
@@ -70,7 +70,7 @@ class TransactionForRequest implements Transaction {
     return this._amountEuroCent;
   }
 
-  get date(): Date | undefined {
+  get date(): string | undefined {
     return this._date;
   }
 

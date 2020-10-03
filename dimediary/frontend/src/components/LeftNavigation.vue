@@ -24,7 +24,7 @@
         </v-list-item-icon>
 
         <v-list-item-content>
-          <v-list-item-title>{{ item.title }}</v-list-item-title>
+          <router-link :to="item.path">{{ item.title }}</router-link>
         </v-list-item-content>
       </v-list-item>
     </v-list>
@@ -42,8 +42,8 @@ export default class LeftNavigation extends Vue {
 
 
   get items(): Item[] {
-    return [new Item("Dashboard", "mdi-view-dashboard"),
-      new Item("Transaktionsübersicht", "mdi-polymer")]
+    return [new Item("Dashboard", "mdi-view-dashboard", "/"),
+      new Item("Transaktionsübersicht", "mdi-polymer", "/transactions")]
   }
 
 }
@@ -52,11 +52,13 @@ class Item {
 
   private _title: string;
   private _icon: string;
+  private _path: string;
 
 
-  constructor(title: string, icon: string) {
+  constructor(title: string, icon: string, path: string) {
     this._title = title;
     this._icon = icon;
+    this._path = path;
   }
 
 
@@ -66,6 +68,11 @@ class Item {
 
   get icon(): string {
     return this._icon;
+  }
+
+
+  get path(): string {
+    return this._path;
   }
 }
 

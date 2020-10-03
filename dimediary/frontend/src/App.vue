@@ -1,13 +1,11 @@
 <template>
   <div id="app">
-    <!-- App.vue -->
     <v-app>
       <v-navigation-drawer app>
         <left-navigation></left-navigation>
       </v-navigation-drawer>
-
       <v-main>
-        <transaction-overview></transaction-overview> <!-- TODO: replace with router -->
+        <router-view/>
       </v-main>
     </v-app>
   </div>
@@ -37,4 +35,5 @@ export default class App extends Vue {
 </script>
 
 <style>
+
 </style>

@@ -2,42 +2,8 @@
   <div class="transaction-group">
     <v-row>
       <v-col cols="1">
-        <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="dateTemp"
-            transition="scale-transition"
-            offset-y
-            min-width="290px">
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-                v-model="dateString"
-                readonly
-                v-on="on"
-                solo
-            ></v-text-field>
-          </template>
-          <v-date-picker
-              v-model="dateTemp"
-              no-title
-              scrollable
-              locale="GERMANY">
-            <v-spacer></v-spacer>
-            <v-btn
-                text
-                color="primary"
-                @click="menu = false">
-              Abbrechen
-            </v-btn>
-            <v-btn
-                text
-                color="primary"
-                @click="$refs.menu.save(dateTemp); save();">
-              OK
-            </v-btn>
-          </v-date-picker>
-        </v-menu>
+        <date-picker-text-field :set-local-date="setLocalDate"
+                                :local-date="dateTemp"></date-picker-text-field>
       </v-col>
       <v-col cols="1">
         <v-text-field
@@ -68,26 +34,27 @@ import {Component, Prop, Vue} from "vue-property-decorator";
 import TransactionModel from "@/model/TransactionModel";
 import {DateTimeFormatter, LocalDate} from "@js-joda/core";
 import TransactionService from "@/service/TransactionService";
+import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
 
-@Component
+@Component({
+  components: {DatePickerTextField}
+})
 export default class TransactionGroup extends Vue {
 
   @Prop({type: TransactionModel}) transactionProp!: TransactionModel;
 
   private readonly dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-  private menu: boolean = false;
 
-  private dateTemp: string;
+  private dateTemp: LocalDate;
 
   constructor() {
     super();
-    this.dateTemp = this.transactionProp.date.format(this.dateTimeFormatter);
+    this.dateTemp = this.transactionProp.date;
   }
 
-
-  get dateString(): string {
-    return this.transactionProp.date.format(this.dateTimeFormatterUser)
+  setLocalDate(localDate: LocalDate) {
+    this.dateTemp = localDate;
   }
 
   get name(): string {
@@ -117,7 +84,7 @@ export default class TransactionGroup extends Vue {
   save() {
     if (this.onlyTwoPrecision(this.amount)) {
       let transactionService: TransactionService = new TransactionService();
-      this.transactionProp.date = LocalDate.parse(this.dateTemp, this.dateTimeFormatter);
+      this.transactionProp.date = this.dateTemp;
       transactionService.saveTransaction(this.transactionProp);
       console.info("saved");
     }

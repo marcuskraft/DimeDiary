@@ -2,7 +2,8 @@ import Vue from 'vue'
 import VueRouter, {RouteConfig} from 'vue-router'
 import Dashboard from "@/components/Dashboard.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
-import BankAccountOverview from "@/components/BankAccountOverview.vue";
+import BankAccountOverview from "@/components/bank-account-overview/BankAccountOverview.vue";
+
 
 Vue.use(VueRouter)
 

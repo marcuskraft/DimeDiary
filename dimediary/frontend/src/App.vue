@@ -17,6 +17,7 @@ import LeftNavigation from "@/components/LeftNavigation.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
 import CategoryStore from "@/store/modules/CategoryStore";
 import BankAccountStore from "@/store/modules/BankAccountStore";
+import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
 
 @Component({
   components: {
@@ -29,6 +30,7 @@ export default class App extends Vue {
   mounted() {
     CategoryStore.loadCategories();
     BankAccountStore.loadBankAccounts();
+    BankAccountCategoryStore.loadBankAccountCategories();
   }
 
 }

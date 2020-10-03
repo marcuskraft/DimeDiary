@@ -88,6 +88,10 @@ export default class TransactionOverview extends Vue {
   yearMonth: YearMonth = YearMonth.now();
   datePicker: boolean = false;
 
+  mounted() {
+    this.loadTransactions();
+  }
+
 
   private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
   private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");
@@ -136,14 +140,17 @@ export default class TransactionOverview extends Vue {
     this.datePicker = false;
     this.yearMonth = this.yearMonthTemp;
 
+    this.loadTransactions();
+
+  }
+
+  private loadTransactions() {
     if (this.selectedBankAccount !== undefined) {
       this.transactionService.loadTransactions(this.selectedBankAccount.id!,
           this.yearMonthTemp.atDay(1),
           this.yearMonthTemp.atEndOfMonth());
     }
-
   }
-
 }
 </script>
 

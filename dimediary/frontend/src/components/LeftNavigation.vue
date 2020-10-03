@@ -43,7 +43,8 @@ export default class LeftNavigation extends Vue {
 
   get items(): Item[] {
     return [new Item("Dashboard", "mdi-view-dashboard", "/"),
-      new Item("Transaktionsübersicht", "mdi-polymer", "/transactions")]
+      new Item("Transaktionsübersicht", "polymer", "/transactions"),
+      new Item("Kontenübersicht", "account_balance", "/bankaccounts")]
   }
 
 }

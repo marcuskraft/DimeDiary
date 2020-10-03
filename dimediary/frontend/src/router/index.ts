@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, {RouteConfig} from 'vue-router'
 import Dashboard from "@/components/Dashboard.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
+import BankAccountOverview from "@/components/BankAccountOverview.vue";
 
 Vue.use(VueRouter)
 
@@ -15,6 +16,11 @@ const routes: Array<RouteConfig> = [
     path: '/transactions',
     name: 'Transactions',
     component: TransactionOverview
+  },
+  {
+    path: '/bankaccounts',
+    name: 'BankAccounts',
+    component: BankAccountOverview
   }
 ]
 

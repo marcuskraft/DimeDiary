@@ -9,7 +9,7 @@ export default class TransactionService {
   public get transactions(): TransactionModel[] {
     return TransactionStore.transactions;
   }
-
+  
   public loadTransactions(bankAccountId: string, dateFrom: LocalDate, dateUntil: LocalDate) {
     let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
         bankAccountId, TimeService.localDateToIsoString(dateFrom)!,
@@ -20,6 +20,6 @@ export default class TransactionService {
   public saveTransaction(transaction: TransactionModel) {
     TransactionStore.saveTransaction(transaction);
   }
-  
+
 
 }

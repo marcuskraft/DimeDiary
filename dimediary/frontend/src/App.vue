@@ -17,6 +17,8 @@
 import {Component, Vue} from "vue-property-decorator";
 import LeftNavigation from "@/components/LeftNavigation.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
+import CategoryStore from "@/store/modules/CategoryStore";
+import BankAccountStore from "@/store/modules/BankAccountStore";
 
 @Component({
   components: {
@@ -25,6 +27,12 @@ import TransactionOverview from "@/components/transaction-overview/TransactionOv
   }
 })
 export default class App extends Vue {
+
+  mounted() {
+    CategoryStore.loadCategories();
+    BankAccountStore.loadBankAccounts();
+  }
+
 }
 </script>
 

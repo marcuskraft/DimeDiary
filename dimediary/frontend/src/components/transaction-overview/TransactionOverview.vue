@@ -88,9 +88,6 @@ export default class TransactionOverview extends Vue {
   yearMonth: YearMonth = YearMonth.now();
   datePicker: boolean = false;
 
-  mounted() {
-    BankAccountStore.loadBankAccounts();
-  }
 
   private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
   private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");

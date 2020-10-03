@@ -26,12 +26,22 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col
-                    cols="12"
-                    md="4"
-                >
+                <v-col cols="12" md="4">
                   <date-picker-text-field
-                      :set-local-date="setDateStartBalance"></date-picker-text-field>
+                      :set-local-date="setDateStartBalance"
+                      label="Startdatum der Kontoführung"
+                      :rules="[ v => dateStartBalance !== undefined || 'Es muss ein Startdatum angegeben werden' ]"/>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="4">
+                  <v-text-field
+                      v-model="startBalanceEuroCent"
+                      type="number"
+                      label="Startguthaben"
+                      suffix="€"
+                      :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
+                  ></v-text-field>
                 </v-col>
               </v-row>
             </v-container>
@@ -65,6 +75,7 @@ import {Component, Vue} from "vue-property-decorator";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import {LocalDate} from "@js-joda/core";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
+import AmountHelper from "@/helper/AmountHelper";
 
 @Component({
   components: {DatePickerTextField}
@@ -113,6 +124,10 @@ export default class BankAccountDialog extends Vue {
 
   save() {
     this.dialog = false;
+  }
+
+  onlyTwoPrecision(value: number): boolean {
+    return AmountHelper.onlyTwoPrecision(value);
   }
 
 }

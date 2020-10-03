@@ -35,6 +35,7 @@ import TransactionModel from "@/model/TransactionModel";
 import {DateTimeFormatter, LocalDate} from "@js-joda/core";
 import TransactionService from "@/service/TransactionService";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
+import AmountHelper from "@/helper/AmountHelper";
 
 @Component({
   components: {DatePickerTextField}
@@ -74,12 +75,9 @@ export default class TransactionGroup extends Vue {
   }
 
   onlyTwoPrecision(value: number): boolean {
-    if (value != null && value.toLocaleString().indexOf(",") > -1 &&
-        (value.toLocaleString().split(',')[1].length > 2)) {
-      return false;
-    }
-    return true;
+    return AmountHelper.onlyTwoPrecision(value);
   }
+
 
   save() {
     if (this.onlyTwoPrecision(this.amount)) {

@@ -1,2 +1,0 @@
-C:\Program Files\liquibase\liquibase.bat --url = jdbc: derby: C: \Users\Marcus\Documents\Projekte\dimediaryweb_IntelliJ\dimediary\DB --changeLogFile = "C:\Users\Marcus\Documents\Projekte\dimediaryweb_IntelliJ\dimediary\liquibase\changelog.yaml" --classpath = "C:
-\Users\Marcus\Documents\Projekte\dimediaryweb_IntelliJ\dimediary\liquibase\derby-10.14.1.0.jar" --driver = org.apache.derby.jdbc.EmbeddedDriver update

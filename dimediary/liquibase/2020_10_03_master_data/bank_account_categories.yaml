@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: load-categories
+      author: eyota
+      changes:
+        - loadUpdateData:
+            columns:
+              - column:
+                  header: ID
+                  name: ID
+                  type: STRING
+              - column:
+                  header: IS_REAL_ACCOUNT
+                  name: IS_REAL_ACCOUNT
+                  type: BOOLEAN
+              - column:
+                  header: NAME
+                  name: NAME
+                  type: STRING
+            commentLineStartsWith: //
+            encoding: UTF-8
+            file: bank_account_categories.csv
+            primaryKey: ID
+            onlyUpdate: true
+            quotchar: ''''
+            relativeToChangelogFile: true
+            schemaName: APP
+            separator: ','
+            tableName: BANK_ACCOUNT_CATEGORY

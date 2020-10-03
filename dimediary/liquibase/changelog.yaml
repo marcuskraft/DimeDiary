@@ -20,3 +20,9 @@ databaseChangeLog:
   - include:
       file: 2020_09_19_initial/index.sql
       relativeToChangelogFile: true
+  - include:
+      file: 2020_10_03_master_data/categories.yaml
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_10_03_master_data/bank_account_categories.yaml
+      relativeToChangelogFile: true

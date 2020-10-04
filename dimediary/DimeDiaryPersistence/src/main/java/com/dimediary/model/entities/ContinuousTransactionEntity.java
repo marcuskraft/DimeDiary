@@ -3,7 +3,6 @@ package com.dimediary.model.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -29,7 +28,7 @@ public class ContinuousTransactionEntity implements Serializable,
   private Integer amountEuroCent;
   private LocalDate dateBegin;
 
-  @ManyToOne(cascade = CascadeType.ALL)
+  @ManyToOne
   @JoinColumn(name = "bank_account_id")
   private BankAccountEntity bankAccount;
 

@@ -56,6 +56,7 @@ export default class TransactionGroup extends Vue {
 
   setLocalDate(localDate: LocalDate) {
     this.dateTemp = localDate;
+    this.save();
   }
 
   get name(): string {

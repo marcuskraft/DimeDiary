@@ -52,8 +52,22 @@
         </v-menu>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+        <v-btn
+            color="primary"
+            dark
+            @click="showDialog"
+        >
+          <v-icon dark>
+            add
+          </v-icon>
+        </v-btn>
+      </v-col>
+    </v-row>
     <transaction-group v-for="transaction in transactions"
                        :transaction-prop="transaction" :key="transaction.id"></transaction-group>
+    <transaction-dialog v-if="isTransactionDialog"></transaction-dialog>
   </div>
 </template>
 
@@ -67,6 +81,8 @@ import {DateTimeFormatter, YearMonth, ZonedDateTime, ZoneId} from "@js-joda/core
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountModel from "@/model/BankAccountModel";
 import TransactionService from "@/service/TransactionService";
+import DialogStateStore from "@/store/modules/DialogStateStore";
+import TransactionDialog from "@/components/transaction-overview/TransactionDialog.vue";
 
 
 require('@js-joda/timezone');
@@ -78,6 +94,7 @@ const {
 
 @Component({
   components: {
+    TransactionDialog,
     TransactionGroup
   }
 })
@@ -143,6 +160,14 @@ export default class TransactionOverview extends Vue {
 
     this.loadTransactions();
 
+  }
+
+  showDialog() {
+    DialogStateStore.setIsTransactionDialog(true);
+  }
+
+  get isTransactionDialog(): boolean {
+    return DialogStateStore.isTransactionDialog;
   }
 
   private loadTransactions() {

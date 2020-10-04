@@ -15,6 +15,11 @@ export class CategoryStore extends VuexModule {
 
   private _categories: CategoryModel[] = [];
 
+
+  get categories(): CategoryModel[] {
+    return this._categories;
+  }
+
   @Mutation
   private addCategory(category: CategoryModel) {
     let index = this._categories.findIndex(value => value.id === category.id);

@@ -31,6 +31,11 @@ export class TransactionRestService {
       });
     });
   }
+
+  public deleteTransaction(transaction: TransactionModel): Promise<void> {
+    return this.transactionApi.deleteTransaction({transactionId: transaction.id!});
+  }
+
 }
 
 export class TransactionGetRequestImpl implements GetTransactionsRequest {

@@ -13,7 +13,12 @@ export class DialogStateStore extends VuexModule {
 
   private _isBankAccountDialog: boolean = false;
   private _isTransactionDialog: boolean = false;
+  private _isYesCancelDialog: boolean = false;
 
+
+  get isYesCancelDialog(): boolean {
+    return this._isYesCancelDialog;
+  }
 
   get isTransactionDialog(): boolean {
     return this._isTransactionDialog;
@@ -22,6 +27,11 @@ export class DialogStateStore extends VuexModule {
 
   public get isBankAccountDialog(): boolean {
     return this._isBankAccountDialog;
+  }
+
+  @Mutation
+  setIsYesCancelDialog(value: boolean) {
+    this._isYesCancelDialog = value;
   }
 
   @Mutation

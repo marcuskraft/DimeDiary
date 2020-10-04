@@ -35,11 +35,13 @@ export class TransactionStore extends VuexModule {
 
   @Mutation
   private addTransaction(transaction: TransactionModel) {
-    let index = this._transactions.findIndex(value => value.id === transaction.id);
-    if (index !== -1) {
-      this._transactions.splice(index, 1);
-    }
+    this._transactions = this._transactions.filter(value => value.id !== transaction.id);
     this._transactions.push(transaction);
+  }
+
+  @Mutation
+  private removeTransaction(transaction: TransactionModel) {
+    this._transactions = this._transactions.filter(value => value.id !== transaction.id);
   }
 
 
@@ -61,6 +63,13 @@ export class TransactionStore extends VuexModule {
         })
       }
     })
+  }
+
+  @Action
+  deleteTransaction(transaction: TransactionModel) {
+    let transactionsService: TransactionRestService = new TransactionRestService();
+    transactionsService.deleteTransaction(transaction).
+    then(value => this.removeTransaction(transaction));
   }
 
 

@@ -138,7 +138,8 @@ export default class TransactionOverview extends Vue {
   }
 
   get transactions(): TransactionModel[] {
-    return this.transactionService.transactions.filter(value => this.isInDateRange(value));
+    return this.transactionService.transactions.filter(value => this.isInDateRange(value)).
+    sort((a, b) => a.date.compareTo(b.date));
   }
 
   private isInDateRange(value: TransactionModel): boolean {
@@ -169,6 +170,7 @@ export default class TransactionOverview extends Vue {
   get isTransactionDialog(): boolean {
     return DialogStateStore.isTransactionDialog;
   }
+
 
   private loadTransactions() {
     if (this.selectedBankAccount !== undefined) {

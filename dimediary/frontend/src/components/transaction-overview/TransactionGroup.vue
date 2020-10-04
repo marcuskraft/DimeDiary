@@ -9,7 +9,7 @@
             </v-btn>
           </v-col>
           <v-col>
-            <v-btn @click="deleteTransaction">
+            <v-btn @click="dialog=true">
               <v-icon>delete</v-icon>
             </v-btn>
           </v-col>
@@ -18,8 +18,9 @@
       </v-col>
       <v-col cols="1">
         <date-picker-text-field :set-local-date="setLocalDate"
-                                :local-date="dateTemp"
-                                :inTransactionGroup=true></date-picker-text-field>
+                                :local-date="date"
+                                :inTransactionGroup=true
+                                :key="date.toString()"></date-picker-text-field>
       </v-col>
       <v-col cols="1">
         <v-text-field
@@ -46,13 +47,51 @@
         </v-form>
       </v-col>
     </v-row>
+    <v-dialog
+        v-model="dialog"
+        persistent
+        max-width="600px"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="headline">Transaktion löschen?</span>
+        </v-card-title>
+        <v-card-text>
+          <v-alert
+              outlined
+              type="warning"
+              prominent
+              border="left"
+          >
+            Sicher, dass Sie diese Transaktion löschen wollen?
+          </v-alert>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="dialog = false"
+          >
+            Abbrechen
+          </v-btn>
+          <v-btn
+              color="blue darken-1"
+              text
+              @click="deleteTransaction"
+          >
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
 <script lang="ts">
 import {Component, Prop, Vue} from "vue-property-decorator";
 import TransactionModel from "@/model/TransactionModel";
-import {DateTimeFormatter, LocalDate} from "@js-joda/core";
+import {LocalDate} from "@js-joda/core";
 import TransactionService from "@/service/TransactionService";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
 import AmountHelper from "@/helper/AmountHelper";
@@ -64,20 +103,21 @@ import DialogStateStore from "@/store/modules/DialogStateStore";
 })
 export default class TransactionGroup extends Vue {
 
-  @Prop({type: TransactionModel}) transactionProp!: TransactionModel;
+  @Prop({type: TransactionModel, required: true}) transactionProp!: TransactionModel;
 
-  private readonly dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-  private dateTemp: LocalDate;
+  private dialog: boolean = false;
 
-  constructor() {
-    super();
-    this.dateTemp = this.transactionProp.date;
+  get date(): LocalDate {
+    return this.transactionProp.date;
+  }
+
+  set date(localDate: LocalDate) {
+    this.transactionProp.date = localDate;
   }
 
   setLocalDate(localDate: LocalDate) {
-    this.dateTemp = localDate;
+    this.transactionProp.date = localDate;
     this.save();
   }
 
@@ -105,20 +145,24 @@ export default class TransactionGroup extends Vue {
   save() {
     if (this.onlyTwoPrecision(this.amount)) {
       let transactionService: TransactionService = new TransactionService();
-      this.transactionProp.date = this.dateTemp;
       transactionService.saveTransaction(this.transactionProp);
       console.info("saved");
     }
   }
 
   deleteTransaction() {
+    let transactionService: TransactionService = new TransactionService();
+    transactionService.deleteTransaction(this.transactionProp);
+    this.dialog = false;
     console.info("deleted");
   }
+
 
   showDialog() {
     TransactionStore.setSelectedTransaction(this.transactionProp);
     DialogStateStore.setIsTransactionDialog(true);
   }
+
 
 }
 </script>

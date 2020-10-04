@@ -5,7 +5,7 @@ import {BankAccountTransformer} from "@/rest-services/transformer/BankAccountTra
 export default class BankAccountRestService {
 
   private bankAccountApi: BankAccountApi;
-  
+
   constructor() {
     this.bankAccountApi = new BankAccountApi();
   }
@@ -17,6 +17,15 @@ export default class BankAccountRestService {
         bankAccounts.forEach(
             bankAccount => bankAccountModels.push(BankAccountTransformer.to(bankAccount)!));
         resolve(bankAccountModels);
+      });
+    });
+  }
+
+  public saveBankAccount(bankAccount: BankAccountModel): Promise<BankAccountModel> {
+    return new Promise<BankAccountModel>(resolve => {
+      this.bankAccountApi.saveBankAccount({bankAccount: BankAccountTransformer.from(bankAccount)}).
+      then(bankAccountRet => {
+        resolve(BankAccountTransformer.to(bankAccountRet));
       });
     });
   }

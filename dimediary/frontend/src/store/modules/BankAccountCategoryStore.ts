@@ -15,11 +15,10 @@ export class BankAccountCategoryStore extends VuexModule {
 
   private _bankAccountCategories: BankAccountCategoryModel[] = [];
 
-
   get bankAccountCategories(): BankAccountCategoryModel[] {
     return this._bankAccountCategories;
   }
-
+  
   @Mutation
   private addBankAccountCategory(bankAccountCategory: BankAccountCategoryModel) {
     let index = this._bankAccountCategories.findIndex(value => value.id === bankAccountCategory.id);

@@ -5,9 +5,10 @@
         <v-select
             :items="bankAccounts"
             item-text="name"
-            :value="selectedBankAccount"
+            v-model="selectedBankAccount"
             :menu-props="{ maxHeight: '400'}"
             label="Bankkonten"
+            return-object
             multiple
             hint="Wähle die Bankkonten, für die Transaktionen angezeigt werden sollen"
         ></v-select>

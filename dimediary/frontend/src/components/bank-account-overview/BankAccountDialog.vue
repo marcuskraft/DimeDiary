@@ -7,43 +7,87 @@
     >
       <v-card>
         <v-card-title>
-          <span class="headline">Bankkonto</span>
+          <span class="headline">Bankkonto anlegen</span>
         </v-card-title>
         <v-card-text>
           <v-form v-model="valid">
             <v-container>
               <v-row>
-                <v-col
-                    cols="12"
-                    md="4"
-                >
-                  <v-text-field
-                      v-model="name"
-                      type="text"
-                      label="Name"
-                      :rules="[ v => requiredString(v) || 'Name ist ein Pflichtfeld' ]"
-                  ></v-text-field>
+                <v-col>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                          v-model="name"
+                          type="text"
+                          label="Name des Kontos*"
+                          :rules="[ v => requiredString(v) || 'Name ist ein Pflichtfeld' ]"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <date-picker-text-field
+                          :set-local-date="setDateStartBalance"
+                          label="Startdatum der Kontoführung*"
+                          :rules="[ v => dateStartBalance !== undefined || 'Es muss ein Startdatum angegeben werden' ]"/>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                          v-model="startBalanceEuroCent"
+                          type="number"
+                          label="Startguthaben*"
+                          suffix="€"
+                          :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-select
+                          :items="bankAccountsCategories"
+                          item-text="name"
+                          v-model="selectedBankAccountCategory"
+                          label="Kategorie*"
+                          return-object
+                      ></v-select>
+                    </v-col>
+                  </v-row>
+                </v-col>
+
+                <v-col>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                          v-model="bankName"
+                          type="text"
+                          label="Bankname"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                          v-model="iban"
+                          type="text"
+                          label="IBAN"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col>
+                      <v-text-field
+                          v-model="bic"
+                          type="text"
+                          label="BIC"
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
-              <v-row>
-                <v-col cols="12" md="4">
-                  <date-picker-text-field
-                      :set-local-date="setDateStartBalance"
-                      label="Startdatum der Kontoführung"
-                      :rules="[ v => dateStartBalance !== undefined || 'Es muss ein Startdatum angegeben werden' ]"/>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                      v-model="startBalanceEuroCent"
-                      type="number"
-                      label="Startguthaben"
-                      suffix="€"
-                      :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
+
+
             </v-container>
           </v-form>
         </v-card-text>
@@ -76,20 +120,54 @@ import DialogStateStore from "@/store/modules/DialogStateStore";
 import {LocalDate} from "@js-joda/core";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
 import AmountHelper from "@/helper/AmountHelper";
+import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
+import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
+import BankAccountModel from "@/model/BankAccountModel";
+import BankAccountStore from "@/store/modules/BankAccountStore";
 
 @Component({
   components: {DatePickerTextField}
 })
 export default class BankAccountDialog extends Vue {
 
-  private valid: boolean = true;
+  valid: boolean = true;
 
-  private nameMember: string = "";
-  private dateStartBalance: LocalDate = LocalDate.now();
-  private startBalanceEuroCentMember: number = 0.0;
+  nameMember: string = "";
+  dateStartBalance: LocalDate = LocalDate.now();
+  startBalanceEuroCentMember: number = 0.0;
+  selectedBankAccountCategoryMember: BankAccountCategoryModel = this.bankAccountsCategories[0];
+  private _bankName: string = "";
+  private _iban: string = "";
+  private _bic: string = "";
+
 
   requiredString(value: string | undefined): boolean {
     return !(value === undefined || value.length === 0);
+  }
+
+
+  get bankName(): string {
+    return this._bankName;
+  }
+
+  set bankName(value: string) {
+    this._bankName = value;
+  }
+
+  get iban(): string {
+    return this._iban;
+  }
+
+  set iban(value: string) {
+    this._iban = value;
+  }
+
+  get bic(): string {
+    return this._bic;
+  }
+
+  set bic(value: string) {
+    this._bic = value;
   }
 
   get name(): string {
@@ -121,8 +199,24 @@ export default class BankAccountDialog extends Vue {
     DialogStateStore.setIsBankAccountDialog(value);
   }
 
+  get bankAccountsCategories(): BankAccountCategoryModel[] {
+    return BankAccountCategoryStore.bankAccountCategories;
+  }
+
+  get selectedBankAccountCategory(): BankAccountCategoryModel {
+    return this.selectedBankAccountCategoryMember;
+  }
+
+  set selectedBankAccountCategory(value: BankAccountCategoryModel) {
+    this.selectedBankAccountCategoryMember = value;
+  }
+
 
   save() {
+    let bankAccountModel: BankAccountModel = new BankAccountModel(this.name, this.dateStartBalance,
+        this.startBalanceEuroCent * 100, this.selectedBankAccountCategory, undefined, this.bankName,
+        this.iban, this.bic);
+    BankAccountStore.saveBankAccount(bankAccountModel);
     this.dialog = false;
   }
 

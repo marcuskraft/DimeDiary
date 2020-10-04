@@ -106,7 +106,7 @@
 </template>
 
 <script lang="ts">
-import {Component, Prop, Vue} from "vue-property-decorator";
+import {Component, Vue} from "vue-property-decorator";
 import TransactionModel from "@/model/TransactionModel";
 import {LocalDate} from "@js-joda/core";
 import BankAccountModel from "@/model/BankAccountModel";
@@ -118,13 +118,13 @@ import BankAccountStore from "@/store/modules/BankAccountStore";
 import CategoryStore from "@/store/modules/CategoryStore";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import TransactionService from "@/service/TransactionService";
+import TransactionStore from "@/store/modules/TransactionStore";
 
 @Component({
   components: {DatePickerTextField}
 })
 export default class TransactionDialog extends Vue {
 
-  @Prop({type: TransactionModel}) private transactionProp?: TransactionModel;
 
   nameMember: string;
   dateMember: LocalDate;
@@ -139,18 +139,27 @@ export default class TransactionDialog extends Vue {
 
   constructor() {
     super();
-    this.nameMember = this.transactionProp !== undefined ? this.transactionProp.name : "";
+    this.nameMember = this.selectedTransaction !== undefined ? this.selectedTransaction.name : "";
     this.dateMember =
-        this.transactionProp !== undefined ? this.transactionProp.date : LocalDate.now();
+        this.selectedTransaction !== undefined ? this.selectedTransaction.date : LocalDate.now();
     this.amountEuroCentMember =
-        this.transactionProp !== undefined ? this.transactionProp.amountEuroCent : 0.0;
-    this.fixCostMember = this.transactionProp !== undefined ? this.transactionProp.fixCost : false;
+        this.selectedTransaction !== undefined ? this.selectedTransaction.amountEuroCent /
+            100 : 0.0;
+    this.fixCostMember =
+        this.selectedTransaction !== undefined ? this.selectedTransaction.fixCost : false;
     this.bankAccountMember =
-        this.transactionProp !== undefined ? this.transactionProp.bankAccount : undefined;
+        this.selectedTransaction !==
+        undefined ? this.selectedTransaction.bankAccount : this.bankAccounts[0];
     this.categoryMember =
-        this.transactionProp !== undefined ? this.transactionProp.category : undefined;
+        this.selectedTransaction !==
+        undefined ? this.selectedTransaction.category : this.categories[0];
     this.continuousTransactionMember =
-        this.transactionProp !== undefined ? this.transactionProp.continuousTransaction : undefined;
+        this.selectedTransaction !==
+        undefined ? this.selectedTransaction.continuousTransaction : undefined;
+  }
+
+  get selectedTransaction(): TransactionModel | undefined {
+    return TransactionStore.selectedTransaction;
   }
 
   get categories(): CategoryModel[] {
@@ -162,7 +171,7 @@ export default class TransactionDialog extends Vue {
   }
 
   get dialogTitle(): string {
-    return this.transactionProp !== undefined ? "Transaktion bearbeten" : "Transaktion anlegen";
+    return this.selectedTransaction !== undefined ? "Transaktion bearbeten" : "Transaktion anlegen";
   }
 
   get name(): string {
@@ -244,15 +253,15 @@ export default class TransactionDialog extends Vue {
 
   save() {
     let transaction: TransactionModel;
-    if (this.transactionProp !== undefined) {
-      this.transactionProp.name = this.name;
-      this.transactionProp.continuousTransaction = this.continuousTransaction;
-      this.transactionProp.category = this.category;
-      this.transactionProp.bankAccount = this.bankAccount;
-      this.transactionProp.fixCost = this.fixCost;
-      this.transactionProp.amountEuroCent = this.amountEuroCent;
-      this.transactionProp.date = this.date;
-      transaction = this.transactionProp;
+    if (this.selectedTransaction !== undefined) {
+      this.selectedTransaction.name = this.name;
+      this.selectedTransaction.continuousTransaction = this.continuousTransaction;
+      this.selectedTransaction.category = this.category;
+      this.selectedTransaction.bankAccount = this.bankAccount;
+      this.selectedTransaction.fixCost = this.fixCost;
+      this.selectedTransaction.amountEuroCent = this.amountEuroCent * 100;
+      this.selectedTransaction.date = this.date;
+      transaction = this.selectedTransaction;
     }
     else {
       transaction = new TransactionModel(this.name, this.date, this.amountEuroCent * 100,

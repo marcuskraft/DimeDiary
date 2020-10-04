@@ -8,12 +8,13 @@
       offset-y
       min-width="290px">
     <template v-slot:activator="{ on, attrs }">
-      <v-text-field v-if="solo"
+      <v-text-field v-if="inTransactionGroup"
                     v-model="dateString"
                     :label="label"
                     readonly
                     v-on="on"
-                    solo
+                    filled
+                    outlined
       ></v-text-field>
       <v-text-field v-else
                     v-model="dateString"
@@ -54,7 +55,7 @@ export default class DatePickerTextField extends Vue {
   @Prop({type: Function, required: true}) setLocalDate?: Function;
   @Prop({type: Object}) localDate?: LocalDate;
   @Prop({type: String, default: "Datum", required: false}) label?: string;
-  @Prop({type: Boolean, default: false, required: false}) solo?: boolean;
+  @Prop({type: Boolean, default: false, required: false}) inTransactionGroup?: boolean;
 
   private readonly dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
   private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");

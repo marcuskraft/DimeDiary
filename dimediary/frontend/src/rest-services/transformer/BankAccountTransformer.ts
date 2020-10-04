@@ -7,7 +7,7 @@ import TimeService from "@/helper/TimeService";
 export class BankAccountTransformer {
 
   public static from(bankAccount?: BankAccountModel): BankAccount | undefined {
-    if (bankAccount == undefined) {
+    if (bankAccount === undefined) {
       return undefined;
     }
     return new BankAccountRest(bankAccount.id, bankAccount.name, bankAccount.bankName,
@@ -18,7 +18,7 @@ export class BankAccountTransformer {
   }
 
   public static to(bankAccount?: BankAccount): BankAccountModel | undefined {
-    if (bankAccount == undefined) {
+    if (bankAccount === undefined) {
       return undefined;
     }
     return new BankAccountModel(bankAccount.name!,

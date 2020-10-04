@@ -17,8 +17,20 @@ export class TransactionStore extends VuexModule {
 
   private _transactions: TransactionModel[] = [];
 
+  private _selectedTransaction: TransactionModel | undefined = undefined;
+
   public get transactions(): TransactionModel[] {
     return this._transactions;
+  }
+
+
+  get selectedTransaction(): TransactionModel | undefined {
+    return this._selectedTransaction;
+  }
+
+  @Mutation
+  setSelectedTransaction(value: TransactionModel | undefined) {
+    this._selectedTransaction = value;
   }
 
   @Mutation

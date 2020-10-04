@@ -27,20 +27,8 @@
         v-model="dateTemp"
         no-title
         scrollable
-        locale="GERMANY">
-      <v-spacer></v-spacer>
-      <v-btn
-          text
-          color="primary"
-          @click="menu = false">
-        Abbrechen
-      </v-btn>
-      <v-btn
-          text
-          color="primary"
-          @click="$refs.menu.save(dateTemp); save();">
-        OK
-      </v-btn>
+        locale="GERMANY"
+        @change="$refs.menu.save(dateTemp); save();">
     </v-date-picker>
   </v-menu>
 </template>
@@ -52,7 +40,7 @@ import {DateTimeFormatter, LocalDate} from "@js-joda/core";
 @Component
 export default class DatePickerTextField extends Vue {
 
-  @Prop({type: Function, required: true}) setLocalDate?: Function;
+  @Prop({type: Function, required: true}) setLocalDate!: Function;
   @Prop({type: Object}) localDate?: LocalDate;
   @Prop({type: String, default: "Datum", required: false}) label?: string;
   @Prop({type: Boolean, default: false, required: false}) inTransactionGroup?: boolean;
@@ -70,9 +58,7 @@ export default class DatePickerTextField extends Vue {
   }
 
   save() {
-    if (this.setLocalDate !== undefined) {
-      this.setLocalDate(LocalDate.parse(this.dateTemp, this.dateTimeFormatter));
-    }
+    this.setLocalDate(LocalDate.parse(this.dateTemp, this.dateTimeFormatter));
   }
 
 }

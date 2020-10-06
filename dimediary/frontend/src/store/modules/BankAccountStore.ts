@@ -14,15 +14,20 @@ import BankAccountRestService from "@/rest-services/BankAccountRestService";
 export class BankAccountStore extends VuexModule {
 
   private _bankAccounts: BankAccountModel[] = [];
-  private _bankAccountSelected: BankAccountModel | undefined = undefined;
+  private _selectedBankAccount: BankAccountModel | undefined = undefined;
+  private _selectedBankAccounts: BankAccountModel[] = [];
 
+
+  get selectedBankAccounts(): BankAccountModel[] {
+    return this._selectedBankAccounts;
+  }
 
   get bankAccounts(): BankAccountModel[] {
     return this._bankAccounts;
   }
 
-  get bankAccountSelected(): BankAccountModel | undefined {
-    return this._bankAccountSelected;
+  get selectedBankAccount(): BankAccountModel | undefined {
+    return this._selectedBankAccount;
   }
 
   @Action
@@ -33,7 +38,7 @@ export class BankAccountStore extends VuexModule {
       this.clearBankAccounts();
       bankAccounts.forEach(bankAccount => this.addBankAccount(bankAccount));
       if (this.bankAccounts.length > 0) {
-        this.setBankAccountSelected(bankAccounts[0]);
+        this.setSelectedBankAccount(bankAccounts[0]);
       }
     });
   }
@@ -45,9 +50,15 @@ export class BankAccountStore extends VuexModule {
   }
 
   @Mutation
-  public setBankAccountSelected(bankAccount: BankAccountModel | undefined) {
-    this._bankAccountSelected = bankAccount;
+  public setSelectedBankAccount(bankAccount: BankAccountModel | undefined) {
+    this._selectedBankAccount = bankAccount;
   }
+
+  @Mutation
+  public setSelectedBankAccounts(value: BankAccountModel[]) {
+    this._selectedBankAccounts = value;
+  }
+
 
   @Mutation
   private clearBankAccounts() {

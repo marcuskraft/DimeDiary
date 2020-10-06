@@ -1,7 +1,7 @@
 <template>
   <div :key="transactions.length">
     <v-row>
-      <v-col cols="2">
+      <v-col cols="1">
         <v-select
             :items="bankAccounts"
             item-text="name"
@@ -13,7 +13,7 @@
             @change="loadTransactions"
         ></v-select>
       </v-col>
-      <v-col cols="2">
+      <v-col cols="1">
         <v-menu
             ref="menu"
             v-model="datePicker"
@@ -149,11 +149,11 @@ export default class TransactionOverview extends Vue {
   }
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
-    BankAccountStore.setBankAccountSelected(bankAccount);
+    BankAccountStore.setSelectedBankAccount(bankAccount);
   }
 
   get selectedBankAccount(): BankAccountModel | undefined {
-    return BankAccountStore.bankAccountSelected;
+    return BankAccountStore.selectedBankAccount;
   }
 
   private yearMonthChanged() {
@@ -161,7 +161,6 @@ export default class TransactionOverview extends Vue {
     this.yearMonth = this.yearMonthTemp;
 
     this.loadTransactions();
-
   }
 
   showDialog() {

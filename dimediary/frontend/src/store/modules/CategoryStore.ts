@@ -22,10 +22,7 @@ export class CategoryStore extends VuexModule {
 
   @Mutation
   private addCategory(category: CategoryModel) {
-    let index = this._categories.findIndex(value => value.id === category.id);
-    if (index !== -1) {
-      this._categories.splice(index, 1);
-    }
+    this._categories = this._categories.filter(value => value.id !== category.id)
     this._categories.push(category);
   }
 

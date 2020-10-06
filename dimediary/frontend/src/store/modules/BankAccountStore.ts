@@ -56,10 +56,7 @@ export class BankAccountStore extends VuexModule {
 
   @Mutation
   private addBankAccount(bankAccount: BankAccountModel) {
-    let index = this._bankAccounts.findIndex(value => value.id === bankAccount.id);
-    if (index !== -1) {
-      this._bankAccounts.splice(index, 1);
-    }
+    this._bankAccounts = this._bankAccounts.filter(value => value.id !== bankAccount.id);
     this._bankAccounts.push(bankAccount);
   }
 

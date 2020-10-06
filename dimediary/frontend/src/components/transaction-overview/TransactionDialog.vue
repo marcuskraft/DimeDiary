@@ -87,7 +87,7 @@
           <v-btn
               color="blue darken-1"
               text
-              @click="dialog = false"
+              @click="closeDialog"
           >
             Abbrechen
           </v-btn>
@@ -246,8 +246,9 @@ export default class TransactionDialog extends Vue {
     return DialogStateStore.isTransactionDialog;
   }
 
-  set dialog(value: boolean) {
-    DialogStateStore.setIsTransactionDialog(value);
+  closeDialog() {
+    DialogStateStore.setIsTransactionDialog(false);
+    TransactionStore.setSelectedTransaction(undefined);
   }
 
 
@@ -269,7 +270,7 @@ export default class TransactionDialog extends Vue {
     }
     let transactionService: TransactionService = new TransactionService();
     transactionService.saveTransaction(transaction);
-    this.dialog = false;
+    this.closeDialog();
   }
 
 }

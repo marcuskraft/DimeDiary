@@ -9,8 +9,8 @@
             :menu-props="{ maxHeight: '400'}"
             label="Bankkonten"
             return-object
-            multiple
             hint="Wähle die Bankkonten, für die Transaktionen angezeigt werden sollen"
+            @change="loadTransactions"
         ></v-select>
       </v-col>
       <v-col cols="2">
@@ -139,6 +139,7 @@ export default class TransactionOverview extends Vue {
 
   get transactions(): TransactionModel[] {
     return this.transactionService.transactions.filter(value => this.isInDateRange(value)).
+    filter(value => value.bankAccount!.id === this.selectedBankAccount!.id).
     sort((a, b) => a.date.compareTo(b.date));
   }
 

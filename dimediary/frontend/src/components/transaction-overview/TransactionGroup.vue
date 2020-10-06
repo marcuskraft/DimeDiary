@@ -46,6 +46,30 @@
           ></v-text-field>
         </v-form>
       </v-col>
+      <v-col cols="1">
+        <v-select
+            outlined
+            filled
+            :items="categories"
+            item-text="name"
+            v-model="category"
+            label="Kategorie"
+            return-object
+            @change="save"
+        />
+      </v-col>
+      <v-col cols="1">
+        <v-select
+            outlined
+            filled
+            :items="bankAccounts"
+            item-text="name"
+            v-model="bankAccount"
+            label="Konto"
+            return-object
+            @change="save"
+        />
+      </v-col>
     </v-row>
     <v-dialog
         v-model="dialog"
@@ -97,6 +121,10 @@ import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
 import AmountHelper from "@/helper/AmountHelper";
 import TransactionStore from "@/store/modules/TransactionStore";
 import DialogStateStore from "@/store/modules/DialogStateStore";
+import CategoryModel from "@/model/CategoryModel";
+import CategoryStore from "@/store/modules/CategoryStore";
+import BankAccountModel from "@/model/BankAccountModel";
+import BankAccountStore from "@/store/modules/BankAccountStore";
 
 @Component({
   components: {DatePickerTextField}
@@ -121,6 +149,14 @@ export default class TransactionGroup extends Vue {
     this.save();
   }
 
+  get bankAccount(): BankAccountModel | undefined {
+    return this.transactionProp.bankAccount;
+  }
+
+  set bankAccount(value: BankAccountModel | undefined) {
+    this.transactionProp.bankAccount = value;
+  }
+
   get name(): string {
     return this.transactionProp.name;
   }
@@ -135,6 +171,22 @@ export default class TransactionGroup extends Vue {
 
   set amount(amount: number) {
     this.transactionProp.amountEuroCent = amount * 100;
+  }
+
+  get categories(): CategoryModel[] {
+    return CategoryStore.categories;
+  }
+
+  get bankAccounts(): BankAccountModel[] {
+    return BankAccountStore.bankAccounts;
+  }
+
+  get category(): CategoryModel | undefined {
+    return this.transactionProp.category;
+  }
+
+  set category(value: CategoryModel | undefined) {
+    this.transactionProp.category = value;
   }
 
   onlyTwoPrecision(value: number): boolean {
@@ -171,7 +223,7 @@ export default class TransactionGroup extends Vue {
 
 .transaction-group {
   background-color: #00b0ff;
-  margin: 5px;
+  margin: 3px;
 }
 
 ::v-deep input::-webkit-outer-spin-button,

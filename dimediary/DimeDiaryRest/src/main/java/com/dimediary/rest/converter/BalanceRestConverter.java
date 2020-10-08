@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
     LocalDateConverter.class})
 public interface BalanceRestConverter {
 
-  @Mapping(target = "bankAccountName", source = "bankAccount.name")
+  @Mapping(target = "bankAccountId", source = "bankAccount.id")
   com.dimediary.openapi.model.Balance from(Balance balance);
 
 

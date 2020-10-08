@@ -7,10 +7,16 @@ import org.mapstruct.Mapper;
 public interface UUIDTransformer {
 
   static String from(final UUID uuid) {
+    if (uuid == null) {
+      return null;
+    }
     return uuid.toString();
   }
 
   static UUID to(final String uuid) {
+    if (uuid == null) {
+      return null;
+    }
     return UUID.fromString(uuid);
   }
 

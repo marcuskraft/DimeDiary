@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = {BankAccountTransformer.class, UUIDTransformer.class})
-public interface BalanceHistoryTransformer {
+public interface BalanceTransformer {
 
   @Mapping(source = "bankAccountEntityToUse", target = "bankAccount")
   @Mapping(source = "balance.id", target = "id")

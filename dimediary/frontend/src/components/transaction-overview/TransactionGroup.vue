@@ -1,14 +1,14 @@
 <template>
   <div class="transaction-group">
-    <v-row style="margin: 5px">
+    <v-row style="margin: 3px">
       <v-col cols="1">
         <v-row>
-          <v-col>
+          <v-col cols="6">
             <v-btn @click="showDialog">
               <v-icon>edit</v-icon>
             </v-btn>
           </v-col>
-          <v-col>
+          <v-col cols="6">
             <v-btn @click="dialog=true">
               <v-icon>delete</v-icon>
             </v-btn>
@@ -22,7 +22,7 @@
                                 :inTransactionGroup=true
                                 :key="date.toString()"></date-picker-text-field>
       </v-col>
-      <v-col cols="1">
+      <v-col cols="2">
         <v-text-field
             v-model="name"
             type="text"

@@ -13,6 +13,7 @@
                 multiple
                 hint="Wähle die Bankkonten, für die Transaktionen angezeigt werden sollen"
                 return-object
+                @change="loadBalances"
             ></v-select>
           </v-col>
           <v-col cols="2">
@@ -72,6 +73,9 @@
       <v-simple-table fixed-header dense>
         <thead>
         <tr>
+          <th class="text-right">
+            Wochentag
+          </th>
           <th class="text-left">
             Datum
           </th>
@@ -82,6 +86,7 @@
         </thead>
         <tbody>
         <tr v-for="date in dates" :key="date.toString()">
+          <td>{{ getDayOfWeek(date) }}</td>
           <td>{{ getLocalDateString(date) }}</td>
           <td v-for="bankAccount in selectedBankAccounts">{{ getBalance(bankAccount, date) }}</td>
         </tr>
@@ -101,6 +106,9 @@ import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountDialog from "@/components/bank-account-overview/BankAccountDialog.vue";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import {DateTimeFormatter, LocalDate, YearMonth, ZonedDateTime, ZoneId} from "@js-joda/core";
+import BalanceStore from "@/store/modules/BalanceStore";
+import {BalanceRequest} from "@/rest-services/BalanceRestService";
+import TimeService from "@/helper/TimeService";
 
 require('@js-joda/timezone');
 
@@ -120,6 +128,11 @@ export default class BankAccountOverview extends Vue {
   private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
   private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");
   private readonly dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+  private readonly dateFormatterDayOfWeek = DateTimeFormatter.ofPattern("EEEE");
+
+  created() {
+    this.loadBalances();
+  }
 
   get dates(): LocalDate[] {
     let localDates: LocalDate[] = [];
@@ -137,12 +150,21 @@ export default class BankAccountOverview extends Vue {
     return this.dateFormatter.format(localDate);
   }
 
+  getDayOfWeek(localDate: LocalDate): string {
+    return this.dateFormatterDayOfWeek.withLocale(Locale.GERMANY).format(localDate);
+  }
+
   get width(): string {
-    return 100 + this.selectedBankAccounts.length * 100 + "px";
+    return 200 + this.selectedBankAccounts.length * 100 + "px";
   }
 
   getBalance(bankAccount: BankAccountModel, localDate: LocalDate): string {
-    return (bankAccount.startBalanceEuroCent / 100).toLocaleString(Locale.GERMANY);
+    let balanceFind = BalanceStore.balances.find(
+        balance => balance.bankAccountId === bankAccount.id && balance.date.equals(localDate));
+    if (balanceFind !== undefined) {
+      return (balanceFind.balanceEuroCent / 100).toLocaleString(Locale.GERMANY);
+    }
+    return "";
   }
 
   get bankAccounts(): BankAccountModel[] {
@@ -169,8 +191,23 @@ export default class BankAccountOverview extends Vue {
     return DialogStateStore.isBankAccountDialog;
   }
 
+  get dateFrom(): LocalDate {
+    return this.yearMonth.atDay(1);
+  }
+
+  get dateUntil(): LocalDate {
+    return this.yearMonth.atEndOfMonth();
+  }
+
   showDialog() {
     DialogStateStore.setIsBankAccountDialog(true);
+  }
+
+  loadBalances() {
+    this.selectedBankAccounts.forEach(
+        bankAccount => BalanceStore.loadBalances(
+            new BalanceRequest(bankAccount.id!, TimeService.localDateToIsoString(this.dateFrom),
+                TimeService.localDateToIsoString(this.dateUntil))));
   }
 
   get dateString(): string {
@@ -186,6 +223,7 @@ export default class BankAccountOverview extends Vue {
   private yearMonthChanged() {
     this.datePicker = false;
     this.yearMonth = this.yearMonthTemp;
+    this.loadBalances();
   }
 
 }

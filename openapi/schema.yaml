@@ -457,8 +457,9 @@ components:
           type: boolean
     Balance:
       properties:
-        bankAccountName:
+        bankAccountId:
           type: string
+          format: uuid
         date:
           type: string
           description: date in format yyyy-MM-dd

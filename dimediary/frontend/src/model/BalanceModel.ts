@@ -2,20 +2,22 @@ import {LocalDate} from "@js-joda/core";
 
 export default class BalanceModel {
 
-  private _bankAccountName: string;
+
+  private _bankAccountId: string;
   private _date: LocalDate;
   private _balanceEuroCent: number;
 
 
   constructor(bankAccount: string, date: LocalDate, balanceEuroCent: number) {
-    this._bankAccountName = bankAccount;
+
+    this._bankAccountId = bankAccount;
     this._date = date;
     this._balanceEuroCent = balanceEuroCent;
   }
 
 
-  get bankAccountName(): string {
-    return this._bankAccountName;
+  get bankAccountId(): string {
+    return this._bankAccountId;
   }
 
   get date(): LocalDate {

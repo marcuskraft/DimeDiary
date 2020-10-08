@@ -2,7 +2,7 @@ package com.dimediary.model.repositories;
 
 import com.dimediary.domain.Balance;
 import com.dimediary.domain.BankAccount;
-import com.dimediary.model.converter.BalanceHistoryTransformer;
+import com.dimediary.model.converter.BalanceTransformer;
 import com.dimediary.model.entities.BalanceEntity;
 import com.dimediary.model.entities.BankAccountEntity;
 import com.dimediary.model.repositories.cruds.BalanceCrudRepository;
@@ -26,15 +26,15 @@ import org.springframework.transaction.annotation.Transactional;
 class BalanceRepoImpl implements BalanceRepo {
 
 
-  private final BalanceHistoryTransformer balanceHistoryTransformer;
+  private final BalanceTransformer balanceTransformer;
   private final BalanceCrudRepository balanceCrudRepository;
   private final BankAccountCrudRepository bankAccountCrudRepository;
 
   @Autowired
-  public BalanceRepoImpl(final BalanceHistoryTransformer balanceHistoryTransformer,
+  public BalanceRepoImpl(final BalanceTransformer balanceTransformer,
       final BalanceCrudRepository balanceCrudRepository,
       final BankAccountCrudRepository bankAccountCrudRepository) {
-    this.balanceHistoryTransformer = balanceHistoryTransformer;
+    this.balanceTransformer = balanceTransformer;
     this.balanceCrudRepository = balanceCrudRepository;
     this.bankAccountCrudRepository = bankAccountCrudRepository;
   }
@@ -53,7 +53,7 @@ class BalanceRepoImpl implements BalanceRepo {
     return this.balanceCrudRepository
         .getBalanceEntitiesByBankAccountIdAndDateIsGreaterThanEqual(bankAccount.getId().toString(),
             date)
-        .stream().map(this.balanceHistoryTransformer::balanceHistoryEntityToBalanceHistory)
+        .stream().map(this.balanceTransformer::balanceHistoryEntityToBalanceHistory)
         .collect(Collectors.toList());
   }
 
@@ -114,7 +114,7 @@ class BalanceRepoImpl implements BalanceRepo {
 
   private Balance entityToDomain(
       final BalanceEntity balanceEntity) {
-    return this.balanceHistoryTransformer.balanceHistoryEntityToBalanceHistory(balanceEntity);
+    return this.balanceTransformer.balanceHistoryEntityToBalanceHistory(balanceEntity);
   }
 
   private BankAccountEntity findBankAccount(final BankAccount bankAccount) {
@@ -157,7 +157,7 @@ class BalanceRepoImpl implements BalanceRepo {
             + " and date: "
             + balance.getDate());
 
-    final BalanceEntity balanceEntity = this.balanceHistoryTransformer
+    final BalanceEntity balanceEntity = this.balanceTransformer
         .balanceHistoryToBalanceHistoryEntity(balance,
             this.findBankAccount(balance.getBankAccount()));
     if (balanceEntity.getId() == null) {
@@ -174,7 +174,7 @@ class BalanceRepoImpl implements BalanceRepo {
         .info("getBalanceHistories for bank account: " + bankAccount.getName());
     return this.balanceCrudRepository.getAllByBankAccountId(bankAccount.getId().toString()).stream()
         .map(
-            this.balanceHistoryTransformer::balanceHistoryEntityToBalanceHistory).collect(
+            this.balanceTransformer::balanceHistoryEntityToBalanceHistory).collect(
             Collectors.toList());
   }
 

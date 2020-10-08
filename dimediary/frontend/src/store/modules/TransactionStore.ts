@@ -54,14 +54,17 @@ export class TransactionStore extends VuexModule {
 
 
   @Action
-  loadTransactions(transactionGetRequest: TransactionGetRequestImpl) {
+  loadTransactions(transactionGetRequest: TransactionGetRequestImpl): Promise<void> {
     let transactionsService: TransactionRestService = new TransactionRestService();
-    transactionsService.getTransactions(transactionGetRequest).then((transactionModels) => {
-      if (transactionModels != undefined && transactionModels.length != 0) {
-        transactionModels!.forEach(transaction => {
-          this.addTransaction(transaction);
-        })
-      }
+    return new Promise<void>(resolve => {
+      transactionsService.getTransactions(transactionGetRequest).then((transactionModels) => {
+        if (transactionModels != undefined && transactionModels.length != 0) {
+          transactionModels!.forEach(transaction => {
+            this.addTransaction(transaction);
+          })
+        }
+        resolve();
+      })
     })
   }
 

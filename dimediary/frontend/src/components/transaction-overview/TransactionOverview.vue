@@ -13,44 +13,6 @@
             @change="loadTransactions"
         ></v-select>
       </v-col>
-      <v-col cols="1">
-        <v-menu
-            ref="menu"
-            v-model="datePicker"
-            :close-on-content-click="false"
-            :return-value.sync="yearMonthString"
-            transition="scale-transition"
-            offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-text-field
-                v-model="dateString"
-                label="Monat"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-            ></v-text-field>
-          </template>
-          <v-date-picker
-              v-model="yearMonthString"
-              type="month"
-              locale="GERMANY">
-            <v-spacer></v-spacer>
-            <v-btn
-                text
-                color="primary"
-                @click="datePicker = false">
-              Abbrechen
-            </v-btn>
-            <v-btn
-                text
-                color="primary"
-                @click="$refs.menu.save(yearMonthString); yearMonthChanged();">
-              OK
-            </v-btn>
-          </v-date-picker>
-        </v-menu>
-      </v-col>
     </v-row>
     <v-row>
       <v-col>
@@ -65,7 +27,7 @@
         </v-btn>
       </v-col>
     </v-row>
-    <transaction-group v-for="transaction in transactions"
+    <transaction-group v-for="transaction in transactions" :id="ref(transaction)"
                        :transaction-prop="transaction" :key="transaction.id"></transaction-group>
     <transaction-dialog v-if="isTransactionDialog"></transaction-dialog>
   </div>
@@ -77,7 +39,7 @@ import {Component, Vue} from "vue-property-decorator";
 
 import TransactionModel from "@/model/TransactionModel";
 import TransactionGroup from "@/components/transaction-overview/TransactionGroup.vue";
-import {DateTimeFormatter, YearMonth, ZonedDateTime, ZoneId} from "@js-joda/core";
+import {LocalDate, ZoneId} from "@js-joda/core";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountModel from "@/model/BankAccountModel";
 import TransactionService from "@/service/TransactionService";
@@ -102,34 +64,14 @@ export default class TransactionOverview extends Vue {
 
   private transactionService: TransactionService = new TransactionService();
 
-  yearMonthTemp: YearMonth = YearMonth.now();
-  yearMonth: YearMonth = YearMonth.now();
-  datePicker: boolean = false;
+  private actualLocalDate: LocalDate = LocalDate.now(ZoneId.of("Europe/Berlin"))
 
-  mounted() {
+  created() {
     this.loadTransactions();
   }
 
+  mounted() {
 
-  private readonly dateFormatterTechnical = DateTimeFormatter.ofPattern("yyyy-MM");
-  private readonly dateFormatterUser = DateTimeFormatter.ofPattern("MMM yyyy");
-
-  get yearMonthString(): string {
-    return this.dateFormatterTechnical.format(this.yearMonthTemp);
-  }
-
-  set yearMonthString(date: string) {
-    this.yearMonthTemp = YearMonth.parse(date, this.dateFormatterTechnical);
-  }
-
-  get dateString(): string {
-    let zonedDateTime = ZonedDateTime.of(this.yearMonthTemp.year(),
-        this.yearMonthTemp.month().value(), 1,
-        0, 0, 0,
-        0,
-        ZoneId.of('Europe/Berlin'));
-    return zonedDateTime.format(
-        this.dateFormatterUser.withLocale(Locale.GERMANY));
   }
 
 
@@ -137,15 +79,39 @@ export default class TransactionOverview extends Vue {
     return BankAccountStore.bankAccounts;
   }
 
+  get transactionToScrollTo(): string {
+    let transactionModels = this.transactions.filter(
+        value => value.date.isBefore(this.actualLocalDate) ||
+            value.date.isEqual(this.actualLocalDate)).sort((a, b) => b.date.compareTo(a.date));
+    if (transactionModels.length === 0) {
+      return "";
+    }
+    return this.ref(transactionModels[0])
+  }
+
   get transactions(): TransactionModel[] {
     return this.transactionService.transactions.filter(value => this.isInDateRange(value)).
     filter(value => value.bankAccount!.id === this.selectedBankAccount!.id).
-    sort((a, b) => a.date.compareTo(b.date));
+    sort((a, b) => b.date.compareTo(a.date));
+  }
+
+  get localDates(): LocalDate[] {
+    let dates: LocalDate[] = [];
+    for (let i = 0; i < 31; i++) {
+      dates.push(this.actualLocalDate.plusDays(i));
+    }
+    for (let i = 1; i < 30; i++) {
+      dates.push(this.actualLocalDate.minusDays(i));
+    }
+    return dates.sort((a, b) => a.compareTo(b));
+  }
+
+  ref(transaction: TransactionModel): string {
+    return "ref" + transaction.id!;
   }
 
   private isInDateRange(value: TransactionModel): boolean {
-    let transactionYearMonth: YearMonth = YearMonth.of(value.date.year(), value.date.month());
-    return transactionYearMonth.equals(this.yearMonth);
+    return this.localDates.find(localDate => localDate.isEqual(value.date)) !== undefined;
   }
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
@@ -156,12 +122,6 @@ export default class TransactionOverview extends Vue {
     return BankAccountStore.selectedBankAccount;
   }
 
-  private yearMonthChanged() {
-    this.datePicker = false;
-    this.yearMonth = this.yearMonthTemp;
-
-    this.loadTransactions();
-  }
 
   showDialog() {
     DialogStateStore.setIsTransactionDialog(true);
@@ -175,8 +135,13 @@ export default class TransactionOverview extends Vue {
   private loadTransactions() {
     if (this.selectedBankAccount !== undefined) {
       this.transactionService.loadTransactions(this.selectedBankAccount.id!,
-          this.yearMonthTemp.atDay(1),
-          this.yearMonthTemp.atEndOfMonth());
+          this.localDates[0],
+          this.localDates[this.localDates.length - 1]).
+      then(value => {
+        if (this.transactionToScrollTo !== "") {
+          this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 100})
+        }
+      });
     }
   }
 }

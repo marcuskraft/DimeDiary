@@ -10,11 +10,12 @@ export default class TransactionService {
     return TransactionStore.transactions;
   }
 
-  public loadTransactions(bankAccountId: string, dateFrom: LocalDate, dateUntil: LocalDate) {
+  public loadTransactions(bankAccountId: string, dateFrom: LocalDate,
+      dateUntil: LocalDate): Promise<void> {
     let request: TransactionGetRequestImpl = new TransactionGetRequestImpl(
         bankAccountId, TimeService.localDateToIsoString(dateFrom)!,
         TimeService.localDateToIsoString(dateUntil)!);
-    TransactionStore.loadTransactions(request);
+    return TransactionStore.loadTransactions(request);
   }
 
   public saveTransaction(transaction: TransactionModel) {

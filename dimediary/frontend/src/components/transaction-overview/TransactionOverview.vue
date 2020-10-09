@@ -1,8 +1,6 @@
 <template>
   <div :key="transactions.length">
     <v-container>
-
-
       <v-card class="transaction-overview" max-width="80%" min-width="400px" outlined
               elevation="2" rounded>
         <v-row>
@@ -64,7 +62,6 @@
           </v-col>
         </v-row>
       </v-card>
-
 
       <transaction-group v-for="transaction in transactions"
                          :id="ref(transaction)"

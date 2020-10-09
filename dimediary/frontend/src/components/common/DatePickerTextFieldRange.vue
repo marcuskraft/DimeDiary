@@ -46,13 +46,26 @@ export default class DatePickerTextFieldRange extends Vue {
   format(this.dateTimeFormatter)]
 
 
+  get sortedLocalDates(): LocalDate[] {
+    return this.dates.map(date => LocalDate.parse(date, this.dateTimeFormatter)).
+    sort((a, b) => a.compareTo(b));
+  }
+
   get dateString(): string {
-    return this.dates.join(' ~ ')
+    if (this.sortedLocalDates.length == 0) {
+      return "";
+    }
+    else if (this.sortedLocalDates.length == 1) {
+      return this.sortedLocalDates[0].format(this.dateTimeFormatterUser);
+    }
+    else {
+      return this.sortedLocalDates[0].format(this.dateTimeFormatterUser) + " ... " +
+          this.sortedLocalDates[1].format(this.dateTimeFormatterUser);
+    }
   }
 
   calculateAllLocalDatesBetween(): LocalDate[] {
-    let dates: LocalDate[] = this.dates.map(date => LocalDate.parse(date, this.dateTimeFormatter)).
-    sort((a, b) => a.compareTo(b));
+    let dates: LocalDate[] = this.sortedLocalDates;
     if (dates.length > 1) {
       let date: LocalDate = dates[0].plusDays(1);
       let lastDate: LocalDate = dates[dates.length - 1];

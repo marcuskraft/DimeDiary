@@ -1,3 +1,7 @@
+const {
+  Locale,
+} = require("@js-joda/locale_de-de")
+
 export default class AmountHelper {
 
   public static onlyTwoPrecision(value: number): boolean {
@@ -6,6 +10,10 @@ export default class AmountHelper {
       return false;
     }
     return true;
+  }
+
+  public static euroCentToStringWithEuroSign(amountEuroCent: number) {
+    return (amountEuroCent / 100).toLocaleString(Locale.GERMANY) + " €";
   }
 
 }

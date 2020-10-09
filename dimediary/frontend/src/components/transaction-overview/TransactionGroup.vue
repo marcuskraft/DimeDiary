@@ -1,130 +1,46 @@
 <template>
-  <div class="transaction-group">
-    <v-row style="margin: 3px">
-      <v-col cols="1">
-        <v-row>
-          <v-col cols="6">
-            <v-btn @click="showDialog">
-              <v-icon>edit</v-icon>
-            </v-btn>
-          </v-col>
-          <v-col cols="6">
-            <v-btn @click="dialog=true">
-              <v-icon>delete</v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-
+  <v-card class="transaction-group" max-width="50%" min-width="400px" outlined elevation="2"
+          rounded>
+    <v-row>
+      <v-col cols="2">
+        <div>
+          <b>{{ dateString }}</b>
+        </div>
       </v-col>
-      <v-col cols="1">
-        <date-picker-text-field :set-local-date="setLocalDate"
-                                :local-date="date"
-                                :inTransactionGroup=true
-                                :key="date.toString()"></date-picker-text-field>
+      <v-col cols="8">
+        <v-row>
+          <b>{{ name }}</b>
+        </v-row>
+        <v-row>
+          <small v-if="category !== undefined">{{ category.name }}</small>
+        </v-row>
       </v-col>
       <v-col cols="2">
-        <v-text-field
-            v-model="name"
-            type="text"
-            filled
-            outlined
-            @change="save"
-            label="Bezeichnung"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="1">
-        <v-form>
-          <v-text-field
-              v-model="amount"
-              type="number"
-              filled
-              outlined
-              suffix="€"
-              label="Betrag"
-              @change="save"
-              :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
-          ></v-text-field>
-        </v-form>
-      </v-col>
-      <v-col cols="1">
-        <v-select
-            outlined
-            filled
-            :items="categories"
-            item-text="name"
-            v-model="category"
-            label="Kategorie"
-            return-object
-            @change="save"
-        />
-      </v-col>
-      <v-col cols="1">
-        <v-select
-            outlined
-            filled
-            :items="bankAccounts"
-            item-text="name"
-            v-model="bankAccount"
-            label="Konto"
-            return-object
-            @change="save"
-        />
+        <v-row>
+          <b>{{ amount }}</b>
+        </v-row>
+        <v-row>
+          <small>{{ balance }}</small>
+        </v-row>
       </v-col>
     </v-row>
-    <v-dialog
-        v-model="dialog"
-        persistent
-        max-width="600px"
-    >
-      <v-card>
-        <v-card-title>
-          <span class="headline">Transaktion löschen?</span>
-        </v-card-title>
-        <v-card-text>
-          <v-alert
-              outlined
-              type="warning"
-              prominent
-              border="left"
-          >
-            Sicher, dass Sie diese Transaktion löschen wollen?
-          </v-alert>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click="dialog = false"
-          >
-            Abbrechen
-          </v-btn>
-          <v-btn
-              color="blue darken-1"
-              text
-              @click="deleteTransaction"
-          >
-            OK
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </div>
+  </v-card>
 </template>
 
 <script lang="ts">
 import {Component, Prop, Vue} from "vue-property-decorator";
 import TransactionModel from "@/model/TransactionModel";
-import {LocalDate} from "@js-joda/core";
-import TransactionService from "@/service/TransactionService";
+import {DateTimeFormatter} from "@js-joda/core";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
-import AmountHelper from "@/helper/AmountHelper";
-import TransactionStore from "@/store/modules/TransactionStore";
-import DialogStateStore from "@/store/modules/DialogStateStore";
 import CategoryModel from "@/model/CategoryModel";
-import CategoryStore from "@/store/modules/CategoryStore";
-import BankAccountModel from "@/model/BankAccountModel";
-import BankAccountStore from "@/store/modules/BankAccountStore";
+import BalanceStore from "@/store/modules/BalanceStore";
+import AmountHelper from "@/helper/AmountHelper";
+
+require('@js-joda/timezone');
+
+const {
+  Locale,
+} = require("@js-joda/locale_de-de")
 
 @Component({
   components: {DatePickerTextField}
@@ -133,86 +49,34 @@ export default class TransactionGroup extends Vue {
 
   @Prop({type: TransactionModel, required: true}) transactionProp!: TransactionModel;
 
+  private dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-  private dialog: boolean = false;
 
-  get date(): LocalDate {
-    return this.transactionProp.date;
-  }
-
-  set date(localDate: LocalDate) {
-    this.transactionProp.date = localDate;
-  }
-
-  setLocalDate(localDate: LocalDate) {
-    this.transactionProp.date = localDate;
-    this.save();
-  }
-
-  get bankAccount(): BankAccountModel | undefined {
-    return this.transactionProp.bankAccount;
-  }
-
-  set bankAccount(value: BankAccountModel | undefined) {
-    this.transactionProp.bankAccount = value;
+  get dateString(): string {
+    return this.dateTimeFormatter.format(this.transactionProp.date);
   }
 
   get name(): string {
     return this.transactionProp.name;
   }
 
-  set name(value: string) {
-    this.transactionProp.name = value;
+  get amount(): string {
+    return AmountHelper.euroCentToStringWithEuroSign(this.transactionProp.amountEuroCent);
   }
 
-  get amount(): number {
-    return this.transactionProp.amountEuroCent / 100;
-  }
-
-  set amount(amount: number) {
-    this.transactionProp.amountEuroCent = amount * 100;
-  }
-
-  get categories(): CategoryModel[] {
-    return CategoryStore.categories;
-  }
-
-  get bankAccounts(): BankAccountModel[] {
-    return BankAccountStore.bankAccounts;
-  }
 
   get category(): CategoryModel | undefined {
     return this.transactionProp.category;
   }
 
-  set category(value: CategoryModel | undefined) {
-    this.transactionProp.category = value;
-  }
-
-  onlyTwoPrecision(value: number): boolean {
-    return AmountHelper.onlyTwoPrecision(value);
-  }
-
-
-  save() {
-    if (this.onlyTwoPrecision(this.amount)) {
-      let transactionService: TransactionService = new TransactionService();
-      transactionService.saveTransaction(this.transactionProp);
-      console.info("saved");
+  get balance(): string {
+    let balanceFind = BalanceStore.balances.find(
+        balance => balance.date.equals(this.transactionProp.date) && balance.bankAccountId ===
+            this.transactionProp.bankAccount!.id);
+    if (balanceFind !== undefined) {
+      return AmountHelper.euroCentToStringWithEuroSign(balanceFind.balanceEuroCent);
     }
-  }
-
-  deleteTransaction() {
-    let transactionService: TransactionService = new TransactionService();
-    transactionService.deleteTransaction(this.transactionProp);
-    this.dialog = false;
-    console.info("deleted");
-  }
-
-
-  showDialog() {
-    TransactionStore.setSelectedTransaction(this.transactionProp);
-    DialogStateStore.setIsTransactionDialog(true);
+    return "";
   }
 
 
@@ -222,14 +86,10 @@ export default class TransactionGroup extends Vue {
 <style scoped>
 
 .transaction-group {
-  background-color: #00b0ff;
-  margin: 3px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
 }
 
-::v-deep input::-webkit-outer-spin-button,
-::v-deep input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
 
 </style>

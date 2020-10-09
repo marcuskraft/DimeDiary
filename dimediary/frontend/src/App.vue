@@ -27,7 +27,7 @@ import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
 })
 export default class App extends Vue {
 
-  mounted() {
+  created() {
     CategoryStore.loadCategories();
     BankAccountStore.loadBankAccounts();
     BankAccountCategoryStore.loadBankAccountCategories();

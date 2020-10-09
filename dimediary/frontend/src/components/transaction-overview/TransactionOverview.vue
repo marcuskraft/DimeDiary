@@ -1,34 +1,79 @@
 <template>
   <div :key="transactions.length">
-    <v-row>
-      <v-col cols="1">
-        <v-select
-            :items="bankAccounts"
-            item-text="name"
-            v-model="selectedBankAccount"
-            :menu-props="{ maxHeight: '400'}"
-            label="Bankkonten"
-            return-object
-            hint="Wähle die Bankkonten, für die Transaktionen angezeigt werden sollen"
-            @change="loadTransactions"
-        ></v-select>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-btn
-            color="primary"
-            dark
-            @click="showDialog"
-        >
-          <v-icon dark>
-            add
-          </v-icon>
-        </v-btn>
-      </v-col>
-    </v-row>
-    <transaction-group v-for="transaction in transactions" :id="ref(transaction)"
-                       :transaction-prop="transaction" :key="transaction.id"></transaction-group>
+    <v-container>
+
+
+      <v-card class="transaction-overview" max-width="80%" min-width="400px" outlined
+              elevation="2" rounded>
+        <v-row>
+          <v-col v-if="actualBalance !== ''" cols="12" style="margin-left: 30px">
+            <v-sheet max-width="100px" align="center" rounded color="success" m
+                     elevation="11">
+              <b>{{ actualBalance }}</b>
+            </v-sheet>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="2">
+            <v-text-field outlined label="Transaktion suchen"></v-text-field>
+          </v-col>
+          <v-col cols="2">
+            <v-select
+                :items="bankAccounts"
+                item-text="name"
+                v-model="selectedBankAccount"
+                :menu-props="{ maxHeight: '400'}"
+                label="Bankkonten"
+                return-object
+                hint="Wähle die Bankkonten, für die Transaktionen angezeigt werden sollen"
+                @change="reload"
+            ></v-select>
+          </v-col>
+          <v-col cols="2">
+            <v-select
+                :items="categories"
+                item-text="name"
+                v-model="selectedCategories"
+                label="Kategorien"
+                return-object
+                multiple
+                clearable>
+              <template v-slot:selection="{ item, index }">
+                <span v-if="index === 0">{{ item.name }}</span>
+                <span
+                    v-if="index === 1"
+                    class="grey--text caption">(+{{ selectedCategories.length - 1 }} andere)</span>
+              </template>
+            </v-select>
+          </v-col>
+          <v-col cols="2">
+            <date-picker-text-field-range label="Datumsbereich"
+                                          :local-dates="[dateFrom, dateUntil]"
+                                          :set-local-dates="setLocalDates"></date-picker-text-field-range>
+          </v-col>
+          <v-col>
+            <v-btn
+                color="primary"
+                dark
+                @click="showDialog"
+            >
+              <v-icon dark>
+                add
+              </v-icon>
+            </v-btn>
+          </v-col>
+        </v-row>
+      </v-card>
+
+
+      <transaction-group v-for="transaction in transactions"
+                         :id="ref(transaction)"
+                         :transaction-prop="transaction"
+                         :key="transaction.id"></transaction-group>
+
+
+    </v-container>
+
     <transaction-dialog v-if="isTransactionDialog"></transaction-dialog>
   </div>
 </template>
@@ -45,6 +90,13 @@ import BankAccountModel from "@/model/BankAccountModel";
 import TransactionService from "@/service/TransactionService";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import TransactionDialog from "@/components/transaction-overview/TransactionDialog.vue";
+import BalanceStore from "@/store/modules/BalanceStore";
+import {BalanceRequest} from "@/rest-services/BalanceRestService";
+import TimeService from "@/helper/TimeService";
+import AmountHelper from "@/helper/AmountHelper";
+import CategoryModel from "@/model/CategoryModel";
+import CategoryStore from "@/store/modules/CategoryStore";
+import DatePickerTextFieldRange from "@/components/common/DatePickerTextFieldRange.vue";
 
 
 require('@js-joda/timezone');
@@ -56,6 +108,7 @@ const {
 
 @Component({
   components: {
+    DatePickerTextFieldRange,
     TransactionDialog,
     TransactionGroup
   }
@@ -64,16 +117,27 @@ export default class TransactionOverview extends Vue {
 
   private transactionService: TransactionService = new TransactionService();
 
-  private actualLocalDate: LocalDate = LocalDate.now(ZoneId.of("Europe/Berlin"))
+  private actualLocalDate: LocalDate = LocalDate.now(ZoneId.of("Europe/Berlin"));
+
+  private selectedCategoriesMember: CategoryModel[] = [];
+
+  private datesMember: LocalDate[];
 
   created() {
-    this.loadTransactions();
+    this.reload();
   }
 
-  mounted() {
-
+  constructor() {
+    super();
+    let dates: LocalDate[] = [];
+    for (let i = 0; i < 31; i++) {
+      dates.push(this.actualLocalDate.plusDays(i));
+    }
+    for (let i = 1; i < 30; i++) {
+      dates.push(this.actualLocalDate.minusDays(i));
+    }
+    this.datesMember = dates.sort((a, b) => a.compareTo(b));
   }
-
 
   get bankAccounts(): BankAccountModel[] {
     return BankAccountStore.bankAccounts;
@@ -95,15 +159,37 @@ export default class TransactionOverview extends Vue {
     sort((a, b) => b.date.compareTo(a.date));
   }
 
+  get categories(): CategoryModel[] {
+    return CategoryStore.categories;
+  }
+
+
+  get selectedCategories(): CategoryModel[] {
+    return this.selectedCategoriesMember;
+  }
+
+  set selectedCategories(value: CategoryModel[]) {
+    this.selectedCategoriesMember = value;
+  }
+
   get localDates(): LocalDate[] {
-    let dates: LocalDate[] = [];
-    for (let i = 0; i < 31; i++) {
-      dates.push(this.actualLocalDate.plusDays(i));
+    return this.datesMember;
+  }
+
+  setLocalDates(dates: LocalDate[]) {
+    this.datesMember = dates;
+  }
+
+  get actualBalance(): string {
+    if (this.selectedBankAccount !== undefined) {
+      let balance = BalanceStore.balances.find(
+          value => value.bankAccountId === this.selectedBankAccount!.id &&
+              value.date.isEqual(LocalDate.now()));
+      if (balance !== undefined) {
+        return AmountHelper.euroCentToStringWithEuroSign(balance.balanceEuroCent);
+      }
     }
-    for (let i = 1; i < 30; i++) {
-      dates.push(this.actualLocalDate.minusDays(i));
-    }
-    return dates.sort((a, b) => a.compareTo(b));
+    return "";
   }
 
   ref(transaction: TransactionModel): string {
@@ -131,12 +217,24 @@ export default class TransactionOverview extends Vue {
     return DialogStateStore.isTransactionDialog;
   }
 
+  get dateUntil() {
+    return this.localDates[this.localDates.length - 1];
+  }
+
+  get dateFrom() {
+    return this.localDates[0];
+  }
+
+  private reload() {
+    this.loadTransactions();
+    this.loadBalances();
+  }
 
   private loadTransactions() {
     if (this.selectedBankAccount !== undefined) {
       this.transactionService.loadTransactions(this.selectedBankAccount.id!,
-          this.localDates[0],
-          this.localDates[this.localDates.length - 1]).
+          this.dateFrom,
+          this.dateUntil).
       then(value => {
         if (this.transactionToScrollTo !== "") {
           this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 100})
@@ -144,9 +242,25 @@ export default class TransactionOverview extends Vue {
       });
     }
   }
+
+  loadBalances() {
+    if (this.selectedBankAccount !== undefined) {
+      BalanceStore.loadBalances(new BalanceRequest(this.selectedBankAccount.id!,
+          TimeService.localDateToIsoString(this.dateFrom),
+          TimeService.localDateToIsoString(this.dateUntil)));
+    }
+
+
+  }
 }
 </script>
 
 <style scoped>
+
+
+.transaction-overview {
+  align-items: center;
+  margin: auto;
+}
 
 </style>

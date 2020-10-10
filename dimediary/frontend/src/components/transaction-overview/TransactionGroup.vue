@@ -1,30 +1,33 @@
 <template>
-  <v-card class="transaction-group" max-width="50%" min-width="400px" outlined elevation="2"
-          rounded>
-    <v-row>
-      <v-col cols="2">
-        <div>
-          <b>{{ dateString }}</b>
-        </div>
-      </v-col>
-      <v-col cols="8">
-        <v-row>
-          <b>{{ name }}</b>
-        </v-row>
-        <v-row>
-          <small v-if="category !== undefined">{{ category.name }}</small>
-        </v-row>
-      </v-col>
-      <v-col cols="2">
-        <v-row>
-          <b>{{ amount }}</b>
-        </v-row>
-        <v-row>
-          <small>{{ balance }}</small>
-        </v-row>
-      </v-col>
-    </v-row>
-  </v-card>
+  <v-hover v-slot:default="{ hover }">
+    <v-card class="transaction-group" max-width="50%" min-width="400px" outlined
+            :elevation="hover ? 12 : 2"
+            rounded>
+      <v-row>
+        <v-col cols="2">
+          <div>
+            <b>{{ dateString }}</b>
+          </div>
+        </v-col>
+        <v-col cols="8">
+          <v-row>
+            <b>{{ name }}</b>
+          </v-row>
+          <v-row>
+            <small v-if="category !== undefined">{{ category.name }}</small>
+          </v-row>
+        </v-col>
+        <v-col cols="2">
+          <v-row>
+            <b>{{ amount }}</b>
+          </v-row>
+          <v-row>
+            <small>{{ balance }}</small>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-hover>
 </template>
 
 <script lang="ts">

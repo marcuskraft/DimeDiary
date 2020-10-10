@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar color="orange" app>
+  <v-app-bar color="green" app>
     <v-toolbar-title>DimeDiary</v-toolbar-title>
 
     <v-spacer></v-spacer>

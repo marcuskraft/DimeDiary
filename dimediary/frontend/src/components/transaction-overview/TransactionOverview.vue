@@ -4,15 +4,16 @@
       <v-card class="transaction-overview" max-width="80%" min-width="400px" outlined
               elevation="2" rounded>
         <v-row>
-          <v-col v-if="actualBalance !== ''" cols="12" style="margin-left: 30px">
-            <v-sheet max-width="100px" align="center" rounded color="success" m
-                     elevation="11">
-              <b>{{ actualBalance }}</b>
+          <v-col v-if="actualBalance !== ''" cols="12" align="center">
+            <v-sheet max-width="400px" rounded color="success" elevation="11">
+              <h2>Aktueller Kontostand: {{ actualBalance }}</h2>
             </v-sheet>
           </v-col>
         </v-row>
+
+
         <v-row>
-          <v-col cols="2">
+          <v-col cols="3">
             <v-text-field outlined label="Transaktion suchen"></v-text-field>
           </v-col>
           <v-col cols="2">
@@ -49,10 +50,10 @@
                                           :local-dates="[dateFrom, dateUntil]"
                                           :set-local-dates="setLocalDates"></date-picker-text-field-range>
           </v-col>
-          <v-col>
+          <v-col cols="3">
             <v-btn
-                color="primary"
-                dark
+                icon
+                outlined
                 @click="showDialog"
             >
               <v-icon dark>
@@ -231,7 +232,7 @@ export default class TransactionOverview extends Vue {
           this.dateUntil).
       then(value => {
         if (this.transactionToScrollTo !== "") {
-          this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 100})
+          this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 200})
         }
       });
     }

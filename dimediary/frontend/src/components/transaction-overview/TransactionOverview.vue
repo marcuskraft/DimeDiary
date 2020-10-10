@@ -88,8 +88,6 @@ import TransactionService from "@/service/TransactionService";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import TransactionDialog from "@/components/transaction-overview/TransactionDialog.vue";
 import BalanceStore from "@/store/modules/BalanceStore";
-import {BalanceRequest} from "@/rest-services/BalanceRestService";
-import TimeService from "@/helper/TimeService";
 import AmountHelper from "@/helper/AmountHelper";
 import CategoryModel from "@/model/CategoryModel";
 import CategoryStore from "@/store/modules/CategoryStore";
@@ -121,7 +119,7 @@ export default class TransactionOverview extends Vue {
   private datesMember: LocalDate[];
 
   created() {
-    this.reload();
+    BankAccountStore.loadBankAccounts().then(value => this.reload());
   }
 
   constructor() {
@@ -224,7 +222,6 @@ export default class TransactionOverview extends Vue {
 
   private reload() {
     this.loadTransactions();
-    this.loadBalances();
   }
 
   private loadTransactions() {
@@ -240,15 +237,6 @@ export default class TransactionOverview extends Vue {
     }
   }
 
-  loadBalances() {
-    if (this.selectedBankAccount !== undefined) {
-      BalanceStore.loadBalances(new BalanceRequest(this.selectedBankAccount.id!,
-          TimeService.localDateToIsoString(this.dateFrom),
-          TimeService.localDateToIsoString(this.dateUntil)));
-    }
-
-
-  }
 }
 </script>
 

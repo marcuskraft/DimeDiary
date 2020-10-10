@@ -31,16 +31,19 @@ export class BankAccountStore extends VuexModule {
   }
 
   @Action
-  loadBankAccounts() {
+  loadBankAccounts(): Promise<BankAccountModel[]> {
     let bankAccountService: BankAccountRestService = new BankAccountRestService();
-    bankAccountService.loadBankAccounts().
-    then(bankAccounts => {
-      this.clearBankAccounts();
-      bankAccounts.forEach(bankAccount => this.addBankAccount(bankAccount));
-      if (this.bankAccounts.length > 0) {
-        this.setSelectedBankAccount(bankAccounts[0]);
-      }
-    });
+    return new Promise<BankAccountModel[]>(resolve => {
+      bankAccountService.loadBankAccounts().
+      then(bankAccounts => {
+        this.clearBankAccounts();
+        bankAccounts.forEach(bankAccount => this.addBankAccount(bankAccount));
+        if (this.bankAccounts.length > 0) {
+          this.setSelectedBankAccount(bankAccounts[0]);
+        }
+        resolve(bankAccounts);
+      });
+    })
   }
 
   @Action

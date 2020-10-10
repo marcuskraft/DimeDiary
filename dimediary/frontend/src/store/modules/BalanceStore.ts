@@ -2,7 +2,6 @@ import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decor
 import store from '@/store'
 import BalanceModel from "@/model/BalanceModel";
 import BalanceRestService, {BalanceRequest} from "@/rest-services/BalanceRestService";
-import BankAccountModel from "@/model/BankAccountModel";
 import {LocalDate} from "@js-joda/core";
 import TimeService from "@/helper/TimeService";
 
@@ -45,15 +44,15 @@ export class BalanceStore extends VuexModule {
   }
 
   @Action
-  reloadBalances(bankAccount: BankAccountModel) {
+  reloadBalances(bankAccountId: string) {
     if (this._balances.length !== 0) {
       let balanceModels = this._balances.filter(
-          balance => balance.bankAccountId === bankAccount.id).
+          balance => balance.bankAccountId === bankAccountId).
       sort((a, b) => a.date.compareTo(b.date));
       if (balanceModels.length !== 0) {
         let localDateFrom: LocalDate = balanceModels[0].date;
         let localDateUntil: LocalDate = balanceModels[balanceModels.length - 1].date;
-        let balanceRequest: BalanceRequest = new BalanceRequest(bankAccount.id!,
+        let balanceRequest: BalanceRequest = new BalanceRequest(bankAccountId,
             TimeService.localDateToIsoString(localDateFrom),
             TimeService.localDateToIsoString(localDateUntil));
         this.loadBalances(balanceRequest);

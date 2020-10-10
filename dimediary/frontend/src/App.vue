@@ -1,9 +1,7 @@
 <template>
   <div id="app">
     <v-app>
-      <v-navigation-drawer app>
-        <left-navigation></left-navigation>
-      </v-navigation-drawer>
+      <app-bar app></app-bar>
       <v-main>
         <router-view/>
       </v-main>
@@ -16,11 +14,12 @@ import {Component, Vue} from "vue-property-decorator";
 import LeftNavigation from "@/components/LeftNavigation.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
 import CategoryStore from "@/store/modules/CategoryStore";
-import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
+import AppBar from "@/components/AppBar.vue";
 
 @Component({
   components: {
+    AppBar,
     TransactionOverview,
     LeftNavigation
   }
@@ -29,7 +28,6 @@ export default class App extends Vue {
 
   created() {
     CategoryStore.loadCategories();
-    BankAccountStore.loadBankAccounts();
     BankAccountCategoryStore.loadBankAccountCategories();
   }
 

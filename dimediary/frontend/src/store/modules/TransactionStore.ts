@@ -20,7 +20,7 @@ export class TransactionStore extends VuexModule {
   public get transactions(): TransactionModel[] {
     return this._transactions;
   }
-  
+
   @Mutation
   private addTransaction(transaction: TransactionModel) {
     this._transactions = this._transactions.filter(value => value.id !== transaction.id);
@@ -76,11 +76,11 @@ export class TransactionStore extends VuexModule {
   @Action
   loadTransaction(transactionId: string): Promise<TransactionModel> {
     let transactionsService: TransactionRestService = new TransactionRestService();
-    return new Promise<TransactionModel>(resolve => {
+    return new Promise<TransactionModel>((resolve, reject) => {
       transactionsService.loadTransaction(transactionId).then(transaction => {
         this.addTransaction(transaction);
         resolve(transaction);
-      })
+      }).catch(reason => reject(reason));
     })
   }
 

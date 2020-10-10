@@ -33,12 +33,17 @@ export default class TransactionService {
     });
   }
 
-  public deleteTransaction(transaction: TransactionModel) {
-    TransactionStore.deleteTransaction(transaction).then(value => {
-      if (transaction.bankAccount !== undefined) {
-        BalanceStore.reloadBalances(transaction.bankAccount.id!);
-      }
-    });
+  public deleteTransaction(transaction: TransactionModel): Promise<void> {
+    return new Promise<void>(resolve => {
+      TransactionStore.deleteTransaction(transaction).then(value => {
+        if (transaction.bankAccount !== undefined) {
+          BalanceStore.reloadBalances(transaction.bankAccount.id!);
+        }
+        resolve();
+      });
+    })
+
+
   }
 
   public loadTransaction(transactionId: string): Promise<TransactionModel> {

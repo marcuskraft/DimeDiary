@@ -6,7 +6,7 @@
         type="card" v-if="isLoading"
     ></v-skeleton-loader>
     <v-container v-else>
-      <v-card class="transaction-overview" max-width="80%" min-width="400px" outlined
+      <v-card class="transaction-overview" max-width="60%" min-width="400px" outlined
               elevation="2" rounded>
         <v-row>
           <v-col v-if="actualBalance !== ''" cols="12" align="center">
@@ -17,7 +17,7 @@
         </v-row>
 
 
-        <v-row>
+        <v-row justify="">
           <v-col cols="3">
             <v-text-field outlined label="Transaktion suchen"></v-text-field>
           </v-col>
@@ -50,12 +50,13 @@
               </template>
             </v-select>
           </v-col>
-          <v-col cols="2">
+          <v-col cols="3">
             <date-picker-text-field-range label="Datumsbereich"
                                           :local-dates="[dateFrom, dateUntil]"
                                           :set-local-dates="setLocalDates"></date-picker-text-field-range>
           </v-col>
-          <v-col cols="3">
+          <v-spacer></v-spacer>
+          <v-col cols="1">
             <v-btn
                 icon
                 outlined
@@ -67,14 +68,11 @@
             </v-btn>
           </v-col>
         </v-row>
+        <transaction-group v-for="transaction in transactions"
+                           :id="ref(transaction)"
+                           :transaction-prop="transaction"
+                           :key="transaction.id"></transaction-group>
       </v-card>
-
-      <transaction-group v-for="transaction in transactions"
-                         :id="ref(transaction)"
-                         :transaction-prop="transaction"
-                         :key="transaction.id"></transaction-group>
-
-
     </v-container>
   </div>
 </template>
@@ -122,6 +120,7 @@ export default class TransactionOverview extends Vue {
   private datesMember: LocalDate[];
 
   private isLoading: boolean = true;
+
 
   created() {
     BankAccountStore.loadBankAccountsIfNotPresent().then(value => this.reload());

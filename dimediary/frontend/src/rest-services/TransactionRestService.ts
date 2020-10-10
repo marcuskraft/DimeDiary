@@ -23,12 +23,12 @@ export class TransactionRestService {
 
   public getTransactions(transactionGetRequest: GetTransactionsRequest): Promise<TransactionModel[]> {
     let transactionModels: TransactionModel[] = [];
-    return new Promise<TransactionModel[]>(resolve => {
+    return new Promise<TransactionModel[]>((resolve, reject) => {
       this.transactionApi.getTransactions(transactionGetRequest).then(transactions => {
         transactions.forEach(
             transaction => transactionModels.push(TransactionTransformer.to(transaction)));
         resolve(transactionModels);
-      });
+      }).catch(reason => reject(reason));
     });
   }
 
@@ -37,9 +37,10 @@ export class TransactionRestService {
   }
 
   public loadTransaction(transactionId: string): Promise<TransactionModel> {
-    return new Promise<TransactionModel>(resolve => {
+    return new Promise<TransactionModel>((resolve, reject) => {
       this.transactionApi.getTransaction({transactionId: transactionId}).
-      then(transaction => resolve(TransactionTransformer.to(transaction)));
+      then(transaction => resolve(TransactionTransformer.to(transaction))).
+      catch(reason => reject(reason));
     })
   }
 

@@ -80,7 +80,7 @@
         </v-container>
       </v-card-text>
       <v-card-actions>
-        <v-btn icon>
+        <v-btn icon @click="dialog = true">
           <v-icon>delete</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
@@ -101,6 +101,44 @@
         </v-btn>
       </v-card-actions>
     </v-card>
+    <v-dialog
+        v-model="dialog"
+        width="500"
+    >
+      <v-card>
+        <v-card-title class="headline grey lighten-2">
+          Transaktion löschen
+        </v-card-title>
+
+
+        <v-alert
+            border="bottom"
+            dense
+            type="warning"
+            elevation="2">
+          Soll die Transaktion wirklich gelöscht werden?
+        </v-alert>
+
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+              color="primary"
+              text
+              @click="dialog = false">
+            Abbrechen
+          </v-btn>
+          <v-btn
+              color="primary"
+              text
+              @click="deleteTransaction">
+            OK
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-form>
 </template>
 
@@ -124,6 +162,7 @@ export default class Transaction extends Vue {
 
   @Prop({type: String}) transactionId?: string;
 
+  private dialog: boolean = false;
 
   nameMember: string;
   dateMember: LocalDate;
@@ -164,7 +203,7 @@ export default class Transaction extends Vue {
       this.categoryMember = transaction.category;
       this.continuousTransactionMember = transaction.continuousTransaction;
       this.loading = false;
-    })
+    });
   }
 
 
@@ -284,6 +323,13 @@ export default class Transaction extends Vue {
     let transactionService: TransactionService = new TransactionService();
     transactionService.saveTransaction(transaction);
     this.close();
+  }
+
+  deleteTransaction() {
+    if (this.transaction !== undefined) {
+      let transactionService: TransactionService = new TransactionService();
+      transactionService.deleteTransaction(this.transaction).then(value => this.close());
+    }
   }
 
 }

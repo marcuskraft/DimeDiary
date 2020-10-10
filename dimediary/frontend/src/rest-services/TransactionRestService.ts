@@ -36,6 +36,13 @@ export class TransactionRestService {
     return this.transactionApi.deleteTransaction({transactionId: transaction.id!});
   }
 
+  public loadTransaction(transactionId: string): Promise<TransactionModel> {
+    return new Promise<TransactionModel>(resolve => {
+      this.transactionApi.getTransaction({transactionId: transactionId}).
+      then(transaction => resolve(TransactionTransformer.to(transaction)));
+    })
+  }
+
 }
 
 export class TransactionGetRequestImpl implements GetTransactionsRequest {

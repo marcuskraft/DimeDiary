@@ -79,6 +79,27 @@ paths:
       responses:
         "204":
           description: transaction succesfully deleted
+    get:
+      summary: load transaction
+      description: load transactions
+      operationId: getTransaction
+      tags:
+        - Transaction
+      parameters:
+        - in: path
+          name: transactionId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Load transaction with this id
+      responses:
+        "200":
+          description: get requested transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
   /continuousTransactions:
     put:
       summary: save continuous transaction

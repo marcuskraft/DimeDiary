@@ -2,7 +2,7 @@
   <v-hover v-slot:default="{ hover }">
     <v-card class="transaction-group" max-width="50%" min-width="400px" outlined
             :elevation="hover ? 12 : 2"
-            rounded>
+            rounded @click="openTransaction">
       <v-row>
         <v-col cols="2">
           <div>
@@ -80,6 +80,10 @@ export default class TransactionGroup extends Vue {
       return AmountHelper.euroCentToStringWithEuroSign(balanceFind.balanceEuroCent);
     }
     return "";
+  }
+
+  openTransaction() {
+    this.$router.push("/transaction/" + this.transactionProp.id);
   }
 
 

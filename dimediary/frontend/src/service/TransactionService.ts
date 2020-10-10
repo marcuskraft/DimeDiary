@@ -41,5 +41,9 @@ export default class TransactionService {
     });
   }
 
+  public loadTransaction(transactionId: string): Promise<TransactionModel> {
+    return TransactionStore.loadTransaction(transactionId);
+  }
+
 
 }

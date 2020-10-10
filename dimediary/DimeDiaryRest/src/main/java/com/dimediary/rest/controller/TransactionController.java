@@ -54,6 +54,12 @@ public class TransactionController implements TransactionApi {
   }
 
   @Override
+  public ResponseEntity<Transaction> getTransaction(final UUID transactionId) {
+    return this.responseFactory.ok(this.transactionRestConverter
+        .from(this.transactionProvider.getTransaction(transactionId)));
+  }
+
+  @Override
   public ResponseEntity<List<Transaction>> getTransactions(final String dateFromString,
       final String dateUntilString,
       final Optional<UUID> bankAccountName) {

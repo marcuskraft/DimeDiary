@@ -33,6 +33,13 @@ export class CategoryStore extends VuexModule {
     then(categories => categories.forEach(category => this.addCategory(category)))
   }
 
+  @Action
+  public loadCategoriesIfNotPresent() {
+    if (this._categories.length === 0) {
+      this.loadCategories();
+    }
+  }
+
 }
 
 export default getModule(CategoryStore);

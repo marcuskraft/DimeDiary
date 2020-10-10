@@ -83,8 +83,17 @@ export class TransactionStore extends VuexModule {
         resolve();
       });
     })
+  }
 
-
+  @Action
+  loadTransaction(transactionId: string): Promise<TransactionModel> {
+    let transactionsService: TransactionRestService = new TransactionRestService();
+    return new Promise<TransactionModel>(resolve => {
+      transactionsService.loadTransaction(transactionId).then(transaction => {
+        this.addTransaction(transaction);
+        resolve(transaction);
+      })
+    })
   }
 
 

@@ -47,6 +47,14 @@ export class BankAccountStore extends VuexModule {
   }
 
   @Action
+  loadBankAccountsIfNotPresent(): Promise<BankAccountModel[]> {
+    if (this._bankAccounts.length === 0) {
+      return this.loadBankAccounts();
+    }
+    return new Promise<BankAccountModel[]>(resolve => resolve(this._bankAccounts));
+  }
+
+  @Action
   saveBankAccount(bankAccount: BankAccountModel) {
     let bankAccountService: BankAccountRestService = new BankAccountRestService();
     bankAccountService.saveBankAccount(bankAccount).then(value => this.addBankAccount(value));

@@ -54,7 +54,7 @@
             <v-btn
                 icon
                 outlined
-                @click="showDialog"
+                @click="addTransaction"
             >
               <v-icon dark>
                 add
@@ -71,8 +71,6 @@
 
 
     </v-container>
-
-    <transaction-dialog v-if="isTransactionDialog"></transaction-dialog>
   </div>
 </template>
 
@@ -86,8 +84,7 @@ import {LocalDate, ZoneId} from "@js-joda/core";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountModel from "@/model/BankAccountModel";
 import TransactionService from "@/service/TransactionService";
-import DialogStateStore from "@/store/modules/DialogStateStore";
-import TransactionDialog from "@/components/transaction-overview/TransactionDialog.vue";
+import Transaction from "@/components/transaction-overview/Transaction.vue";
 import BalanceStore from "@/store/modules/BalanceStore";
 import AmountHelper from "@/helper/AmountHelper";
 import CategoryModel from "@/model/CategoryModel";
@@ -105,7 +102,7 @@ const {
 @Component({
   components: {
     DatePickerTextFieldRange,
-    TransactionDialog,
+    TransactionDialog: Transaction,
     TransactionGroup
   }
 })
@@ -120,7 +117,7 @@ export default class TransactionOverview extends Vue {
   private datesMember: LocalDate[];
 
   created() {
-    BankAccountStore.loadBankAccounts().then(value => this.reload());
+    BankAccountStore.loadBankAccountsIfNotPresent().then(value => this.reload());
   }
 
   constructor() {
@@ -205,13 +202,10 @@ export default class TransactionOverview extends Vue {
   }
 
 
-  showDialog() {
-    DialogStateStore.setIsTransactionDialog(true);
+  addTransaction() {
+    this.$router.push("/transaction")
   }
 
-  get isTransactionDialog(): boolean {
-    return DialogStateStore.isTransactionDialog;
-  }
 
   get dateUntil() {
     return this.localDates[this.localDates.length - 1];

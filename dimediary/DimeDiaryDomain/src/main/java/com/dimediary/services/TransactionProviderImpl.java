@@ -79,6 +79,11 @@ public class TransactionProviderImpl implements TransactionProvider {
   }
 
   @Override
+  public Transaction getTransaction(final UUID id) {
+    return this.transactionService.getTransaction(id);
+  }
+
+  @Override
   public Transaction persistTransaction(final Transaction transaction) {
     Validate.notNull(transaction, "Transaction must not be null");
 

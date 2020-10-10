@@ -15,6 +15,7 @@ import TransactionOverview from "@/components/transaction-overview/TransactionOv
 import CategoryStore from "@/store/modules/CategoryStore";
 import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
 import AppBar from "@/components/AppBar.vue";
+import BankAccountStore from "@/store/modules/BankAccountStore";
 
 @Component({
   components: {
@@ -26,6 +27,7 @@ export default class App extends Vue {
 
   created() {
     CategoryStore.loadCategories();
+    BankAccountStore.loadBankAccounts();
     BankAccountCategoryStore.loadBankAccountCategories();
   }
 

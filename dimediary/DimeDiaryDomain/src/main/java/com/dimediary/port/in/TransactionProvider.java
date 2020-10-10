@@ -11,7 +11,7 @@ public interface TransactionProvider {
 
   List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
       UUID bankAccountId);
-  
+
   List<Transaction> getTransactionsFromDate(ContinuousTransaction continuousTransaction,
       LocalDate date);
 
@@ -21,6 +21,8 @@ public interface TransactionProvider {
   List<Transaction> getTransactions(ContinuousTransaction continuousTransaction);
 
   List<Transaction> getTransactionsWithoutAccount(LocalDate dateFrom, LocalDate dateUntil);
+
+  Transaction getTransaction(UUID id);
 
   Transaction persistTransaction(Transaction transaction);
 

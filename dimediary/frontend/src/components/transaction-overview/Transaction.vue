@@ -6,7 +6,7 @@
         type="card" v-if="loading"
     ></v-skeleton-loader>
 
-    <v-card v-else>
+    <v-card v-else max-width="50%" min-width="400px" class="mx-auto" elevation="4">
       <v-card-title>
         <span class="headline">{{ dialogTitle }}</span>
       </v-card-title>
@@ -80,6 +80,9 @@
         </v-container>
       </v-card-text>
       <v-card-actions>
+        <v-btn icon>
+          <v-icon>delete</v-icon>
+        </v-btn>
         <v-spacer></v-spacer>
         <v-btn
             color="blue darken-1"
@@ -113,7 +116,6 @@ import AmountHelper from "@/helper/AmountHelper";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import CategoryStore from "@/store/modules/CategoryStore";
 import TransactionService from "@/service/TransactionService";
-import TransactionStore from "@/store/modules/TransactionStore";
 
 @Component({
   components: {DatePickerTextField}
@@ -177,10 +179,6 @@ export default class Transaction extends Vue {
     this.continuousTransactionMember = undefined;
   }
 
-  get selectedTransaction(): TransactionModel | undefined {
-    return TransactionStore.selectedTransaction;
-  }
-
   get categories(): CategoryModel[] {
     return CategoryStore.categories;
   }
@@ -190,7 +188,7 @@ export default class Transaction extends Vue {
   }
 
   get dialogTitle(): string {
-    return this.selectedTransaction !== undefined ? "Transaktion bearbeten" : "Transaktion anlegen";
+    return this.transaction !== undefined ? "Transaktion bearbeten" : "Transaktion anlegen";
   }
 
   get name(): string {
@@ -263,22 +261,21 @@ export default class Transaction extends Vue {
 
 
   close() {
-    TransactionStore.setSelectedTransaction(undefined);
     this.$router.back();
   }
 
 
   save() {
     let transaction: TransactionModel;
-    if (this.selectedTransaction !== undefined) {
-      this.selectedTransaction.name = this.name;
-      this.selectedTransaction.continuousTransaction = this.continuousTransaction;
-      this.selectedTransaction.category = this.category;
-      this.selectedTransaction.bankAccount = this.bankAccount;
-      this.selectedTransaction.fixCost = this.fixCost;
-      this.selectedTransaction.amountEuroCent = this.amountEuroCent * 100;
-      this.selectedTransaction.date = this.date;
-      transaction = this.selectedTransaction;
+    if (this.transaction !== undefined) {
+      this.transaction.name = this.name;
+      this.transaction.continuousTransaction = this.continuousTransaction;
+      this.transaction.category = this.category;
+      this.transaction.bankAccount = this.bankAccount;
+      this.transaction.fixCost = this.fixCost;
+      this.transaction.amountEuroCent = this.amountEuroCent * 100;
+      this.transaction.date = this.date;
+      transaction = this.transaction;
     }
     else {
       transaction = new TransactionModel(this.name, this.date, this.amountEuroCent * 100,

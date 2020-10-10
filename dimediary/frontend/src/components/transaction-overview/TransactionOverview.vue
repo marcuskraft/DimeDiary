@@ -1,6 +1,11 @@
 <template>
   <div :key="transactions.length">
-    <v-container>
+    <v-skeleton-loader
+        class="mx-auto"
+        max-width="80%"
+        type="card" v-if="isLoading"
+    ></v-skeleton-loader>
+    <v-container v-else>
       <v-card class="transaction-overview" max-width="80%" min-width="400px" outlined
               elevation="2" rounded>
         <v-row>
@@ -116,6 +121,8 @@ export default class TransactionOverview extends Vue {
 
   private datesMember: LocalDate[];
 
+  private isLoading: boolean = true;
+
   created() {
     BankAccountStore.loadBankAccountsIfNotPresent().then(value => this.reload());
   }
@@ -225,10 +232,17 @@ export default class TransactionOverview extends Vue {
           this.dateFrom,
           this.dateUntil).
       then(value => {
-        if (this.transactionToScrollTo !== "") {
-          this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 200})
-        }
+        this.isLoading = false;
+        setTimeout((value: any) => {
+          if (this.transactionToScrollTo !== "") {
+            this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 200})
+          }
+        }, 100);
+
       });
+    }
+    else {
+      this.isLoading = false;
     }
   }
 

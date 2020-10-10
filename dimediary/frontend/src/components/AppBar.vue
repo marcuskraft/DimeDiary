@@ -4,15 +4,15 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn icon elevation="3" @click="$router.push('dashboard')">
+    <v-btn icon elevation="3" @click="routeTo('/dashboard')">
       <v-icon>mdi-view-dashboard</v-icon>
     </v-btn>
 
-    <v-btn icon elevation="3" @click="$router.push('transactions')">
+    <v-btn icon elevation="3" @click="routeTo('/transactions')">
       <v-icon>polymer</v-icon>
     </v-btn>
 
-    <v-btn icon elevation="3" @click="$router.push('bankaccounts')">
+    <v-btn icon elevation="3" @click="routeTo('/bankaccounts')">
       <v-icon>account_balance</v-icon>
     </v-btn>
 
@@ -29,6 +29,12 @@ import {Component, Vue} from "vue-property-decorator";
 
 @Component
 export default class AppBar extends Vue {
+
+  routeTo(path: string) {
+    if (this.$route.path !== path) {
+      this.$router.push(path);
+    }
+  }
 
 
 }

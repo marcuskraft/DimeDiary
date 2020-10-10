@@ -8,6 +8,7 @@ import BankAccountOverview from "@/components/bank-account-overview/BankAccountO
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
+  {path: '/', redirect: '/dashboard'},
   {
     path: '/dashboard',
     name: 'Dashboard',

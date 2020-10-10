@@ -46,10 +46,15 @@ export class TransactionStore extends VuexModule {
 
 
   @Action
-  public saveTransaction(transaction: TransactionModel) {
+  public saveTransaction(transaction: TransactionModel): Promise<TransactionModel> {
     let transactionsService: TransactionRestService = new TransactionRestService();
-    transactionsService.saveTransaction(transaction).
-    then(transactionReceived => this.addTransaction(transactionReceived));
+    return new Promise<TransactionModel>(resolve => {
+      transactionsService.saveTransaction(transaction).
+      then(transactionReceived => {
+        this.addTransaction(transactionReceived);
+        resolve(transactionReceived);
+      });
+    })
   }
 
 
@@ -69,10 +74,17 @@ export class TransactionStore extends VuexModule {
   }
 
   @Action
-  deleteTransaction(transaction: TransactionModel) {
+  deleteTransaction(transaction: TransactionModel): Promise<void> {
     let transactionsService: TransactionRestService = new TransactionRestService();
-    transactionsService.deleteTransaction(transaction).
-    then(value => this.removeTransaction(transaction));
+    return new Promise<void>(resolve => {
+      transactionsService.deleteTransaction(transaction).
+      then(value => {
+        this.removeTransaction(transaction);
+        resolve();
+      });
+    })
+
+
   }
 
 

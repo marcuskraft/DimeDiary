@@ -3,6 +3,7 @@ import TimeService from "@/helper/TimeService";
 import {LocalDate} from "@js-joda/core";
 import TransactionStore from "@/store/modules/TransactionStore";
 import TransactionModel from "@/model/TransactionModel";
+import BalanceStore from "@/store/modules/BalanceStore";
 
 export default class TransactionService {
 
@@ -19,11 +20,19 @@ export default class TransactionService {
   }
 
   public saveTransaction(transaction: TransactionModel) {
-    TransactionStore.saveTransaction(transaction);
+    TransactionStore.saveTransaction(transaction).then(transactionReceived => {
+      if (transactionReceived.bankAccount !== undefined) {
+        BalanceStore.reloadBalances(transactionReceived.bankAccount)
+      }
+    });
   }
 
   public deleteTransaction(transaction: TransactionModel) {
-    TransactionStore.deleteTransaction(transaction);
+    TransactionStore.deleteTransaction(transaction).then(value => {
+      if (transaction.bankAccount !== undefined) {
+        BalanceStore.reloadBalances(transaction.bankAccount);
+      }
+    });
   }
 
 

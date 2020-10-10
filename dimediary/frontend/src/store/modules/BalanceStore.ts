@@ -2,6 +2,9 @@ import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decor
 import store from '@/store'
 import BalanceModel from "@/model/BalanceModel";
 import BalanceRestService, {BalanceRequest} from "@/rest-services/BalanceRestService";
+import BankAccountModel from "@/model/BankAccountModel";
+import {LocalDate} from "@js-joda/core";
+import TimeService from "@/helper/TimeService";
 
 
 // @ts-ignore
@@ -20,6 +23,7 @@ export class BalanceStore extends VuexModule {
     return this._balances;
   }
 
+
   @Mutation
   setBalances(value: BalanceModel[]) {
     this._balances = value;
@@ -27,17 +31,38 @@ export class BalanceStore extends VuexModule {
 
   @Mutation
   addBalances(balances: BalanceModel[]) {
-    balances.filter(
-        balance => this._balances.find(
-            balanceStore => balanceStore.bankAccountId === balance.bankAccountId &&
-                balanceStore.date.equals(balance.date)) ===
-            undefined).forEach(balance => this._balances.push(balance));
+    this._balances = this._balances.filter(balanceStore => balances.find(
+        balance => balance.date.isEqual(balanceStore.date) && balance.bankAccountId ===
+            balanceStore.bankAccountId) === undefined);
+    this._balances = this._balances.concat(balances);
+
   }
 
   @Action
   loadBalances(balanceRequest: BalanceRequest) {
     let balanceRestService: BalanceRestService = new BalanceRestService();
     balanceRestService.getBalances(balanceRequest).then(balances => this.addBalances(balances));
+  }
+
+  @Action
+  reloadBalances(bankAccount: BankAccountModel) {
+    if (this._balances.length !== 0) {
+      let balanceModels = this._balances.filter(
+          balance => balance.bankAccountId === bankAccount.id).
+      sort((a, b) => a.date.compareTo(b.date));
+      if (balanceModels.length !== 0) {
+        let localDateFrom: LocalDate = balanceModels[0].date;
+        let localDateUntil: LocalDate = balanceModels[balanceModels.length - 1].date;
+        let balanceRequest: BalanceRequest = new BalanceRequest(bankAccount.id!,
+            TimeService.localDateToIsoString(localDateFrom),
+            TimeService.localDateToIsoString(localDateUntil));
+        this.loadBalances(balanceRequest);
+      }
+
+
+    }
+
+
   }
 
 }

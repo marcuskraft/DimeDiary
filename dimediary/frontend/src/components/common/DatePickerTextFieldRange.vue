@@ -8,20 +8,39 @@
       offset-y
       min-width="290px">
     <template v-slot:activator="{ on, attrs }">
-      <v-text-field
-          v-model="dateString"
-          :label="label"
+      <v-btn
+          outlined
           readonly
           v-on="on"
-      ></v-text-field>
+          x-large
+      >
+        {{ label }}
+      </v-btn>
     </template>
     <v-date-picker
         v-model="dates"
         no-title
         scrollable
         locale="GERMANY"
-        range
-        @change="$refs.menu.save(dates); save();">
+        range>
+      <v-btn icon @click=" $refs.menu.save(); clear();">
+        <v-icon>clear</v-icon>
+      </v-btn>
+      <v-spacer></v-spacer>
+      <v-btn
+          text
+          color="primary"
+          @click="menu = false"
+      >
+        Abbrechen
+      </v-btn>
+      <v-btn
+          text
+          color="primary"
+          @click="$refs.menu.save(); save();"
+      >
+        OK
+      </v-btn>
     </v-date-picker>
   </v-menu>
 </template>
@@ -41,9 +60,16 @@ export default class DatePickerTextFieldRange extends Vue {
   private readonly dateTimeFormatterUser = DateTimeFormatter.ofPattern("dd.MM.yyyy");
   private menu: boolean = false;
 
-  private dates: string[] = this.localDates !== undefined ? this.localDates.map(
-      date => date.format(this.dateTimeFormatter)) : [LocalDate.now().
-  format(this.dateTimeFormatter)]
+  private datesMember: string[] = this.localDates !== undefined ? this.localDates.map(
+      date => date.format(this.dateTimeFormatter)) : [];
+
+  get dates(): string[] {
+    return this.datesMember;
+  }
+
+  set dates(value: string[]) {
+    this.datesMember = value;
+  }
 
 
   get sortedLocalDates(): LocalDate[] {
@@ -75,6 +101,11 @@ export default class DatePickerTextFieldRange extends Vue {
       }
     }
     return dates;
+  }
+
+  clear() {
+    this.dates = [];
+    this.setLocalDates(undefined);
   }
 
   save() {

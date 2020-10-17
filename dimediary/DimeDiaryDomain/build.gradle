@@ -11,7 +11,7 @@ dependencies {
     implementation project(':Utils')
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation group: 'org.dmfs', name: 'lib-recur', version: '0.11.2'
+    implementation group: 'org.dmfs', name: 'lib-recur', version: '0.12.1'
     implementation group: 'org.apache.commons', name: 'commons-lang3'
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.30'

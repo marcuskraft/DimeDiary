@@ -3,10 +3,12 @@ package com.dimediary.model.entities;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import lombok.Data;
@@ -39,6 +41,14 @@ public class ContinuousTransactionEntity implements Serializable,
   private String recurrenceRule;
 
   private Boolean fixCost;
+
+  @OneToMany
+  @JoinColumn(name = "CONTINUOUS_TRANSACTION_ID")
+  private Collection<RecurrenceExceptionEntity> exceptions;
+
+  @OneToMany
+  @JoinColumn(name = "CONTINUOUS_TRANSACTION_ID")
+  private Collection<RecurrenceExtraInstanceEntity> extraInstances;
 
 
   @PrePersist

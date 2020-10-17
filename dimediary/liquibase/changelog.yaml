@@ -26,3 +26,9 @@ databaseChangeLog:
   - include:
       file: 2020_10_03_master_data/bank_account_categories.yaml
       relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/recurrence_exception.sql
+      relativeToChangelogFile: true
+  - include:
+      file: 2020_09_19_initial/recurrence_extra_instance.sql
+      relativeToChangelogFile: true

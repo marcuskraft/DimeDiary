@@ -25,6 +25,8 @@ public class ContinuousTransaction implements Serializable {
   private BankAccount bankAccount;
   private Category category;
   private String recurrenceRule;
+
+
   private Boolean fixCost;
 
   public Transaction createTransaction(final LocalDate date) {

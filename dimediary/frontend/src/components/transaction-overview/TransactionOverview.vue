@@ -116,7 +116,15 @@ export default class TransactionOverview extends Vue {
 
 
   created() {
-    BankAccountStore.loadBankAccountsIfNotPresent().then(value => this.reload());
+    BankAccountStore.loadBankAccountsIfNotPresent().then(value => {
+      let bankAccountId = this.$route.query.bankAccountId;
+      let found = false;
+      if (bankAccountId === "" || this.bankAccounts.find(value => value.id === bankAccountId) ===
+          undefined) {
+        this.selectedBankAccount = this.bankAccounts[0];
+      }
+    });
+
   }
 
   constructor() {
@@ -147,9 +155,28 @@ export default class TransactionOverview extends Vue {
   }
 
   get transactions(): TransactionModel[] {
-    return this.transactionService.transactions.filter(value => this.isInDateRange(value)).
-    filter(value => value.bankAccount!.id === this.selectedBankAccount!.id).
-    sort((a, b) => b.date.compareTo(a.date));
+    return this.transactionService.transactions.filter(
+        transaction => {
+          if (this.selectedBankAccount !== undefined && transaction.bankAccount !== undefined) {
+            return transaction.bankAccount!.id === this.selectedBankAccount!.id;
+          }
+          else if (transaction.bankAccount === undefined) {
+            return true
+          }
+          else {
+            return false;
+          }
+        }).
+    filter(transaction => {
+      if (this.selectedCategories.length > 0 && transaction.category !== undefined) {
+        return this.selectedCategories.find(
+            category => transaction.category!.id === category.id) !==
+            undefined;
+      }
+      else {
+        return true;
+      }
+    }).filter(value => this.isInDateRange(value)).sort((a, b) => b.date.compareTo(a.date));
   }
 
   get categories(): CategoryModel[] {
@@ -216,11 +243,24 @@ export default class TransactionOverview extends Vue {
   }
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
-    BankAccountStore.setSelectedBankAccount(bankAccount);
+    if (bankAccount !== undefined) {
+      this.$router.push("/transactions?bankAccountId=" + bankAccount!.id);
+      this.reload();
+    }
+
+
   }
 
   get selectedBankAccount(): BankAccountModel | undefined {
-    return BankAccountStore.selectedBankAccount;
+    let bankAccountId = this.$route.query.bankAccountId;
+    if (bankAccountId !== "") {
+      let bankAccountModel = this.bankAccounts.find(
+          value => value.id === bankAccountId);
+      if (bankAccountModel !== undefined) {
+        return bankAccountModel;
+      }
+    }
+    return undefined;
   }
 
 

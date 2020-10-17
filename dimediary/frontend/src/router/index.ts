@@ -18,8 +18,9 @@ const routes: Array<RouteConfig> = [
   {
     path: '/transactions',
     name: 'Transactions',
-    component: TransactionOverview
+    component: TransactionOverview,
   },
+
   {
     path: '/transaction',
     name: 'Transaction',

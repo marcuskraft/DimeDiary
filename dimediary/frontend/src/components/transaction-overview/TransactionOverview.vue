@@ -24,7 +24,8 @@
 
         <v-row justify="center">
           <v-col cols="auto">
-            <v-text-field outlined filled label="Transaktion suchen"></v-text-field>
+            <v-text-field v-model="searchStringMember" outlined filled @focusout="searchChanged"
+                          label="Transaktion suchen"></v-text-field>
           </v-col>
           <v-col cols="auto">
             <v-select
@@ -115,6 +116,8 @@ export default class TransactionOverview extends Vue {
 
   private readonly CATEGORY = "category";
 
+  private searchStringMember: string = "";
+
   created() {
     BankAccountStore.loadBankAccountsIfNotPresent().then(value => {
       let bankAccountId = this.$route.query.bankAccountId;
@@ -124,7 +127,9 @@ export default class TransactionOverview extends Vue {
       }
       this.reload();
     });
-
+    if (this.searchString !== "") {
+      this.searchStringMember = this.searchString;
+    }
   }
 
   constructor() {
@@ -176,7 +181,15 @@ export default class TransactionOverview extends Vue {
       else {
         return true;
       }
-    }).filter(value => this.isInDateRange(value)).sort((a, b) => b.date.compareTo(a.date));
+    }).filter(value => this.isInDateRange(value)).filter(value => {
+      let search = this.searchString.trim().toLowerCase();
+      if (search !== "") {
+        return value.name.trim().toLowerCase().includes(search);
+      }
+      else {
+        return true;
+      }
+    }).sort((a, b) => b.date.compareTo(a.date));
   }
 
   get categories(): CategoryModel[] {
@@ -218,16 +231,46 @@ export default class TransactionOverview extends Vue {
   }
 
   set selectedCategories(value: CategoryModel[]) {
-    this.buildRoute(this.selectedBankAccount, value);
+    this.buildRoute(this.selectedBankAccount, value, this.searchString);
   }
 
-  buildRoute(bankAccount: BankAccountModel | undefined, categories: CategoryModel[]) {
+  get searchString(): string {
+    let searchParameter = this.$route.query.search;
+    if (searchParameter !== undefined && searchParameter !== "") {
+      return searchParameter as string;
+    }
+    else {
+      return ""
+    }
+  }
+
+  set searchString(value: string) {
+    this.buildRoute(this.selectedBankAccount, this.selectedCategories, value);
+  }
+
+  searchChanged() {
+    this.searchString = this.searchStringMember;
+  }
+
+
+  buildRoute(bankAccount: BankAccountModel | undefined, categories: CategoryModel[],
+      searchString: string) {
     let location = "transactions";
     let isParameterAlreadyThere: boolean = false;
 
     if (bankAccount !== undefined) {
       location = location + "?bankAccountId=" + bankAccount.id;
       isParameterAlreadyThere = true;
+    }
+
+    if (searchString !== "") {
+      if (!isParameterAlreadyThere) {
+        location = location + "?" + "search" + "=" + searchString;
+        isParameterAlreadyThere = true;
+      }
+      else {
+        location = location + "&" + "search" + "=" + searchString;
+      }
     }
 
     categories.forEach(value => {
@@ -284,7 +327,7 @@ export default class TransactionOverview extends Vue {
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
     if (bankAccount !== undefined) {
-      this.buildRoute(bankAccount, this.selectedCategories);
+      this.buildRoute(bankAccount, this.selectedCategories, this.searchString);
       this.reload();
     }
   }

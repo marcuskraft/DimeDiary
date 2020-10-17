@@ -107,22 +107,22 @@ export default class TransactionOverview extends Vue {
 
   private transactionService: TransactionService = new TransactionService();
   private actualLocalDate: LocalDate = LocalDate.now(ZoneId.of("Europe/Berlin"));
-  private selectedCategoriesMember: CategoryModel[] = [];
   private readonly datesDefault: LocalDate[];
   private datesFilterMember: LocalDate[] = [];
   private isLoading: boolean = true;
 
   private dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
+  private readonly CATEGORY = "category";
 
   created() {
     BankAccountStore.loadBankAccountsIfNotPresent().then(value => {
       let bankAccountId = this.$route.query.bankAccountId;
-      let found = false;
       if (bankAccountId === "" || this.bankAccounts.find(value => value.id === bankAccountId) ===
           undefined) {
         this.selectedBankAccount = this.bankAccounts[0];
       }
+      this.reload();
     });
 
   }
@@ -195,11 +195,51 @@ export default class TransactionOverview extends Vue {
   }
 
   get selectedCategories(): CategoryModel[] {
-    return this.selectedCategoriesMember;
+    let categoriesRet: CategoryModel[] = [];
+    let categoryString = this.$route.query.category;
+    if (categoryString !== undefined && categoryString !== "") {
+      if (typeof categoryString === "string") {
+        let category = this.categories.find(value => value.id === categoryString);
+        if (category !== undefined) {
+          categoriesRet.push(category);
+        }
+      }
+      else {
+        categoryString.forEach(value => {
+          let category = this.categories.find(value1 => value1.id === value);
+          if (category !== undefined) {
+            categoriesRet.push(category);
+          }
+        })
+      }
+    }
+
+    return categoriesRet;
   }
 
   set selectedCategories(value: CategoryModel[]) {
-    this.selectedCategoriesMember = value;
+    this.buildRoute(this.selectedBankAccount, value);
+  }
+
+  buildRoute(bankAccount: BankAccountModel | undefined, categories: CategoryModel[]) {
+    let location = "transactions";
+    let isParameterAlreadyThere: boolean = false;
+
+    if (bankAccount !== undefined) {
+      location = location + "?bankAccountId=" + bankAccount.id;
+      isParameterAlreadyThere = true;
+    }
+
+    categories.forEach(value => {
+      if (!isParameterAlreadyThere) {
+        location = location + "?" + this.CATEGORY + "=" + value.id;
+        isParameterAlreadyThere = true;
+      }
+      else {
+        location = location + "&category=" + value.id;
+      }
+    })
+    this.$router.push(location)
   }
 
   get localDates(): LocalDate[] {
@@ -244,11 +284,9 @@ export default class TransactionOverview extends Vue {
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
     if (bankAccount !== undefined) {
-      this.$router.push("/transactions?bankAccountId=" + bankAccount!.id);
+      this.buildRoute(bankAccount, this.selectedCategories);
       this.reload();
     }
-
-
   }
 
   get selectedBankAccount(): BankAccountModel | undefined {

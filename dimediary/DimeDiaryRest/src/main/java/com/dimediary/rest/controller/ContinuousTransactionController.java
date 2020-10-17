@@ -8,6 +8,7 @@ import com.dimediary.rest.converter.ContinuousTransactionRestConverter;
 import io.swagger.annotations.Api;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.web.server.WebServerException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +36,14 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
   @Override
   public ResponseEntity<ContinuousTransaction> saveContinuousTransaction(
       final ContinuousTransaction continuousTransaction) {
-    return this.responseFactory.created(this.continuousTransactionRestConverter.from(
-        this.continuousTransactionProvider
-            .persist(this.continuousTransactionRestConverter.to(continuousTransaction))));
+    try {
+      return this.responseFactory.created(this.continuousTransactionRestConverter.from(
+          this.continuousTransactionProvider
+              .persist(this.continuousTransactionRestConverter.to(continuousTransaction))));
+    } catch (final Exception e) {
+      log.error("error during saving continuous transaction", e);
+      throw new WebServerException("error during saving continuous transaction", e);
+    }
   }
 
   @Override

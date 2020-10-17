@@ -19,7 +19,7 @@ public class RecurrenceExceptionEntity {
   @ManyToOne
   @JoinColumn
   private ContinuousTransactionEntity continuousTransaction;
-
+  
   private LocalDate exceptionDate;
 
 

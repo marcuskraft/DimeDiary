@@ -432,10 +432,61 @@ components:
           $ref: '#/components/schemas/BankAccount'
         category:
           $ref: '#/components/schemas/Category'
-        recurrenceRule:
-          type: string
+        recurrenceSettings:
+          $ref: '#/components/schemas/RecurrenceSettings'
         fixCost:
           type: boolean
+    RecurrenceSettings:
+      properties:
+        recurrenceType:
+          $ref: '#/components/schemas/RecurrenceType'
+        interval:
+          type: integer
+        dayOfMonth:
+          type: integer
+        isDayOfMonthFromBehind:
+          type: boolean
+        dayOfWeeks:
+          type: array
+          items:
+            $ref: '#/components/schemas/DayOfWeek'
+        isInfinite:
+          type: boolean
+        beginDate:
+          type: string
+          description: begin date of this recurrence in format yyyy-MM-dd
+        until:
+          type: string
+          description: until date of this recurrence in format yyyy-MM-dd
+        count:
+          type: integer
+        recurrenceExceptions:
+          type: array
+          items:
+            type: string
+            description: dates for exceptions from this recurrence
+        recurrenceExtraInstances:
+          type: array
+          items:
+            type: string
+            description: dates for extra instances for this recurrence
+    RecurrenceType:
+      type: string
+      enum:
+        - DAILY
+        - WEEKLY
+        - MONTHLY
+        - YEARLY
+    DayOfWeek:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+        - SUNDAY
     BankAccount:
       properties:
         id:

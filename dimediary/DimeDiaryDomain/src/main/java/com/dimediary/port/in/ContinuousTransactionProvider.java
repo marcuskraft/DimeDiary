@@ -8,9 +8,8 @@ public interface ContinuousTransactionProvider {
 
   ContinuousTransaction persist(ContinuousTransaction continuousTransaction);
 
-  void deleteAllContinuousTransactions(ContinuousTransaction continuousTransaction);
-
   void deleteAllContinuousTransactions(UUID continuousTransactionId);
 
   ContinuousTransaction getContinuousTransactions(UUID continuousTransactionId);
+
 }

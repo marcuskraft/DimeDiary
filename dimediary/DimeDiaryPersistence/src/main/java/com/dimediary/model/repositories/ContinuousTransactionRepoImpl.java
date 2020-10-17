@@ -4,8 +4,13 @@ import com.dimediary.domain.BankAccount;
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.model.converter.ContinuousTransactionTransformer;
 import com.dimediary.model.entities.ContinuousTransactionEntity;
+import com.dimediary.model.entities.RecurrenceExceptionEntity;
+import com.dimediary.model.entities.RecurrenceExtraInstanceEntity;
 import com.dimediary.model.repositories.cruds.ContinuousTransactionCrudRepository;
+import com.dimediary.model.repositories.cruds.RecurrenceExceptionCrudRepository;
+import com.dimediary.model.repositories.cruds.RecurrenceExtraInstanceCrudReporitory;
 import com.dimediary.port.out.ContinuousTransactionRepo;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,13 +28,19 @@ class ContinuousTransactionRepoImpl implements ContinuousTransactionRepo {
 
   private final ContinuousTransactionTransformer continuousTransactionTransformer;
   private final ContinuousTransactionCrudRepository continuousTransactionCrudRepository;
+  private final RecurrenceExceptionCrudRepository recurrenceExceptionCrudRepository;
+  private final RecurrenceExtraInstanceCrudReporitory recurrenceExtraInstanceCrudReporitory;
 
   @Autowired
   public ContinuousTransactionRepoImpl(
       final ContinuousTransactionTransformer continuousTransactionTransformer,
-      final ContinuousTransactionCrudRepository continuousTransactionCrudRepository) {
+      final ContinuousTransactionCrudRepository continuousTransactionCrudRepository,
+      final RecurrenceExceptionCrudRepository recurrenceExceptionCrudRepository,
+      final RecurrenceExtraInstanceCrudReporitory recurrenceExtraInstanceCrudReporitory) {
     this.continuousTransactionTransformer = continuousTransactionTransformer;
     this.continuousTransactionCrudRepository = continuousTransactionCrudRepository;
+    this.recurrenceExceptionCrudRepository = recurrenceExceptionCrudRepository;
+    this.recurrenceExtraInstanceCrudReporitory = recurrenceExtraInstanceCrudReporitory;
   }
 
 
@@ -94,8 +105,75 @@ class ContinuousTransactionRepoImpl implements ContinuousTransactionRepo {
 
   private com.dimediary.model.entities.ContinuousTransactionEntity domainToEntity(
       final ContinuousTransaction continuousTransaction) {
-    return this.continuousTransactionTransformer
-        .continuousTransactionToContinuousTransactionEntity(continuousTransaction);
+
+    // generate the RecurrenceExceptionEntity to save
+    final Collection<RecurrenceExceptionEntity> exceptionsToSave = continuousTransaction
+        .getRecurrenceSettings().getRecurrenceExceptions().stream().map(localDate -> {
+          final RecurrenceExceptionEntity recurrenceExceptionEntity = new RecurrenceExceptionEntity();
+          recurrenceExceptionEntity.setExceptionDate(localDate);
+          return recurrenceExceptionEntity;
+        }).collect(Collectors.toList());
+
+    // generate the RecurrenceExtraInstanceEntity to save
+    final Collection<RecurrenceExtraInstanceEntity> extraInstancesToSave = continuousTransaction
+        .getRecurrenceSettings().getRecurrenceExtraInstances().stream().map(localDate -> {
+          final RecurrenceExtraInstanceEntity recurrenceExtraInstanceEntity = new RecurrenceExtraInstanceEntity();
+          recurrenceExtraInstanceEntity.setInstanceDate(localDate);
+          return recurrenceExtraInstanceEntity;
+        }).collect(Collectors.toList());
+
+    // if there are already some exceptions or extra instances than set the id from them so that they are not saved twice
+    if (continuousTransaction.getId() != null) {
+      final Collection<RecurrenceExceptionEntity> exceptions = this.recurrenceExceptionCrudRepository
+          .getAllByContinuousTransaction_Id(continuousTransaction.getId().toString());
+      final Collection<RecurrenceExtraInstanceEntity> extraInstances = this.recurrenceExtraInstanceCrudReporitory
+          .getAllByContinuousTransaction_Id(continuousTransaction.getId().toString());
+
+      exceptionsToSave.forEach(recurrenceExceptionEntity -> {
+        exceptions.forEach(recurrenceExceptionEntityOld -> {
+          if (recurrenceExceptionEntity.getContinuousTransaction().getId()
+              .equals(recurrenceExceptionEntityOld.getContinuousTransaction().getId())
+              && recurrenceExceptionEntity.getExceptionDate()
+              .equals(recurrenceExceptionEntityOld.getExceptionDate())) {
+            recurrenceExceptionEntity.setId(recurrenceExceptionEntityOld.getId());
+          }
+        });
+        if (recurrenceExceptionEntity.getId() == null) {
+          recurrenceExceptionEntity.setId(UUID.randomUUID().toString());
+        }
+      });
+
+      extraInstancesToSave.forEach(recurrenceExtraInstanceEntity -> {
+        extraInstances.forEach(recurrenceExtraInstanceEntityOld -> {
+          if (recurrenceExtraInstanceEntity.getContinuousTransaction().getId()
+              .equals(recurrenceExtraInstanceEntityOld.getContinuousTransaction().getId())
+              && recurrenceExtraInstanceEntity.getInstanceDate()
+              .equals(recurrenceExtraInstanceEntityOld.getInstanceDate())) {
+            recurrenceExtraInstanceEntity.setId(recurrenceExtraInstanceEntityOld.getId());
+          }
+        });
+        if (recurrenceExtraInstanceEntity.getId() == null) {
+          recurrenceExtraInstanceEntity.setId(UUID.randomUUID().toString());
+        }
+      });
+
+    }
+
+    // transform the continuous transaction
+    final ContinuousTransactionEntity continuousTransactionEntity = this.continuousTransactionTransformer
+        .continuousTransactionToContinuousTransactionEntity(continuousTransaction,
+            exceptionsToSave,
+            extraInstancesToSave);
+
+    // set the continuous transaction for the exceptions and extra instances
+    continuousTransactionEntity.getExceptions().forEach(
+        recurrenceExceptionEntity -> recurrenceExceptionEntity
+            .setContinuousTransaction(continuousTransactionEntity));
+    continuousTransactionEntity.getExtraInstances().forEach(
+        recurrenceExtraInstanceEntity -> recurrenceExtraInstanceEntity
+            .setContinuousTransaction(continuousTransactionEntity));
+
+    return continuousTransactionEntity;
   }
 
 }

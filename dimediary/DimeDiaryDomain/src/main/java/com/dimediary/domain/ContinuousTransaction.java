@@ -24,10 +24,9 @@ public class ContinuousTransaction implements Serializable {
   private LocalDate dateBegin;
   private BankAccount bankAccount;
   private Category category;
-  private String recurrenceRule;
-
-
   private Boolean fixCost;
+  private RecurrenceSettings recurrenceSettings;
+
 
   public Transaction createTransaction(final LocalDate date) {
     final Transaction transaction = new Transaction();
@@ -41,19 +40,5 @@ public class ContinuousTransaction implements Serializable {
     return transaction;
   }
 
-  public ContinuousTransaction getCopy() {
-    final ContinuousTransaction continuousTransactionCopy = new ContinuousTransaction();
-
-    continuousTransactionCopy.setAmountEuroCent(this.getAmountEuroCent());
-    continuousTransactionCopy.setBankAccount(this.getBankAccount());
-    continuousTransactionCopy.setCategory(this.getCategory());
-    continuousTransactionCopy.setDateBegin(this.getDateBegin());
-    continuousTransactionCopy.setName(this.getName());
-    continuousTransactionCopy.setRecurrenceRule(this.getRecurrenceRule());
-    continuousTransactionCopy.setFixCost(this.getFixCost());
-
-    return continuousTransactionCopy;
-
-  }
 
 }

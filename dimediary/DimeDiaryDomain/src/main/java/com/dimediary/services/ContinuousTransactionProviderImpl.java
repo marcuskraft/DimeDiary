@@ -2,6 +2,7 @@ package com.dimediary.services;
 
 import com.dimediary.domain.ContinuousTransaction;
 import com.dimediary.domain.Transaction;
+import com.dimediary.exceptions.RecurrenceException;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.port.in.TransactionProvider;
 import com.dimediary.port.out.ContinuousTransactionRepo;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.Validate;
+import org.dmfs.rfc5545.recur.InvalidRecurrenceRuleException;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,16 +25,17 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
 
 
   private final TransactionProvider transactionProvider;
-
-
   private final ContinuousTransactionRepo continuousTransactionService;
+  private final RecurrenceService recurrenceService;
 
   @Autowired
   public ContinuousTransactionProviderImpl(
       final TransactionProvider transactionProvider,
-      final ContinuousTransactionRepo continuousTransactionService) {
+      final ContinuousTransactionRepo continuousTransactionService,
+      final RecurrenceService recurrenceService) {
     this.transactionProvider = transactionProvider;
     this.continuousTransactionService = continuousTransactionService;
+    this.recurrenceService = recurrenceService;
   }
 
 
@@ -45,22 +48,16 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
       continuousTransaction.setId(null);
     }
 
-    final List<Transaction> transactions = this
-        .generateTransactionsForContinuousTransaction(continuousTransaction);
+    final List<Transaction> transactions;
+    try {
+      transactions = this
+          .generateTransactionsForContinuousTransaction(continuousTransaction);
+    } catch (final InvalidRecurrenceRuleException e) {
+      throw new RecurrenceException("error during calculation of the recurrence rule", e);
+    }
     return this.persistContinuousTransaction(continuousTransaction, transactions);
   }
 
-  @Override
-  public void deleteAllContinuousTransactions(final ContinuousTransaction continuousTransaction) {
-    Validate.notNull(continuousTransaction);
-
-    final List<Transaction> transactions = this.transactionProvider
-        .getTransactions(continuousTransaction);
-    this.transactionProvider.deleteTransactions(transactions);
-    this.continuousTransactionService.delete(continuousTransaction);
-
-
-  }
 
   @Override
   public void deleteAllContinuousTransactions(final UUID continuousTransactionId) {
@@ -73,6 +70,17 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   @Override
   public ContinuousTransaction getContinuousTransactions(final UUID continuousTransactionId) {
     return this.continuousTransactionService.getContinuousTransaction(continuousTransactionId);
+  }
+
+  private void deleteAllContinuousTransactions(final ContinuousTransaction continuousTransaction) {
+    Validate.notNull(continuousTransaction);
+
+    final List<Transaction> transactions = this.transactionProvider
+        .getTransactions(continuousTransaction);
+    this.transactionProvider.deleteTransactions(transactions);
+    this.continuousTransactionService.delete(continuousTransaction);
+
+
   }
 
 
@@ -94,9 +102,9 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
 
 
   private List<Transaction> generateTransactionsForContinuousTransaction(
-      final ContinuousTransaction continuousTransaction) {
-    final RecurrenceRule recurrenceRule = RecurrenceRuleUtils
-        .createRecurrenceRule(continuousTransaction.getRecurrenceRule());
+      final ContinuousTransaction continuousTransaction) throws InvalidRecurrenceRuleException {
+    final RecurrenceRule recurrenceRule = this.recurrenceService
+        .getRecurrenceRule(continuousTransaction.getRecurrenceSettings());
     final LocalDate firstDate = continuousTransaction.getDateBegin();
     final List<LocalDate> dates = RecurrenceRuleUtils.getDatesForRecurrenceRule(recurrenceRule,
         DateUtils.localDateToDateTime(continuousTransaction.getDateBegin()),

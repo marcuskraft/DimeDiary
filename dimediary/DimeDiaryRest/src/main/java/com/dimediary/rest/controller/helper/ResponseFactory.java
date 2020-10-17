@@ -24,5 +24,5 @@ public class ResponseFactory {
   public ResponseEntity<Void> badRequest() {
     return ResponseEntity.badRequest().build();
   }
-
+  
 }

@@ -1,12 +1,12 @@
-import {Transaction} from '../../../build/openapi/models/Transaction';
+import {Transaction} from '@/../build/openapi/models/Transaction';
 import TransactionModel from '../../model/TransactionModel';
 import TimeService from '@/helper/TimeService';
 import {BankAccountTransformer} from "@/rest-services/transformer/BankAccountTransformer";
 import {CategoryTransformer} from "@/rest-services/transformer/CategoryTransformer";
 import {ContinuousTransactionTransformer} from "@/rest-services/transformer/ContinuousTransactionTransformer";
-import {BankAccount} from 'build/openapi/models/BankAccount';
-import {Category} from 'build/openapi/models/Category';
-import {ContinuousTransaction} from 'build/openapi/models/ContinuousTransaction';
+import {BankAccount} from '@/../build/openapi/models/BankAccount';
+import {Category} from '@/../build/openapi/models/Category';
+import {ContinuousTransaction} from '@/../build/openapi/models/ContinuousTransaction';
 
 
 export class TransactionTransformer {

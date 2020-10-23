@@ -1,4 +1,4 @@
-import {BankAccountCategoryApi} from '../../build/openapi/apis/BankAccountCategoryApi';
+import {BankAccountCategoryApi} from '@/../build/openapi/apis/BankAccountCategoryApi';
 import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
 import {BankAccountCategoryTransformer} from "@/rest-services/transformer/BankAccountCategoryTransformer";
 

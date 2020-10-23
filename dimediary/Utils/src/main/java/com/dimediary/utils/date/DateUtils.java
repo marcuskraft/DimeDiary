@@ -19,6 +19,7 @@ public class DateUtils {
 
   // TODO add the numberOfWeeksFutureBalancing in the options
   public final static int numberOfMonthFutureTransactions = 1200; // 100 Jahre
+  public static final ZoneId ZONE_ID = ZoneId.of("Europe/Berlin");
 
   public static LocalDate getLastSunday(final LocalDate localDate) {
     return DateUtils.getLastSunday(localDate, false);
@@ -202,6 +203,14 @@ public class DateUtils {
       }
     }
     return null;
+  }
+
+  public static long getMillis(final LocalDate localDate) {
+    return localDate.atStartOfDay(ZONE_ID).toInstant().toEpochMilli();
+  }
+
+  public static LocalDate fromMillis(final long millis) {
+    return Instant.ofEpochMilli(millis).atZone(ZONE_ID).toLocalDate();
   }
 
 }

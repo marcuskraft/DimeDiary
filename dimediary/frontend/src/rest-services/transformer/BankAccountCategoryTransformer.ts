@@ -1,5 +1,5 @@
 import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
-import {BankAccountCategory} from 'build/openapi/models/BankAccountCategory';
+import {BankAccountCategory} from '@/../build/openapi/models/BankAccountCategory';
 
 export class BankAccountCategoryTransformer {
 

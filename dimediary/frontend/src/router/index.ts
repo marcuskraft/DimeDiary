@@ -4,6 +4,8 @@ import Dashboard from "@/components/Dashboard.vue";
 import TransactionOverview from "@/components/transaction-overview/TransactionOverview.vue";
 import BankAccountOverview from "@/components/bank-account-overview/BankAccountOverview.vue";
 import Transaction from "@/components/transaction-overview/Transaction.vue";
+import ContinuousTransactionOverview
+  from "@/components/continuous-transaction-overview/ContinuousTransactionOverview.vue";
 
 
 Vue.use(VueRouter)
@@ -20,7 +22,11 @@ const routes: Array<RouteConfig> = [
     name: 'Transactions',
     component: TransactionOverview,
   },
-
+  {
+    path: '/continuous-transactions',
+    name: 'Continuous-Transactions',
+    component: ContinuousTransactionOverview,
+  },
   {
     path: '/transaction',
     name: 'Transaction',

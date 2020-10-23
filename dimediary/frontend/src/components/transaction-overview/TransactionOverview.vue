@@ -82,7 +82,6 @@ import {DateTimeFormatter, LocalDate, ZoneId} from "@js-joda/core";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import BankAccountModel from "@/model/BankAccountModel";
 import TransactionService from "@/service/TransactionService";
-import Transaction from "@/components/transaction-overview/Transaction.vue";
 import BalanceStore from "@/store/modules/BalanceStore";
 import AmountHelper from "@/helper/AmountHelper";
 import CategoryModel from "@/model/CategoryModel";
@@ -100,7 +99,6 @@ const {
 @Component({
   components: {
     DatePickerTextFieldRange,
-    TransactionDialog: Transaction,
     TransactionGroup
   }
 })

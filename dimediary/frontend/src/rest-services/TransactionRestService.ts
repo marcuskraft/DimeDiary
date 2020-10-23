@@ -1,4 +1,4 @@
-import {GetTransactionsRequest, TransactionApi} from '../../build/openapi/apis/TransactionApi';
+import {GetTransactionsRequest, TransactionApi} from '@/../build/openapi/apis/TransactionApi';
 import TransactionModel from "@/model/TransactionModel";
 import {TransactionTransformer} from "@/rest-services/transformer/TransactionTransformer";
 

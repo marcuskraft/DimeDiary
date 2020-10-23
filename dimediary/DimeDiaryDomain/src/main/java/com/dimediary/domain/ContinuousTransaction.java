@@ -3,11 +3,13 @@ package com.dimediary.domain;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.dmfs.rfc5545.recur.RecurrenceRule;
 
 @Data
 @Builder
@@ -25,7 +27,12 @@ public class ContinuousTransaction implements Serializable {
   private BankAccount bankAccount;
   private Category category;
   private Boolean fixCost;
-  private RecurrenceSettings recurrenceSettings;
+
+
+  private Collection<LocalDate> recurrenceExceptions;
+  private Collection<LocalDate> recurrenceExtraInstances;
+
+  private RecurrenceRule recurrenceRule;
 
 
   public Transaction createTransaction(final LocalDate date) {

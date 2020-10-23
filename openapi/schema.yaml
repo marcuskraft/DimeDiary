@@ -120,6 +120,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContinuousTransaction'
+    get:
+      summary: load continuousTransaction
+      description: load continuousTransaction for bank account in time range
+      operationId: loadContinuousTransaction
+      tags:
+        - ContinuousTransaction
+      parameters:
+        - in: query
+          name: bankAccountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: id of the bank account to retrieve continuous transactions
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            description: date in format yyyy-MM-dd
+          required: true
+          description: date from which on to retrieve continuous transactions
+        - in: query
+          name: dateUntil
+          schema:
+            type: string
+            description: date in format yyyy-MM-dd
+          required: true
+          description: date to until which to retrieve continuous transactions
+      responses:
+        "200":
+          description: array of continuous transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContinuousTransaction'
   /continuousTransactions/{continuousTransactionId}:
     get:
       summary: load continuous transactions
@@ -427,7 +464,7 @@ components:
           type: integer
         dateBegin:
           type: string
-          description: date in format yyyy-MM-dd
+          description: date in format yyyy-MM-dd for which this recurrence begins
         bankAccount:
           $ref: '#/components/schemas/BankAccount'
         category:
@@ -449,12 +486,9 @@ components:
         dayOfWeeks:
           type: array
           items:
-            $ref: '#/components/schemas/DayOfWeek'
+            $ref: '#/components/schemas/DayOfWeekAPI'
         isInfinite:
           type: boolean
-        beginDate:
-          type: string
-          description: begin date of this recurrence in format yyyy-MM-dd
         until:
           type: string
           description: until date of this recurrence in format yyyy-MM-dd
@@ -477,7 +511,7 @@ components:
         - WEEKLY
         - MONTHLY
         - YEARLY
-    DayOfWeek:
+    DayOfWeekAPI:
       type: string
       enum:
         - MONDAY

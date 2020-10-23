@@ -9,7 +9,7 @@ import java.util.UUID;
 public interface TransactionProvider {
 
 
-  List<Transaction> getTransactions(LocalDate dateFrom, LocalDate dateUntil,
+  List<Transaction> getTransactionsForContinuousTransaction(LocalDate dateFrom, LocalDate dateUntil,
       UUID bankAccountId);
 
   List<Transaction> getTransactionsFromDate(ContinuousTransaction continuousTransaction,
@@ -18,7 +18,7 @@ public interface TransactionProvider {
   List<Transaction> getTransactionsUntil(ContinuousTransaction continuousTransaction,
       LocalDate dateUntil);
 
-  List<Transaction> getTransactions(ContinuousTransaction continuousTransaction);
+  List<Transaction> getTransactionsForContinuousTransaction(UUID continuousTransactionId);
 
   List<Transaction> getTransactionsWithoutAccount(LocalDate dateFrom, LocalDate dateUntil);
 

@@ -1,4 +1,4 @@
-import {Category} from 'build/openapi/models/Category';
+import {Category} from '@/../build/openapi/models/Category';
 import CategoryModel from "@/model/CategoryModel";
 
 export class CategoryTransformer {

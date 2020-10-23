@@ -22,7 +22,7 @@ public interface TransactionRepo {
   List<Transaction> getTransactionsUntil(ContinuousTransaction continuousTransaction,
       LocalDate dateUntil);
 
-  List<Transaction> getTransactions(ContinuousTransaction continuousTransaction);
+  List<Transaction> getTransactions(UUID id);
 
   List<Transaction> getTransactionsWithoutAccount(LocalDate dateFrom, LocalDate dateUntil);
 

@@ -1,4 +1,4 @@
-import {CategoryApi} from '../../build/openapi/apis/CategoryApi';
+import {CategoryApi} from '@/../build/openapi/apis/CategoryApi';
 import CategoryModel from "@/model/CategoryModel";
 import {CategoryTransformer} from "@/rest-services/transformer/CategoryTransformer";
 

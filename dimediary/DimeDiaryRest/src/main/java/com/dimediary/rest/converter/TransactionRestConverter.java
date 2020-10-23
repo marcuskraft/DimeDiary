@@ -14,6 +14,7 @@ public interface TransactionRestConverter {
   Transaction to(com.dimediary.openapi.model.Transaction transaction);
 
   @Mapping(source = "name", target = "subject")
+  @Mapping(target = "continuousTransaction", qualifiedByName = "toUse")
   com.dimediary.openapi.model.Transaction from(Transaction transaction);
 
 

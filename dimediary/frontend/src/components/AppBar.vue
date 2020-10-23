@@ -5,11 +5,15 @@
     <v-spacer></v-spacer>
 
     <v-btn icon elevation="3" @click="routeTo('/dashboard')">
-      <v-icon>mdi-view-dashboard</v-icon>
+      <v-icon>home</v-icon>
     </v-btn>
 
     <v-btn icon elevation="3" @click="routeTo('/transactions')">
-      <v-icon>polymer</v-icon>
+      <v-icon>euro_symbol</v-icon>
+    </v-btn>
+
+    <v-btn icon elevation="3" @click="routeTo('/continuous-transactions')">
+      <v-icon>repeat</v-icon>
     </v-btn>
 
     <v-btn icon elevation="3" @click="routeTo('/bankaccounts')">

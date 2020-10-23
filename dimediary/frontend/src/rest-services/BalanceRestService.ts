@@ -1,4 +1,4 @@
-import {BalanceApi, GetBalancesRequest} from '../../build/openapi/apis/BalanceApi';
+import {BalanceApi, GetBalancesRequest} from '@/../build/openapi/apis/BalanceApi';
 import BalanceModel from "@/model/BalanceModel";
 import BalanceTransformer from "@/rest-services/transformer/BalanceTransformer";
 

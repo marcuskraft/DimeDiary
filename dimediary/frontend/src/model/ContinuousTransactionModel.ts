@@ -1,6 +1,7 @@
 import {LocalDate} from "@js-joda/core";
 import BankAccountModel from "@/model/BankAccountModel";
 import CategoryModel from "@/model/CategoryModel";
+import RecurrenceSettingsModel from "@/model/RecurrenceSettingsModel";
 
 export default class ContinuousTransactionModel {
 
@@ -9,7 +10,7 @@ export default class ContinuousTransactionModel {
   private _dateBegin: LocalDate;
   private _bankAccount: BankAccountModel;
   private _category: CategoryModel;
-  private _recurrenceRule: string;
+  private _recurrenceSettings: RecurrenceSettingsModel;
   private _fixCost: boolean;
 
   private _id?: string
@@ -17,13 +18,13 @@ export default class ContinuousTransactionModel {
 
   constructor(name: string, amountEuroCent: number, dateBegin: LocalDate,
       bankAccount: BankAccountModel, category: CategoryModel,
-      recurrenceRule: string, fixCost: boolean, id?: string) {
+      recurrenceSettings: RecurrenceSettingsModel, fixCost: boolean, id?: string) {
     this._name = name;
     this._amountEuroCent = amountEuroCent;
     this._dateBegin = dateBegin;
     this._bankAccount = bankAccount;
     this._category = category;
-    this._recurrenceRule = recurrenceRule;
+    this._recurrenceSettings = recurrenceSettings;
     this._fixCost = fixCost;
     this._id = id;
   }
@@ -69,12 +70,12 @@ export default class ContinuousTransactionModel {
     this._category = value;
   }
 
-  get recurrenceRule(): string {
-    return this._recurrenceRule;
+  get recurrenceSettings(): RecurrenceSettingsModel {
+    return this._recurrenceSettings;
   }
 
-  set recurrenceRule(value: string) {
-    this._recurrenceRule = value;
+  set recurrenceSettings(value: RecurrenceSettingsModel) {
+    this._recurrenceSettings = value;
   }
 
   get fixCost(): boolean {

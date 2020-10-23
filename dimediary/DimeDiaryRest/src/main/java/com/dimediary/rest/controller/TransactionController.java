@@ -74,7 +74,7 @@ public class TransactionController implements TransactionApi {
     final List<com.dimediary.domain.Transaction> transactions;
     if (bankAccountName.isPresent()) {
       transactions = this.transactionProvider
-          .getTransactions(dateFrom, dateUntil, bankAccountName.get());
+          .getTransactionsForContinuousTransaction(dateFrom, dateUntil, bankAccountName.get());
     } else {
       transactions = this.transactionProvider.getTransactionsWithoutAccount(dateFrom, dateUntil);
     }

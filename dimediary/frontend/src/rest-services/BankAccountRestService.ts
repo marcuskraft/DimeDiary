@@ -1,5 +1,5 @@
 import BankAccountModel from "@/model/BankAccountModel";
-import {BankAccountApi} from '../../build/openapi/apis/BankAccountApi';
+import {BankAccountApi} from '@/../build/openapi/apis/BankAccountApi';
 import {BankAccountTransformer} from "@/rest-services/transformer/BankAccountTransformer";
 
 export default class BankAccountRestService {

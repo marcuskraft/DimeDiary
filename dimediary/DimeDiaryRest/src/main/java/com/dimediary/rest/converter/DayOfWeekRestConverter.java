@@ -6,8 +6,8 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface DayOfWeekRestConverter {
 
-  static DayOfWeek to(final com.dimediary.openapi.model.DayOfWeek dayOfWeek) {
-    switch (dayOfWeek) {
+  static DayOfWeek to(final com.dimediary.openapi.model.DayOfWeekAPI dayOfWeekAPI) {
+    switch (dayOfWeekAPI) {
       case MONDAY:
         return DayOfWeek.MONDAY;
       case TUESDAY:
@@ -26,23 +26,23 @@ public interface DayOfWeekRestConverter {
     }
   }
 
-  static com.dimediary.openapi.model.DayOfWeek from(final DayOfWeek dayOfWeek) {
+  static com.dimediary.openapi.model.DayOfWeekAPI from(final DayOfWeek dayOfWeek) {
     switch (dayOfWeek) {
       case MONDAY:
-        return com.dimediary.openapi.model.DayOfWeek.MONDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.MONDAY;
       case TUESDAY:
-        return com.dimediary.openapi.model.DayOfWeek.TUESDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.TUESDAY;
       case WEDNESDAY:
-        return com.dimediary.openapi.model.DayOfWeek.WEDNESDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.WEDNESDAY;
       case THURSDAY:
-        return com.dimediary.openapi.model.DayOfWeek.THURSDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.THURSDAY;
       case FRIDAY:
-        return com.dimediary.openapi.model.DayOfWeek.FRIDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.FRIDAY;
       case SATURDAY:
-        return com.dimediary.openapi.model.DayOfWeek.SATURDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.SATURDAY;
       case SUNDAY:
       default:
-        return com.dimediary.openapi.model.DayOfWeek.SUNDAY;
+        return com.dimediary.openapi.model.DayOfWeekAPI.SUNDAY;
     }
   }
 

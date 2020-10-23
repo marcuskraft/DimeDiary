@@ -1,6 +1,6 @@
-import {BankAccountCategory} from 'build/openapi/models/BankAccountCategory';
+import {BankAccountCategory} from '@/../build/openapi/models/BankAccountCategory';
 import BankAccountModel from "@/model/BankAccountModel";
-import {BankAccount} from 'build/openapi/models/BankAccount';
+import {BankAccount} from '@/../build/openapi/models/BankAccount';
 import {BankAccountCategoryTransformer} from "@/rest-services/transformer/BankAccountCategoryTransformer";
 import TimeService from "@/helper/TimeService";
 

@@ -1,5 +1,5 @@
 import BalanceModel from "@/model/BalanceModel";
-import {Balance} from 'build/openapi/models/Balance';
+import {Balance} from '@/../build/openapi/models/Balance';
 import TimeService from "@/helper/TimeService";
 
 export default class BalanceTransformer {

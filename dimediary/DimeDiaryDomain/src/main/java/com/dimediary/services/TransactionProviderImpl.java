@@ -36,10 +36,11 @@ public class TransactionProviderImpl implements TransactionProvider {
 
 
   @Override
-  public List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
+  public List<Transaction> getTransactionsForContinuousTransaction(final LocalDate dateFrom,
+      final LocalDate dateUntil,
       final UUID bankAccountId) {
     final BankAccount bankAccount = this.bankaccountRepo.getBankAccount(bankAccountId);
-    return this.getTransactions(dateFrom, dateUntil, bankAccount);
+    return this.getTransactionsForContinuousTransaction(dateFrom, dateUntil, bankAccount);
   }
 
   @Override
@@ -63,10 +64,9 @@ public class TransactionProviderImpl implements TransactionProvider {
 
 
   @Override
-  public List<Transaction> getTransactions(final ContinuousTransaction continuousTransaction) {
-    Validate.notNull(continuousTransaction);
-
-    return this.transactionService.getTransactions(continuousTransaction);
+  public List<Transaction> getTransactionsForContinuousTransaction(
+      final UUID continuousTransactionId) {
+    return this.transactionService.getTransactions(continuousTransactionId);
   }
 
   @Override
@@ -134,7 +134,8 @@ public class TransactionProviderImpl implements TransactionProvider {
     }
   }
 
-  private List<Transaction> getTransactions(final LocalDate dateFrom, final LocalDate dateUntil,
+  private List<Transaction> getTransactionsForContinuousTransaction(final LocalDate dateFrom,
+      final LocalDate dateUntil,
       final BankAccount bankAccount) {
     Validate.notNull(dateFrom);
     Validate.notNull(dateUntil);

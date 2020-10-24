@@ -6,6 +6,8 @@ import BankAccountOverview from "@/components/bank-account-overview/BankAccountO
 import Transaction from "@/components/transaction-overview/Transaction.vue";
 import ContinuousTransactionOverview
   from "@/components/continuous-transaction-overview/ContinuousTransactionOverview.vue";
+import ContinuousTransaction
+  from "@/components/continuous-transaction-overview/ContinuousTransaction.vue";
 
 
 Vue.use(VueRouter)
@@ -26,6 +28,11 @@ const routes: Array<RouteConfig> = [
     path: '/continuous-transactions',
     name: 'Continuous-Transactions',
     component: ContinuousTransactionOverview,
+  },
+  {
+    path: '/continuous-transaction',
+    name: 'Continuous-Transaction',
+    component: ContinuousTransaction,
   },
   {
     path: '/transaction',

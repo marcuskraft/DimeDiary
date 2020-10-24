@@ -17,7 +17,7 @@
             </v-chip>
           </v-col>
           <v-col>
-            <v-btn color="primary" @click="addTransaction">Neue Transaktionsreihe</v-btn>
+            <v-btn color="primary" @click="addContinuousTransaction">Neue Transaktionsreihe</v-btn>
           </v-col>
         </v-row>
 
@@ -59,10 +59,11 @@
             </v-select>
           </v-col>
         </v-row>
-        <div v-for="transaction in continuousTransactions"
-             :id="ref(transaction)"
-             :transaction-prop="transaction"
-             :key="transaction.id"></div>
+        <div v-for="continuousTransaction in continuousTransactions"
+             :id="ref(continuousTransaction)"
+             :transaction-prop="continuousTransaction"
+             :key="continuousTransaction.id">{{ continuousTransaction.name }}
+        </div>
       </v-container>
     </v-card>
   </div>
@@ -70,9 +71,18 @@
 
 <script lang="ts">
 import {Component, Vue} from "vue-property-decorator";
-import {DateTimeFormatter} from "@js-joda/core";
+import {DateTimeFormatter, LocalDate} from "@js-joda/core";
 import DatePickerTextFieldRange from "@/components/common/DatePickerTextFieldRange.vue";
-
+import BankAccountStore from '@/store/modules/BankAccountStore';
+import ContinuousTransactionStore from "@/store/modules/ContinuousTransactionStore";
+import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
+import BankAccountModel from "@/model/BankAccountModel";
+import {LoadContinuousTransactionRequestImpl} from "@/rest-services/ContinuousRestService";
+import TimeService from "@/helper/TimeService";
+import AmountHelper from "@/helper/AmountHelper";
+import BalanceStore from "@/store/modules/BalanceStore";
+import CategoryModel from "@/model/CategoryModel";
+import CategoryStore from "@/store/modules/CategoryStore";
 
 @Component({
   components: {
@@ -110,52 +120,32 @@ export default class ContinuousTransactionOverview extends Vue {
 
 
   get continuousTransactions(): ContinuousTransactionModel[] {
-    return this.transactionService.transactions.filter(
-        transaction => {
-          if (this.selectedBankAccount !== undefined && transaction.bankAccount !== undefined) {
-            return transaction.bankAccount!.id === this.selectedBankAccount!.id;
-          }
-          else if (transaction.bankAccount === undefined) {
-            return true
-          }
-          else {
-            return false;
-          }
-        }).
-    filter(transaction => {
-      if (this.selectedCategories.length > 0 && transaction.category !== undefined) {
+    return ContinuousTransactionStore.continuousTransactions.filter(
+        continuousTransaction => continuousTransaction.bankAccount!.id ===
+            this.selectedBankAccount!.id).
+    filter(continuousTransaction => {
+      if (this.selectedCategories.length > 0) {
         return this.selectedCategories.find(
-            category => transaction.category!.id === category.id) !==
-            undefined;
+            category => continuousTransaction.category!.id === category.id) !== undefined;
       }
       else {
         return true;
       }
-    }).filter(value => this.isInDateRange(value)).filter(value => {
+    }).filter(continuousTransaction => {
       let search = this.searchString.trim().toLowerCase();
       if (search !== "") {
-        return value.name.trim().toLowerCase().includes(search);
+        return continuousTransaction.name.trim().toLowerCase().includes(search);
       }
       else {
         return true;
       }
-    }).sort((a, b) => b.date.compareTo(a.date));
+    }).sort((a, b) => a.amountEuroCent > b.amountEuroCent ? 1 : -1);
   }
 
   get categories(): CategoryModel[] {
     return CategoryStore.categories;
   }
 
-  get labelDateRange(): string {
-    if (this.datesDefault[0].isEqual(this.dateFrom) &&
-        this.datesDefault[this.datesDefault.length - 1].isEqual(this.dateUntil)) {
-      return "alle Daten";
-    }
-    else {
-      return this.dateTimeFormatter.format(this.datesFilter[0]) + " -> " +
-          this.dateTimeFormatter.format(this.datesFilter[this.datesFilter.length - 1]);
-    }
-  }
 
   get selectedCategories(): CategoryModel[] {
     let categoriesRet: CategoryModel[] = [];
@@ -205,7 +195,7 @@ export default class ContinuousTransactionOverview extends Vue {
 
   buildRoute(bankAccount: BankAccountModel | undefined, categories: CategoryModel[],
       searchString: string) {
-    let location = "transactions";
+    let location = "continuous-transactions";
     let isParameterAlreadyThere: boolean = false;
 
     if (bankAccount !== undefined) {
@@ -235,21 +225,6 @@ export default class ContinuousTransactionOverview extends Vue {
     this.$router.push(location)
   }
 
-  get localDates(): LocalDate[] {
-    return this.datesDefault;
-  }
-
-  get datesFilter(): LocalDate[] {
-    return this.datesFilterMember.sort((a, b) => a.compareTo(b));
-  }
-
-  setDatesFilter(value: LocalDate[] | undefined) {
-    if (value === undefined || value.length === 0) {
-      this.datesFilterMember = this.datesDefault;
-      return;
-    }
-    this.datesFilterMember = value!;
-  }
 
   get actualBalanceEuroCent(): number {
     if (this.selectedBankAccount !== undefined) {
@@ -267,18 +242,15 @@ export default class ContinuousTransactionOverview extends Vue {
     return AmountHelper.euroCentToStringWithEuroSign(this.actualBalanceEuroCent);
   }
 
-  ref(transaction: TransactionModel): string {
-    return "ref" + transaction.id!;
+  ref(continuousTransactionModel: ContinuousTransactionModel): string {
+    return "ref" + continuousTransactionModel.id!;
   }
 
-  private isInDateRange(value: TransactionModel): boolean {
-    return this.datesFilter.find(localDate => localDate.isEqual(value.date)) !== undefined;
-  }
 
   set selectedBankAccount(bankAccount: BankAccountModel | undefined) {
     if (bankAccount !== undefined) {
       this.buildRoute(bankAccount, this.selectedCategories, this.searchString);
-      this.reload();
+      //this.reload();
     }
   }
 
@@ -295,36 +267,25 @@ export default class ContinuousTransactionOverview extends Vue {
   }
 
 
-  addTransaction() {
-    this.$router.push("/transaction")
+  addContinuousTransaction() {
+    this.$router.push("/continuous-transaction")
   }
 
-
-  get dateUntil() {
-    return this.datesFilter[this.datesFilter.length - 1];
-  }
-
-  get dateFrom() {
-    return this.datesFilter[0];
-  }
 
   private reload() {
-    this.loadTransactions();
+    this.loadContinuousTransactions();
   }
 
-  private loadTransactions() {
+  private loadContinuousTransactions() {
     if (this.selectedBankAccount !== undefined) {
-      this.transactionService.loadTransactions(this.selectedBankAccount.id!,
-          this.dateFrom,
-          this.dateUntil).
+      let dateFrom: LocalDate = LocalDate.now().withDayOfMonth(1);
+      let dateUntil: LocalDate = dateFrom.withDayOfMonth(dateFrom.lengthOfMonth());
+      let loadContinuousTransactionRequestImpl: LoadContinuousTransactionRequestImpl = new LoadContinuousTransactionRequestImpl(
+          this.selectedBankAccount.id!, TimeService.localDateToIsoString(dateFrom),
+          TimeService.localDateToIsoString(dateUntil));
+      ContinuousTransactionStore.loadContinuousTransactions(loadContinuousTransactionRequestImpl).
       then(value => {
         this.isLoading = false;
-        setTimeout((value: any) => {
-          if (this.transactionToScrollTo !== "") {
-            this.$vuetify.goTo('#' + this.transactionToScrollTo, {offset: 200})
-          }
-        }, 100);
-
       });
     }
     else {
@@ -337,5 +298,9 @@ export default class ContinuousTransactionOverview extends Vue {
 
 <style scoped>
 
+.transaction-overview {
+  align-items: center;
+  margin: auto;
+}
 
 </style>

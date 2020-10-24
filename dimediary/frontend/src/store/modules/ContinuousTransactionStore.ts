@@ -50,7 +50,10 @@ export class ContinuousTransactionStore extends VuexModule {
         resolve(value);
       });
     })
+  }
 
+  @Action
+  public saveContinuousTransaction(continuousTransaction: ContinuousTransactionModel) {
 
   }
 

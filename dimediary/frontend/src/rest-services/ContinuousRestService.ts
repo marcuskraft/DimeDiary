@@ -26,14 +26,24 @@ export default class ContinuousRestService {
     });
   }
 
+
   public loadContinuousTransaction(continuousTransactionId: string): Promise<ContinuousTransactionModel> {
     return new Promise<ContinuousTransactionModel>(resolve => {
       this.continuousTransactionApi.getContinuousTransaction(
-          {continuousTransactionId: continuousTransactionId}).
-      then(continuousTransaction => {
+          {continuousTransactionId: continuousTransactionId}).then(continuousTransaction => {
         resolve(ContinuousTransactionTransformer.to(continuousTransaction));
       });
     });
+  }
+
+  public saveContinuousTransaction(continuousTransaction: ContinuousTransactionModel): Promise<ContinuousTransactionModel> {
+    return new Promise<ContinuousTransactionModel>(resolve => {
+      this.continuousTransactionApi.saveContinuousTransaction(
+          {continuousTransaction: ContinuousTransactionTransformer.from(continuousTransaction)}).
+      then(continuousTransaction => resolve(
+          ContinuousTransactionTransformer.to(continuousTransaction))
+      )
+    })
   }
 
 

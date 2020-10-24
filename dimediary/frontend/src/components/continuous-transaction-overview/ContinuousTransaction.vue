@@ -155,6 +155,7 @@ import BankAccountStore from "@/store/modules/BankAccountStore";
 import CategoryStore from "@/store/modules/CategoryStore";
 import TransactionService from "@/service/TransactionService";
 import ContinuousTransactionStore from "../../store/modules/ContinuousTransactionStore";
+import RecurrenceSettingsModel from "@/model/RecurrenceSettingsModel";
 
 @Component({
   components: {DatePickerTextField}
@@ -191,10 +192,10 @@ export default class ContinuousTransaction extends Vue {
   }
 
   private loadContinuousTransaction(continuousTransactionId: string) {
-    ContinuousTransactionStore.loadTransaction(continuousTransactionId).then(transaction => {
+    ContinuousTransactionStore.loadContinuousTransaction(continuousTransactionId).then(transaction => {
       this.id = transaction.id;
       this.nameMember = transaction.name;
-      this.dateMember = LocalDate.from(transaction.date);
+      this.dateMember = LocalDate.from(transaction.dateBegin);
       this.amountEuroCentMember = transaction.amountEuroCent / 100;
       this.fixCostMember = transaction.fixCost;
       this.bankAccountMember = transaction.bankAccount;
@@ -213,7 +214,6 @@ export default class ContinuousTransaction extends Vue {
     this.fixCostMember = false;
     this.bankAccountMember = this.bankAccounts[0];
     this.categoryMember = this.categories[0];
-    this.continuousTransactionMember = undefined;
   }
 
   get categories(): CategoryModel[] {
@@ -297,24 +297,26 @@ export default class ContinuousTransaction extends Vue {
 
 
   save() {
-    let transaction: TransactionModel;
+    let continuousTransaction: ContinuousTransactionModel;
     if (this.continuousTransaction !== undefined) {
       this.continuousTransaction.name = this.name;
-      this.continuousTransaction.continuousTransaction = this.continuousTransaction;
-      this.continuousTransaction.category = this.category;
-      this.continuousTransaction.bankAccount = this.bankAccount;
+      this.continuousTransaction.category = this.category!;
+      this.continuousTransaction.bankAccount = this.bankAccount!;
       this.continuousTransaction.fixCost = this.fixCost;
       this.continuousTransaction.amountEuroCent = this.amountEuroCent * 100;
-      this.continuousTransaction.date = this.date;
-      transaction = this.continuousTransaction;
+      this.continuousTransaction.dateBegin = this.date;
+      continuousTransaction = this.continuousTransaction;
     }
     else {
-      transaction = new TransactionModel(this.name, this.date, this.amountEuroCent * 100,
-          this.fixCost, this.bankAccount, this.category, this.continuousTransaction, this.id);
+      continuousTransaction = new ContinuousTransactionModel(this.name, this.amountEuroCent,this.date,this.bankAccount!,this.category!,this.recurrenceSettingsModel(),this.fixCost);
     }
     let transactionService: TransactionService = new TransactionService();
-    transactionService.saveTransaction(transaction);
+    ContinuousTransactionStore.saveContinuousTransaction(continuousTransaction);
     this.close();
+  }
+
+  get recurrenceSettingsModel() {
+    return new RecurrenceSettingsModel();
   }
 
   deleteTransaction() {
@@ -325,6 +327,7 @@ export default class ContinuousTransaction extends Vue {
   }
 
 }
+
 
 </script>
 

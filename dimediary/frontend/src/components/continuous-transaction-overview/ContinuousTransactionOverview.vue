@@ -59,11 +59,10 @@
             </v-select>
           </v-col>
         </v-row>
-        <div v-for="continuousTransaction in continuousTransactions"
-             :id="ref(continuousTransaction)"
-             :transaction-prop="continuousTransaction"
-             :key="continuousTransaction.id">{{ continuousTransaction.name }}
-        </div>
+        <continuous-transaction-group v-for="continuousTransaction in continuousTransactions"
+                                      :id="ref(continuousTransaction)"
+                                      :continuous-transaction-prop="continuousTransaction"
+                                      :key="continuousTransaction.id"/>
       </v-container>
     </v-card>
   </div>
@@ -83,9 +82,12 @@ import AmountHelper from "@/helper/AmountHelper";
 import BalanceStore from "@/store/modules/BalanceStore";
 import CategoryModel from "@/model/CategoryModel";
 import CategoryStore from "@/store/modules/CategoryStore";
+import ContinuousTransactionGroup
+  from "@/components/continuous-transaction-overview/ContinuousTransactionGroup.vue";
 
 @Component({
   components: {
+    ContinuousTransactionGroup,
     DatePickerTextFieldRange
   }
 })

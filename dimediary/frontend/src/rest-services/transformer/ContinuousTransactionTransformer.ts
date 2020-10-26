@@ -23,7 +23,12 @@ export class ContinuousTransactionTransformer {
         BankAccountTransformer.from(continuousTransaction.bankAccount),
         CategoryTransformer.from(continuousTransaction.category),
         this.fromRecurrenceSettings(continuousTransaction.recurrenceSettings),
-        continuousTransaction.fixCost);
+        continuousTransaction.fixCost, continuousTransaction.recurrenceExceptions !==
+        undefined ? continuousTransaction.recurrenceExceptions.map(
+            localDate => TimeService.localDateToIsoString(localDate)) : undefined,
+        continuousTransaction.recurrenceExtraInstances !== undefined ?
+            continuousTransaction.recurrenceExtraInstances.map(
+                localDate => TimeService.localDateToIsoString(localDate)) : undefined);
   }
 
   public static to(continuousTransaction?: ContinuousTransaction): ContinuousTransactionModel | undefined {
@@ -36,7 +41,12 @@ export class ContinuousTransactionTransformer {
         BankAccountTransformer.to(continuousTransaction.bankAccount)!,
         CategoryTransformer.to(continuousTransaction.category)!,
         this.toRecurrenceSettings(continuousTransaction.recurrenceSettings!),
-        continuousTransaction.fixCost!,
+        continuousTransaction.fixCost!, continuousTransaction.recurrenceExceptions !==
+        undefined ? continuousTransaction.recurrenceExceptions.map(
+            localDateString => TimeService.isoStringToLocalDate(localDateString)) : [],
+        continuousTransaction.recurrenceExtraInstances !== undefined ?
+            continuousTransaction.recurrenceExtraInstances.map(
+                localDateString => TimeService.isoStringToLocalDate(localDateString)) : [],
         continuousTransaction.id);
   }
 
@@ -50,14 +60,6 @@ export class ContinuousTransactionTransformer {
             dayOfWeek => this.toDayOfWeek(dayOfWeek)) : undefined;
     recurrence.interval = recurrenceSettings.interval;
     recurrence.isDayOfMonthFromBehind = recurrenceSettings.isDayOfMonthFromBehind;
-    recurrence.isInfinite = recurrenceSettings.isInfinite;
-    recurrence.recurrenceExceptions = recurrenceSettings.recurrenceExceptions !==
-    undefined ? recurrenceSettings.recurrenceExceptions.map(
-        localDateString => TimeService.isoStringToLocalDate(localDateString)) : undefined;
-    recurrence.recurrenceExtraInstances =
-        recurrenceSettings.recurrenceExtraInstances !== undefined ?
-            recurrenceSettings.recurrenceExtraInstances.map(
-                localDateString => TimeService.isoStringToLocalDate(localDateString)) : undefined;
     recurrence.until = recurrenceSettings.until !== undefined ? TimeService.isoStringToLocalDate(
         recurrenceSettings.until) : undefined;
     return recurrence;
@@ -73,14 +75,6 @@ export class ContinuousTransactionTransformer {
             dayOfWeek => this.fromDayOfWeek(dayOfWeek)) : undefined;
     recurrence.interval = recurrenceSettings.interval;
     recurrence.isDayOfMonthFromBehind = recurrenceSettings.isDayOfMonthFromBehind;
-    recurrence.isInfinite = recurrenceSettings.isInfinite;
-    recurrence.recurrenceExceptions = recurrenceSettings.recurrenceExceptions !==
-    undefined ? recurrenceSettings.recurrenceExceptions.map(
-        localDate => TimeService.localDateToIsoString(localDate)) : undefined;
-    recurrence.recurrenceExtraInstances =
-        recurrenceSettings.recurrenceExtraInstances !== undefined ?
-            recurrenceSettings.recurrenceExtraInstances.map(
-                localDate => TimeService.localDateToIsoString(localDate)) : undefined;
     recurrence.until = recurrenceSettings.until !== undefined ? TimeService.localDateToIsoString(
         recurrenceSettings.until) : undefined;
     return recurrence;
@@ -159,156 +153,47 @@ export class ContinuousTransactionTransformer {
 
 class RecurrenceSettingsRest implements RecurrenceSettings {
 
-  private _recurrenceType?: RecurrenceType;
-  private _interval?: number;
-  private _dayOfMonth?: number;
-  private _isDayOfMonthFromBehind?: boolean;
-  private _dayOfWeeks?: Array<DayOfWeekAPI>;
-  private _isInfinite?: boolean;
-  private _until?: string;
-  private _count?: number;
-  private _recurrenceExceptions?: Array<string>;
-  private _recurrenceExtraInstances?: Array<string>;
+  recurrenceType?: RecurrenceType;
+  interval?: number;
+  dayOfMonth?: number;
+  isDayOfMonthFromBehind?: boolean;
+  dayOfWeeks?: Array<DayOfWeekAPI>;
+  until?: string;
+  count?: number;
+  recurrenceExceptions?: Array<string>;
+  recurrenceExtraInstances?: Array<string>;
 
-
-  set recurrenceType(value: RecurrenceType | undefined) {
-    this._recurrenceType = value;
-  }
-
-  set interval(value: number | undefined) {
-    this._interval = value;
-  }
-
-  set dayOfMonth(value: number | undefined) {
-    this._dayOfMonth = value;
-  }
-
-  set isDayOfMonthFromBehind(value: boolean | undefined) {
-    this._isDayOfMonthFromBehind = value;
-  }
-
-  set dayOfWeeks(value: Array<DayOfWeekAPI> | undefined) {
-    this._dayOfWeeks = value;
-  }
-
-  set isInfinite(value: boolean | undefined) {
-    this._isInfinite = value;
-  }
-
-  set until(value: string | undefined) {
-    this._until = value;
-  }
-
-  set count(value: number | undefined) {
-    this._count = value;
-  }
-
-  set recurrenceExceptions(value: Array<string> | undefined) {
-    this._recurrenceExceptions = value;
-  }
-
-  set recurrenceExtraInstances(value: Array<string> | undefined) {
-    this._recurrenceExtraInstances = value;
-  }
-
-
-  get recurrenceType(): RecurrenceType | undefined {
-    return this._recurrenceType;
-  }
-
-  get interval(): number | undefined {
-    return this._interval;
-  }
-
-  get dayOfMonth(): number | undefined {
-    return this._dayOfMonth;
-  }
-
-  get isDayOfMonthFromBehind(): boolean | undefined {
-    return this._isDayOfMonthFromBehind;
-  }
-
-  get dayOfWeeks(): Array<DayOfWeekAPI> | undefined {
-    return this._dayOfWeeks;
-  }
-
-  get isInfinite(): boolean | undefined {
-    return this._isInfinite;
-  }
-
-  get until(): string | undefined {
-    return this._until;
-  }
-
-  get count(): number | undefined {
-    return this._count;
-  }
-
-  get recurrenceExceptions(): Array<string> | undefined {
-    return this._recurrenceExceptions;
-  }
-
-  get recurrenceExtraInstances(): Array<string> | undefined {
-    return this._recurrenceExtraInstances;
-  }
 }
 
 class ContinuousTransactionRest implements ContinuousTransaction {
 
-  private _id?: string;
-  private _name?: string;
-  private _amountEuroCent?: number;
-  private _dateBegin?: string;
-  private _bankAccount?: BankAccount;
-  private _category?: Category;
-  private _recurrenceRule?: RecurrenceSettings;
-  private _fixCost?: boolean;
+  id?: string;
+  name?: string;
+  amountEuroCent?: number;
+  dateBegin?: string;
+  bankAccount?: BankAccount;
+  category?: Category;
+  recurrenceSettings?: RecurrenceSettings;
+  fixCost?: boolean;
+  recurrenceExceptions?: Array<string>;
+  recurrenceExtraInstances?: Array<string>;
 
 
   constructor(id?: string, name?: string, amountEuroCent?: number, dateBegin?: string,
       bankAccount?: BankAccount, category?: Category, recurrenceRule?: RecurrenceSettings,
-      fixCost?: boolean) {
-    this._id = id;
-    this._name = name;
-    this._amountEuroCent = amountEuroCent;
-    this._dateBegin = dateBegin;
-    this._bankAccount = bankAccount;
-    this._category = category;
-    this._recurrenceRule = recurrenceRule;
-    this._fixCost = fixCost;
+      fixCost?: boolean, recurrenceExceptions?: Array<string>,
+      recurrenceExtraInstances?: Array<string>) {
+    this.id = id;
+    this.name = name;
+    this.amountEuroCent = amountEuroCent;
+    this.dateBegin = dateBegin;
+    this.bankAccount = bankAccount;
+    this.category = category;
+    this.recurrenceSettings = recurrenceRule;
+    this.fixCost = fixCost;
+    this.recurrenceExceptions = recurrenceExceptions;
+    this.recurrenceExtraInstances = recurrenceExtraInstances;
   }
 
 
-  get amountEuroCent(): number | undefined {
-    return this._amountEuroCent;
-  }
-
-  get dateBegin(): string | undefined {
-    return this._dateBegin;
-  }
-
-  get id(): string | undefined {
-    return this._id;
-  }
-
-  get name(): string | undefined {
-    return this._name;
-  }
-
-
-  get bankAccount(): BankAccount | undefined {
-    return this._bankAccount;
-  }
-
-  get category(): Category | undefined {
-    return this._category;
-  }
-
-  get recurrenceRule(): RecurrenceSettings | undefined {
-    return this._recurrenceRule;
-  }
-
-  get fixCost(): boolean | undefined {
-    return this._fixCost;
-  }
 }

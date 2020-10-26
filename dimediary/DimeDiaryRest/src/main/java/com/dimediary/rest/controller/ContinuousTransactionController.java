@@ -43,7 +43,7 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
       final ContinuousTransaction continuousTransaction) {
     try {
       return this.responseFactory
-          .created(ContinuousTransactionRestConverter.from(this.continuousTransactionProvider
+          .created(this.continuousTransactionRestConverter.from(this.continuousTransactionProvider
               .persist(this.continuousTransactionRestConverter.to(continuousTransaction))));
     } catch (final Exception e) {
       log.error("error during saving continuous transaction", e);
@@ -60,7 +60,7 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
   @Override
   public ResponseEntity<ContinuousTransaction> getContinuousTransaction(
       final UUID continuousTransactionId) {
-    return this.responseFactory.ok(ContinuousTransactionRestConverter.from(
+    return this.responseFactory.ok(this.continuousTransactionRestConverter.from(
         this.continuousTransactionProvider.getContinuousTransactions(continuousTransactionId)));
   }
 
@@ -77,7 +77,7 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
     }
     return this.responseFactory.ok(this.continuousTransactionProvider
         .loadContinuousTransactions(bankAccountId, localDateFrom, localDateUntil).stream()
-        .map(ContinuousTransactionRestConverter::from).collect(Collectors.toList()));
+        .map(this.continuousTransactionRestConverter::from).collect(Collectors.toList()));
   }
 
 

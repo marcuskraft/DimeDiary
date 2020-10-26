@@ -46,43 +46,25 @@ export default class ContinuousRestService {
     })
   }
 
+  public delete(continuousTransactionId: string): Promise<void> {
+    return this.continuousTransactionApi.deleteContinuousTransaction(
+        {continuousTransactionId: continuousTransactionId});
+  }
+
 
 }
 
 export class LoadContinuousTransactionRequestImpl implements LoadContinuousTransactionRequest {
 
-  private _bankAccountId: string;
-  private _dateFrom: string;
-  private _dateUntil: string;
+  bankAccountId: string;
+  dateFrom: string;
+  dateUntil: string;
 
 
   constructor(bankAccountId: string, dateFrom: string, dateUntil: string) {
-    this._bankAccountId = bankAccountId;
-    this._dateFrom = dateFrom;
-    this._dateUntil = dateUntil;
+    this.bankAccountId = bankAccountId;
+    this.dateFrom = dateFrom;
+    this.dateUntil = dateUntil;
   }
 
-  get bankAccountId(): string {
-    return this._bankAccountId;
-  }
-
-  set bankAccountId(value: string) {
-    this._bankAccountId = value;
-  }
-
-  get dateFrom(): string {
-    return this._dateFrom;
-  }
-
-  set dateFrom(value: string) {
-    this._dateFrom = value;
-  }
-
-  get dateUntil(): string {
-    return this._dateUntil;
-  }
-
-  set dateUntil(value: string) {
-    this._dateUntil = value;
-  }
 }

@@ -11,6 +11,8 @@ export default class ContinuousTransactionModel {
   private _bankAccount: BankAccountModel;
   private _category: CategoryModel;
   private _recurrenceSettings: RecurrenceSettingsModel;
+  private _recurrenceExceptions: Array<LocalDate>;
+  private _recurrenceExtraInstances: Array<LocalDate>;
   private _fixCost: boolean;
 
   private _id?: string
@@ -18,7 +20,9 @@ export default class ContinuousTransactionModel {
 
   constructor(name: string, amountEuroCent: number, dateBegin: LocalDate,
       bankAccount: BankAccountModel, category: CategoryModel,
-      recurrenceSettings: RecurrenceSettingsModel, fixCost: boolean, id?: string) {
+      recurrenceSettings: RecurrenceSettingsModel, fixCost: boolean,
+      recurrenceExceptions: Array<LocalDate>, recurrenceExtraInstances: Array<LocalDate>,
+      id?: string) {
     this._name = name;
     this._amountEuroCent = amountEuroCent;
     this._dateBegin = dateBegin;
@@ -27,8 +31,26 @@ export default class ContinuousTransactionModel {
     this._recurrenceSettings = recurrenceSettings;
     this._fixCost = fixCost;
     this._id = id;
+    this._recurrenceExceptions = recurrenceExceptions;
+    this._recurrenceExtraInstances = recurrenceExtraInstances;
   }
 
+
+  get recurrenceExceptions(): Array<LocalDate> {
+    return this._recurrenceExceptions;
+  }
+
+  set recurrenceExceptions(value: Array<LocalDate>) {
+    this._recurrenceExceptions = value;
+  }
+
+  get recurrenceExtraInstances(): Array<LocalDate> {
+    return this._recurrenceExtraInstances;
+  }
+
+  set recurrenceExtraInstances(value: Array<LocalDate>) {
+    this._recurrenceExtraInstances = value;
+  }
 
   get name(): string {
     return this._name;

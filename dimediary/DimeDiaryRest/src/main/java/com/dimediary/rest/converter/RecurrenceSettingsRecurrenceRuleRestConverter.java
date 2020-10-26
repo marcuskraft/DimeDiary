@@ -6,7 +6,6 @@ import com.dimediary.openapi.model.RecurrenceSettings;
 import com.dimediary.openapi.model.RecurrenceType;
 import com.dimediary.utils.date.DateUtils;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,17 +21,8 @@ import org.mapstruct.Mapper;
 public interface RecurrenceSettingsRecurrenceRuleRestConverter {
 
 
-  static RecurrenceSettings from(final RecurrenceRule recurrenceRule,
-      final Collection<LocalDate> recurrenceExceptions,
-      final Collection<LocalDate> extraInstances) {
+  static RecurrenceSettings from(final RecurrenceRule recurrenceRule) {
     final RecurrenceSettings recurrenceSettings = new RecurrenceSettings();
-
-    recurrenceSettings.setRecurrenceExceptions(
-        recurrenceExceptions.stream().map(LocalDateConverter::localDateToIsoString).collect(
-            Collectors.toList()));
-    recurrenceSettings.setRecurrenceExtraInstances(
-        extraInstances.stream().map(LocalDateConverter::localDateToIsoString).collect(
-            Collectors.toList()));
 
     recurrenceSettings.setRecurrenceType(getRecurrenceType(recurrenceRule.getFreq()));
 
@@ -57,7 +47,7 @@ public interface RecurrenceSettingsRecurrenceRuleRestConverter {
       throw new IllegalStateException("There should only be one month day in a recurrence rule");
     }
 
-    if (recurrenceRule.getByDayPart().size() > 0) {
+    if (recurrenceRule.getByDayPart() != null && recurrenceRule.getByDayPart().size() > 0) {
       recurrenceSettings.setDayOfWeeks(
           weekDayNumsToDayOfWeeks(recurrenceRule.getByDayPart()).stream()
               .map(DayOfWeekRestConverter::from).collect(Collectors.toList()));

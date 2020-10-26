@@ -36,13 +36,17 @@ public class RecurrenceRuleService {
 
     recurrenceSet.addInstances(new RecurrenceRuleAdapter(recurrenceRule));
 
-    recurrenceSet
-        .addInstances(new RecurrenceList(extraInstances.stream()
-            .map(DateUtils::getMillis).mapToLong(value -> value).toArray()));
+    if (extraInstances != null) {
+      recurrenceSet
+          .addInstances(new RecurrenceList(extraInstances.stream()
+              .map(DateUtils::getMillis).mapToLong(value -> value).toArray()));
+    }
 
-    recurrenceSet
-        .addExceptions(new RecurrenceList(exceptions.stream()
-            .map(DateUtils::getMillis).mapToLong(value -> value).toArray()));
+    if (exceptions != null) {
+      recurrenceSet
+          .addExceptions(new RecurrenceList(exceptions.stream()
+              .map(DateUtils::getMillis).mapToLong(value -> value).toArray()));
+    }
 
     final RecurrenceSetIterator recurrenceRuleIterator = recurrenceSet
         .iterator(TimeZone.getTimeZone(

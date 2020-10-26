@@ -28,6 +28,13 @@ export class ContinuousTransactionStore extends VuexModule {
     this._continuousTransactions.push(continuousTransaction);
   }
 
+  @Mutation
+  removeContinuousTransdaction(continuousTransactionId: string) {
+    this._continuousTransactions =
+        this._continuousTransactions.filter(value => value.id !== continuousTransactionId);
+  }
+
+
   @Action
   public loadContinuousTransactions(loadContinuousTransactionRequestImpl: LoadContinuousTransactionRequestImpl): Promise<ContinuousTransactionModel[]> {
     return new Promise<ContinuousTransactionModel[]>(resolve => {
@@ -53,8 +60,20 @@ export class ContinuousTransactionStore extends VuexModule {
   }
 
   @Action
-  public saveContinuousTransaction(continuousTransaction: ContinuousTransactionModel) {
+  public delete(continuousTransactionId: string): Promise<void> {
+    return new Promise<void>(resolve => {
+      this.continuousTransactionRestService.delete(continuousTransactionId).
+      then(value => {
+        this.removeContinuousTransdaction(continuousTransactionId);
+        resolve();
+      });
+    })
+  }
 
+  @Action
+  public saveContinuousTransaction(continuousTransaction: ContinuousTransactionModel) {
+    this.continuousTransactionRestService.saveContinuousTransaction(continuousTransaction).
+    then(value => this.addContinuousTransactions(value));
   }
 
 }

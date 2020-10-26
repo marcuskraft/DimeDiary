@@ -8,11 +8,8 @@ export default class RecurrenceSettingsModel {
   private _dayOfMonth?: number;
   private _isDayOfMonthFromBehind?: boolean;
   private _dayOfWeeks?: Array<DayOfWeek>;
-  private _isInfinite?: boolean;
   private _until?: LocalDate;
   private _count?: number;
-  private _recurrenceExceptions?: Array<LocalDate>;
-  private _recurrenceExtraInstances?: Array<LocalDate>;
 
 
   constructor(recurrenceType: RecurrenceTypeModel) {
@@ -60,14 +57,6 @@ export default class RecurrenceSettingsModel {
     this._dayOfWeeks = value;
   }
 
-  get isInfinite(): boolean | undefined {
-    return this._isInfinite;
-  }
-
-  set isInfinite(value: boolean | undefined) {
-    this._isInfinite = value;
-  }
-
   get until(): LocalDate | undefined {
     return this._until;
   }
@@ -84,21 +73,7 @@ export default class RecurrenceSettingsModel {
     this._count = value;
   }
 
-  get recurrenceExceptions(): Array<LocalDate> | undefined {
-    return this._recurrenceExceptions;
-  }
 
-  set recurrenceExceptions(value: Array<LocalDate> | undefined) {
-    this._recurrenceExceptions = value;
-  }
-
-  get recurrenceExtraInstances(): Array<LocalDate> | undefined {
-    return this._recurrenceExtraInstances;
-  }
-
-  set recurrenceExtraInstances(value: Array<LocalDate> | undefined) {
-    this._recurrenceExtraInstances = value;
-  }
 }
 
 export enum RecurrenceTypeModel {

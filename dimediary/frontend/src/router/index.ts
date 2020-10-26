@@ -35,6 +35,12 @@ const routes: Array<RouteConfig> = [
     component: ContinuousTransaction,
   },
   {
+    path: '/continuous-transaction/:continuousTransactionId',
+    name: 'Continuous-Transaction-WithId',
+    component: ContinuousTransaction,
+    props: true
+  },
+  {
     path: '/transaction',
     name: 'Transaction',
     component: Transaction

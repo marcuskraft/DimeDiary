@@ -32,6 +32,19 @@ export class TransactionStore extends VuexModule {
     this._transactions = this._transactions.filter(value => value.id !== transaction.id);
   }
 
+  @Mutation
+  public removeTransactionsForContinuousTransactionMutation(continuousTransactionId: string) {
+    this._transactions = this._transactions.filter(transaction => {
+      return transaction.continuousTransaction === undefined ||
+          transaction.continuousTransaction.id !== continuousTransactionId;
+    })
+  }
+
+
+  @Action
+  public removeTransactionsForContinuousTransaction(continuousTransactionId: string) {
+    this.removeTransactionsForContinuousTransactionMutation(continuousTransactionId);
+  }
 
   @Action
   public saveTransaction(transaction: TransactionModel): Promise<TransactionModel> {

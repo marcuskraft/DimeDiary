@@ -2,6 +2,7 @@ import {Action, getModule, Module, Mutation, VuexModule} from 'vuex-module-decor
 import store from '@/store'
 import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
 import ContinuousRestService, {LoadContinuousTransactionRequestImpl} from "@/rest-services/ContinuousRestService";
+import TransactionStore from "@/store/modules/TransactionStore";
 
 
 @Module({
@@ -65,6 +66,7 @@ export class ContinuousTransactionStore extends VuexModule {
       this.continuousTransactionRestService.delete(continuousTransactionId).
       then(value => {
         this.removeContinuousTransdaction(continuousTransactionId);
+        TransactionStore.removeTransactionsForContinuousTransaction(continuousTransactionId);
         resolve();
       });
     })

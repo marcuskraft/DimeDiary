@@ -3,6 +3,7 @@ import store from '@/store'
 import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
 import ContinuousRestService, {LoadContinuousTransactionRequestImpl} from "@/rest-services/ContinuousRestService";
 import TransactionStore from "@/store/modules/TransactionStore";
+import {LocalDate} from "@js-joda/core";
 
 
 @Module({
@@ -15,12 +16,31 @@ export class ContinuousTransactionStore extends VuexModule {
 
   private _continuousTransactions: ContinuousTransactionModel[] = [];
   private continuousTransactionRestService: ContinuousRestService = new ContinuousRestService();
+  private _selectedContinuousTransaction: ContinuousTransactionModel | undefined = undefined;
+  private _recurrenceDatesFromRecurrenceSettings: LocalDate[] = [];
 
+
+  get recurrenceDatesFromRecurrenceSettings(): LocalDate[] {
+    return this._recurrenceDatesFromRecurrenceSettings;
+  }
 
   get continuousTransactions(): ContinuousTransactionModel[] {
     return this._continuousTransactions;
   }
 
+  get selectedContinuousTransaction(): ContinuousTransactionModel | undefined {
+    return this._selectedContinuousTransaction;
+  }
+
+  @Mutation
+  setRecurrenceDatesFromRecurrenceSettings(value: LocalDate[]) {
+    this._recurrenceDatesFromRecurrenceSettings = value;
+  }
+
+  @Mutation
+  setSelectedContinuousTransaction(value: ContinuousTransactionModel | undefined) {
+    this._selectedContinuousTransaction = value;
+  }
 
   @Mutation
   addContinuousTransactions(continuousTransaction: ContinuousTransactionModel) {
@@ -33,6 +53,24 @@ export class ContinuousTransactionStore extends VuexModule {
   removeContinuousTransdaction(continuousTransactionId: string) {
     this._continuousTransactions =
         this._continuousTransactions.filter(value => value.id !== continuousTransactionId);
+  }
+
+  @Action
+  public loadRecurrenceDates(): Promise<LocalDate[]> {
+    return new Promise<LocalDate[]>((resolve, reject) => {
+      if (this.selectedContinuousTransaction !== undefined) {
+        this.continuousTransactionRestService.getRecurrenceDates(
+            this.selectedContinuousTransaction!.recurrenceSettings,
+            this.selectedContinuousTransaction!.dateBegin).
+        then(value => {
+          this.setRecurrenceDatesFromRecurrenceSettings(value);
+          resolve(value);
+        });
+      }
+      else {
+        reject("no continuous transaction selected");
+      }
+    })
   }
 
 

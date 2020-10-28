@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.TimeZone;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
 import org.dmfs.rfc5545.recurrenceset.RecurrenceList;
@@ -34,6 +35,8 @@ public class RecurrenceRuleService {
       final Collection<LocalDate> extraInstances, final LocalDate dateUntilMax) {
     final RecurrenceSet recurrenceSet = new RecurrenceSet();
 
+    final LocalDate untilMax = Objects.requireNonNullElse(dateUntilMax, DATE_UNTIL_MAX);
+
     recurrenceSet.addInstances(new RecurrenceRuleAdapter(recurrenceRule));
 
     if (extraInstances != null) {
@@ -55,7 +58,10 @@ public class RecurrenceRuleService {
     final List<LocalDate> dates = new ArrayList<>();
 
     LocalDate date = beginDate;
-    while (recurrenceRuleIterator.hasNext() && date.isBefore(dateUntilMax)) {
+    while (recurrenceRuleIterator.hasNext()) {
+      if (!date.isBefore(untilMax)) {
+        break;
+      }
       date = DateUtils.fromMillis(recurrenceRuleIterator.next());
       dates.add(date);
     }

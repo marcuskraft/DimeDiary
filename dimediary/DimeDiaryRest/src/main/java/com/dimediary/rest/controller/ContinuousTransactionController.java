@@ -2,6 +2,9 @@ package com.dimediary.rest.controller;
 
 import com.dimediary.openapi.api.ContinuousTransactionApi;
 import com.dimediary.openapi.model.ContinuousTransaction;
+import com.dimediary.openapi.model.DayOfWeekAPI;
+import com.dimediary.openapi.model.RecurrenceSettings;
+import com.dimediary.openapi.model.RecurrenceType;
 import com.dimediary.port.in.ContinuousTransactionProvider;
 import com.dimediary.rest.controller.helper.ResponseFactory;
 import com.dimediary.rest.converter.ContinuousTransactionRestConverter;
@@ -9,7 +12,9 @@ import com.dimediary.rest.converter.LocalDateConverter;
 import io.swagger.annotations.Api;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +70,22 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
   }
 
   @Override
+  public ResponseEntity<List<String>> getRecurrenceDates(final String dateBegin,
+      final RecurrenceType recurrenceType, final Integer interval,
+      final Optional<Integer> dayOfMonth,
+      final Optional<Boolean> isDayOfMonthFromBehind, final Optional<List<DayOfWeekAPI>> dayOfWeeks,
+      final Optional<String> until, final Optional<Integer> count) {
+    final ContinuousTransaction continuousTransaction = this.createContinuousTransaction(
+        dateBegin, recurrenceType, interval, dayOfMonth, isDayOfMonthFromBehind, dayOfWeeks, until,
+        count);
+
+    return this.responseFactory.ok(this.continuousTransactionProvider
+        .getRecurrenceDates(this.continuousTransactionRestConverter.to(continuousTransaction))
+        .stream().map(LocalDateConverter::localDateToIsoString).collect(Collectors.toList()));
+  }
+
+
+  @Override
   public ResponseEntity<List<ContinuousTransaction>> loadContinuousTransaction(
       final UUID bankAccountId, final String dateFrom, final String dateUntil) {
     final LocalDate localDateFrom;
@@ -78,6 +99,40 @@ public class ContinuousTransactionController implements ContinuousTransactionApi
     return this.responseFactory.ok(this.continuousTransactionProvider
         .loadContinuousTransactions(bankAccountId, localDateFrom, localDateUntil).stream()
         .map(this.continuousTransactionRestConverter::from).collect(Collectors.toList()));
+  }
+
+  private ContinuousTransaction createContinuousTransaction(final String dateBegin,
+      final RecurrenceType recurrenceType, final Integer interval,
+      final Optional<Integer> dayOfMonth,
+      final Optional<Boolean> isDayOfMonthFromBehind, final Optional<List<DayOfWeekAPI>> dayOfWeeks,
+      final Optional<String> until, final Optional<Integer> count) {
+    final ContinuousTransaction continuousTransaction = new ContinuousTransaction();
+    final RecurrenceSettings recurrenceSettings = this.createRecurrenceSettings(
+        recurrenceType, interval, dayOfMonth, isDayOfMonthFromBehind, dayOfWeeks, until, count);
+    continuousTransaction.setDateBegin(dateBegin);
+    continuousTransaction.setRecurrenceSettings(recurrenceSettings);
+    continuousTransaction
+        .setRecurrenceExceptions(Collections.emptyList());
+    continuousTransaction
+        .setRecurrenceExtraInstances(Collections.emptyList());
+    return continuousTransaction;
+  }
+
+
+  private RecurrenceSettings createRecurrenceSettings(final RecurrenceType recurrenceType,
+      final Integer interval, final Optional<Integer> dayOfMonth,
+      final Optional<Boolean> isDayOfMonthFromBehind,
+      final Optional<List<DayOfWeekAPI>> dayOfWeeks, final Optional<String> until,
+      final Optional<Integer> count) {
+    final RecurrenceSettings recurrenceSettings = new RecurrenceSettings();
+    recurrenceSettings.setDayOfWeeks(dayOfWeeks.orElse(Collections.emptyList()));
+    recurrenceSettings.setCount(count.orElse(null));
+    recurrenceSettings.setDayOfMonth(dayOfMonth.orElse(null));
+    recurrenceSettings.setInterval(interval);
+    recurrenceSettings.setRecurrenceType(recurrenceType);
+    recurrenceSettings.setIsDayOfMonthFromBehind(isDayOfMonthFromBehind.orElse(false));
+    recurrenceSettings.setUntil(until.orElse(null));
+    return recurrenceSettings;
   }
 
 

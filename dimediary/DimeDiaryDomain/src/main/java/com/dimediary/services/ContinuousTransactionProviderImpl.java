@@ -76,6 +76,12 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
         }).collect(Collectors.toList());
   }
 
+  @Override
+  public List<LocalDate> getRecurrenceDates(final ContinuousTransaction continuousTransaction) {
+    return this.getDatesForContinuousTransaction(continuousTransaction);
+  }
+
+
   private ContinuousTransaction persistNewContinuousTransaction(
       final ContinuousTransaction continuousTransaction,
       final List<LocalDate> localDatesThatShouldExist) {

@@ -1,9 +1,12 @@
 import {
   ContinuousTransactionApi,
   LoadContinuousTransactionRequest
-} from "@/../build/openapi/apis/ContinuousTransactionApi"
+} from "@/../build/openapi/apis/ContinuousTransactionApi.ts"
 import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
 import {ContinuousTransactionTransformer} from "@/rest-services/transformer/ContinuousTransactionTransformer";
+import {LocalDate} from "@js-joda/core";
+import TimeService from "@/helper/TimeService";
+import RecurrenceSettingsModel from "@/model/RecurrenceSettingsModel";
 
 export default class ContinuousRestService {
 
@@ -49,6 +52,27 @@ export default class ContinuousRestService {
   public delete(continuousTransactionId: string): Promise<void> {
     return this.continuousTransactionApi.deleteContinuousTransaction(
         {continuousTransactionId: continuousTransactionId});
+  }
+
+  public getRecurrenceDates(recurrenceSettings: RecurrenceSettingsModel,
+      dateBegin: LocalDate): Promise<LocalDate[]> {
+    return new Promise<LocalDate[]>(resolve => {
+      let until = recurrenceSettings.until;
+      this.continuousTransactionApi.getRecurrenceDates({
+        until: until !== undefined ? TimeService.localDateToIsoString(until) : undefined,
+        interval: recurrenceSettings.interval!,
+        dateBegin: TimeService.localDateToIsoString(dateBegin),
+        isDayOfMonthFromBehind: recurrenceSettings.isDayOfMonthFromBehind,
+        recurrenceType: ContinuousTransactionTransformer.fromRecurrenceType(
+            recurrenceSettings.recurrenceType),
+        dayOfWeeks: recurrenceSettings.dayOfWeeks !== undefined ? recurrenceSettings.dayOfWeeks.map(
+            value => ContinuousTransactionTransformer.fromDayOfWeek(value)) : undefined,
+        count: recurrenceSettings.count,
+        dayOfMonth: recurrenceSettings.dayOfMonth
+      }).then(dateStrings => {
+        resolve(dateStrings.map(value => TimeService.isoStringToLocalDate(value)));
+      })
+    })
   }
 
 

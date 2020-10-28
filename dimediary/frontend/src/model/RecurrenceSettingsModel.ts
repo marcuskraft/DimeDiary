@@ -23,6 +23,15 @@ export default class RecurrenceSettingsModel {
 
   set recurrenceType(value: RecurrenceTypeModel) {
     this._recurrenceType = value;
+    if (this._recurrenceType === RecurrenceTypeModel.DAILY || this._recurrenceType ===
+        RecurrenceTypeModel.WEEKLY || this._recurrenceType === RecurrenceTypeModel.YEARLY) {
+      this._dayOfMonth = undefined;
+      this._isDayOfMonthFromBehind = false;
+    }
+    if (this._recurrenceType === RecurrenceTypeModel.MONTHLY || this._recurrenceType ===
+        RecurrenceTypeModel.YEARLY) {
+      this._dayOfWeeks = undefined;
+    }
   }
 
   get interval(): number | undefined {
@@ -38,7 +47,9 @@ export default class RecurrenceSettingsModel {
   }
 
   set dayOfMonth(value: number | undefined) {
-    this._dayOfMonth = value;
+    if (this._recurrenceType === RecurrenceTypeModel.MONTHLY) {
+      this._dayOfMonth = value;
+    }
   }
 
   get isDayOfMonthFromBehind(): boolean | undefined {
@@ -46,7 +57,9 @@ export default class RecurrenceSettingsModel {
   }
 
   set isDayOfMonthFromBehind(value: boolean | undefined) {
-    this._isDayOfMonthFromBehind = value;
+    if (this._recurrenceType === RecurrenceTypeModel.MONTHLY) {
+      this._isDayOfMonthFromBehind = value;
+    }
   }
 
   get dayOfWeeks(): Array<DayOfWeek> | undefined {
@@ -54,7 +67,10 @@ export default class RecurrenceSettingsModel {
   }
 
   set dayOfWeeks(value: Array<DayOfWeek> | undefined) {
-    this._dayOfWeeks = value;
+    if (this._recurrenceType === RecurrenceTypeModel.WEEKLY || this._recurrenceType ===
+        RecurrenceTypeModel.DAILY) {
+      this._dayOfWeeks = value;
+    }
   }
 
   get until(): LocalDate | undefined {
@@ -63,6 +79,9 @@ export default class RecurrenceSettingsModel {
 
   set until(value: LocalDate | undefined) {
     this._until = value;
+    /*if (value !== undefined) {
+     this._count = undefined;
+     }*/
   }
 
   get count(): number | undefined {
@@ -71,6 +90,9 @@ export default class RecurrenceSettingsModel {
 
   set count(value: number | undefined) {
     this._count = value;
+    /*if (value !== undefined) {
+     this._until = undefined;
+     }*/
   }
 
 

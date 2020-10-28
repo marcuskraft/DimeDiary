@@ -3,7 +3,7 @@ import {ContinuousTransaction} from '@/../build/openapi/models/ContinuousTransac
 import {RecurrenceSettings} from '@/../build/openapi/models/RecurrenceSettings.ts';
 import {BankAccount} from '@/../build/openapi/models/BankAccount.ts';
 import {RecurrenceType} from '@/../build/openapi/models/RecurrenceType.ts';
-import {Category} from '@/../build/openapi/models/Category.ts';
+import {Category} from "@/../build/openapi/models/Category.ts";
 import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
 import TimeService from "@/helper/TimeService";
 import {BankAccountTransformer} from "@/rest-services/transformer/BankAccountTransformer";
@@ -100,7 +100,7 @@ export class ContinuousTransactionTransformer {
     }
   }
 
-  private static fromDayOfWeek(dayOfWeek: DayOfWeek): DayOfWeekAPI {
+  public static fromDayOfWeek(dayOfWeek: DayOfWeek): DayOfWeekAPI {
     switch (dayOfWeek) {
       case DayOfWeek.MONDAY:
         return DayOfWeekAPI.MONDAY;
@@ -135,7 +135,7 @@ export class ContinuousTransactionTransformer {
     }
   }
 
-  private static fromRecurrenceType(recurrenceType: RecurrenceTypeModel): RecurrenceType {
+  public static fromRecurrenceType(recurrenceType: RecurrenceTypeModel): RecurrenceType {
     switch (recurrenceType) {
       case RecurrenceTypeModel.DAILY:
         return RecurrenceType.DAILY;

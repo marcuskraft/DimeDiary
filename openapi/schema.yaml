@@ -157,6 +157,68 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ContinuousTransaction'
+  /continuousTransactions/recurrenceDates:
+    get:
+      summary: get recurrence dates
+      description: get recurrence dates
+      operationId: getRecurrenceDates
+      tags:
+        - ContinuousTransaction
+      parameters:
+        - in: query
+          name: dateBegin
+          required: true
+          schema:
+            type: string
+            description: date in format yyyy-MM-dd for which this recurrence begins
+        - in: query
+          name: recurrenceType
+          required: true
+          schema:
+            $ref: '#/components/schemas/RecurrenceType'
+        - in: query
+          name: interval
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: dayOfMonth
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: isDayOfMonthFromBehind
+          required: false
+          schema:
+            type: boolean
+        - in: query
+          name: dayOfWeeks
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/DayOfWeekAPI'
+        - in: query
+          name: until
+          required: false
+          schema:
+            type: string
+            description: until date of this recurrence in format yyyy-MM-dd
+        - in: query
+          name: count
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: get recurrence dates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: date in format yyyy-MM-dd
   /continuousTransactions/{continuousTransactionId}:
     get:
       summary: load continuous transactions

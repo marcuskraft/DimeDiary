@@ -17,4 +17,6 @@ public interface ContinuousTransactionProvider {
   List<ContinuousTransaction> loadContinuousTransactions(final UUID bankAccountId,
       final LocalDate dateFrom, final LocalDate dateUntil);
 
+  List<LocalDate> getRecurrenceDates(final ContinuousTransaction continuousTransaction);
+
 }

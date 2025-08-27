@@ -35,7 +35,6 @@ dependencies {
 
 
 compileJava.dependsOn('openApiGenerate')
-processResources.dependsOn('copyFrontend')
 
 
 sourceSets {
@@ -47,11 +46,7 @@ sourceSets {
 
 }
 
-task copyFrontend(type: Copy) {
-    dependsOn ':frontend:assemble'
-    from "${rootDir}/frontend/dist"
-    into "${buildDir}/resources/main/public"
-}
+
 
 
 openApiValidate {

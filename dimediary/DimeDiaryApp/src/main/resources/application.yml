@@ -4,12 +4,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    database-platform: org.hibernate.dialect.DerbyTenSevenDialect
   datasource:
-    url: "jdbc:derby:..\\DB;create=true" # for local run
-    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
-    hikari:
-      schema: APP
+    url: "jdbc:postgresql://localhost:5432/dimediary" # for local run
+    username: user
+    password: password
+  liquibase:
+    change-log: classpath:liquibase/changelog.yaml
+    enabled: true
 logging:
   level:
     root: WARN

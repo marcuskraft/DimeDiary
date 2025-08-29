@@ -10,8 +10,8 @@ databaseChangeLog:
                   name: ID
                   type: STRING
               - column:
-                  header: FIX_COST
-                  name: FIX_COST
+                  header: IS_REAL_ACCOUNT
+                  name: IS_REAL_ACCOUNT
                   type: BOOLEAN
               - column:
                   header: NAME
@@ -19,11 +19,10 @@ databaseChangeLog:
                   type: STRING
             commentLineStartsWith: //
             encoding: UTF-8
-            file: categories.csv
+            file: bank_account_categories.csv
             primaryKey: ID
             onlyUpdate: true
             quotchar: ''''
             relativeToChangelogFile: true
-            schemaName: APP
             separator: ','
-            tableName: CATEGORY
+            tableName: BANK_ACCOUNT_CATEGORY

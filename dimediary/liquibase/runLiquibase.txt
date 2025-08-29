@@ -1,3 +1,0 @@
-liquibase.bat --url=jdbc:derby:C:\Users\eyota\Documents\Projekte\DimeDiary_Github\dimediary\DB --changeLogFile="C:\Users\eyota\Documents\Projekte\DimeDiary_Github\dimediary\liquibase\changelog.yaml" --classpath="C:\Users\eyota\Documents\Projekte\DimeDiary_Github\dimediary\liquibase\derby-10.14.2.0.jar" --driver=org.apache.derby.jdbc.EmbeddedDriver --logLevel=Debug update
-
-liquibase.bat --url=jdbc:derby:.\dimediary\DB --changeLogFile=".\dimediary\liquibase\changelog.yaml" --classpath=".\dimediary\liquibase\derby-10.14.2.0.jar" --driver=org.apache.derby.jdbc.EmbeddedDriver --logLevel=Debug update

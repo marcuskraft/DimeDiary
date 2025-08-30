@@ -124,6 +124,7 @@ import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
 import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
 import BankAccountModel from "@/model/BankAccountModel";
 import BankAccountStore from "@/store/modules/BankAccountStore";
+import {onlyTwoPrecision} from "@/helper/amount-utils";
 
 @Component({
   components: {DatePickerTextField}
@@ -221,7 +222,7 @@ export default class BankAccountDialog extends Vue {
   }
 
   onlyTwoPrecision(value: number): boolean {
-    return AmountHelper.onlyTwoPrecision(value);
+    return onlyTwoPrecision(value);
   }
 
 }

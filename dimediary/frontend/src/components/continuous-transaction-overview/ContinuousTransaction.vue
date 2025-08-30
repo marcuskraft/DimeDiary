@@ -47,7 +47,7 @@
                     <v-row>
                       <v-col>
                         <v-text-field
-                            v-model="amountEuroCent"
+                            v-model="amountEuro"
                             type="number"
                             label="Betrag*"
                             suffix="€"
@@ -289,6 +289,7 @@ import ContinuousTransactionStore from "../../store/modules/ContinuousTransactio
 import RecurrenceSettingsModel, {RecurrenceTypeModel} from "@/model/RecurrenceSettingsModel";
 import RecurrenceDatesOverview
   from "@/components/continuous-transaction-overview/RecurrenceDatesOverview.vue";
+import {onlyTwoPrecision} from "@/helper/amount-utils";
 
 @Component({
   components: {RecurrenceDatesOverview, DatePickerTextField}
@@ -507,12 +508,12 @@ export default class ContinuousTransaction extends Vue {
     this.continuousTransactionModel.dateBegin = value;
   }
 
-  get amountEuroCent(): number {
-    return this.continuousTransactionModel.amountEuroCent;
+  get amountEuro(): number {
+    return this.continuousTransactionModel.amountEuroCent / 100;
   }
 
-  set amountEuroCent(value: number) {
-    this.continuousTransactionModel.amountEuroCent = value;
+  set amountEuro(value: number) {
+    this.continuousTransactionModel.amountEuroCent = value * 100;
   }
 
   get fixCost(): boolean {
@@ -605,7 +606,7 @@ export default class ContinuousTransaction extends Vue {
   }
 
   onlyTwoPrecision(value: number): boolean {
-    return AmountHelper.onlyTwoPrecision(value);
+    return onlyTwoPrecision(value);
   }
 
   toDayOfWeek(value: string): DayOfWeek | undefined {

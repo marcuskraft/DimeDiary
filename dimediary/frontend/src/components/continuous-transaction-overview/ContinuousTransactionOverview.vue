@@ -280,8 +280,8 @@ export default class ContinuousTransactionOverview extends Vue {
 
   private loadContinuousTransactions() {
     if (this.selectedBankAccount !== undefined) {
-      let dateFrom: LocalDate = LocalDate.now().withDayOfMonth(1);
-      let dateUntil: LocalDate = dateFrom.withDayOfMonth(dateFrom.lengthOfMonth());
+      let dateFrom: LocalDate = LocalDate.now().minusYears(1); // TODO: implement user input for that
+      let dateUntil: LocalDate = dateFrom.plusYears(5); // TODO: implement user input for that
       let loadContinuousTransactionRequestImpl: LoadContinuousTransactionRequestImpl = new LoadContinuousTransactionRequestImpl(
           this.selectedBankAccount.id!, TimeService.localDateToIsoString(dateFrom),
           TimeService.localDateToIsoString(dateUntil));

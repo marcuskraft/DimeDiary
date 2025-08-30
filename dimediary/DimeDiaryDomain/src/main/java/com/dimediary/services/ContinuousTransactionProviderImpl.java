@@ -8,6 +8,7 @@ import com.dimediary.port.out.ContinuousTransactionRepo;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -94,18 +95,21 @@ public class ContinuousTransactionProviderImpl implements ContinuousTransactionP
   private ContinuousTransaction updateContinuousTransaction(
       final ContinuousTransaction continuousTransaction,
       final List<LocalDate> localDatesThatShouldExist) {
-    final List<Transaction> oldTransactions = this.transactionProvider
+    final List<Transaction> actualTransactions = this.transactionProvider
         .getTransactionsForContinuousTransaction(continuousTransaction.getId());
 
-    final List<Transaction> transactionsToDelete = oldTransactions.stream()
+    final List<Transaction> transactionsToDelete = actualTransactions.stream()
         .filter(transaction -> localDatesThatShouldExist.stream()
             .noneMatch(localDate -> localDate.equals(transaction.getDate())))
         .collect(Collectors.toList());
 
-    final List<Transaction> transactionsToSave = localDatesThatShouldExist.stream().filter(
-        localDate -> oldTransactions.stream()
-            .noneMatch(transaction -> localDate.equals(transaction.getDate())))
-        .map(continuousTransaction::createTransaction).collect(Collectors.toList());
+    final List<Transaction> transactionsToSave = localDatesThatShouldExist.stream()
+            .map(localDate -> {
+                Transaction transaction = continuousTransaction.createTransaction(localDate);
+                Optional<Transaction> optionalExistingTransaction = actualTransactions.stream().filter(actualTransaction -> localDate.equals(actualTransaction.getDate())).findFirst();
+                optionalExistingTransaction.ifPresent(existingTransaction -> transaction.setId(existingTransaction.getId()));
+                return transaction;
+            }).collect(Collectors.toList());
 
     this.transactionProvider.deleteTransactions(transactionsToDelete);
     this.transactionProvider.persistTransactions(transactionsToSave);

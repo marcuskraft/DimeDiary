@@ -154,6 +154,7 @@ import AmountHelper from "@/helper/AmountHelper";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import CategoryStore from "@/store/modules/CategoryStore";
 import TransactionService from "@/service/TransactionService";
+import {onlyTwoPrecision} from "@/helper/amount-utils";
 
 @Component({
   components: {DatePickerTextField}
@@ -295,7 +296,7 @@ export default class Transaction extends Vue {
   }
 
   onlyTwoPrecision(value: number): boolean {
-    return AmountHelper.onlyTwoPrecision(value);
+    return onlyTwoPrecision(value);
   }
 
 

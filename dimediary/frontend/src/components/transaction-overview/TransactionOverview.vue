@@ -133,13 +133,18 @@ export default class TransactionOverview extends Vue {
   constructor() {
     super();
     let dates: LocalDate[] = [];
-    for (let i = 0; i < 31; i++) {
-      dates.push(this.actualLocalDate.plusDays(i));
+
+    const startDate: LocalDate = LocalDate.now();
+    const endDate: LocalDate = startDate.plusYears(1);
+
+    let currentDate = LocalDate.from(startDate);
+
+    while (currentDate.isBefore(endDate)) {
+      dates.push(currentDate);
+      currentDate = currentDate.plusDays(1);
     }
-    for (let i = 1; i < 30; i++) {
-      dates.push(this.actualLocalDate.minusDays(i));
-    }
-    this.datesDefault = dates.sort((a, b) => a.compareTo(b));
+
+    this.datesDefault = dates;
     this.datesFilterMember = this.datesDefault;
   }
 
@@ -297,6 +302,7 @@ export default class TransactionOverview extends Vue {
       return;
     }
     this.datesFilterMember = value!;
+    this.loadTransactions();
   }
 
   get actualBalanceEuroCent(): number {

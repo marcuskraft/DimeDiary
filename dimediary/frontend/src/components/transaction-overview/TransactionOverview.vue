@@ -1,5 +1,5 @@
 <template>
-  <div :key="transactions.length">
+  <div :key="transactions.length" data-ref="transactions-overview">
     <v-skeleton-loader
         class="mx-auto"
         max-width="80%"
@@ -167,29 +167,24 @@ export default class TransactionOverview extends Vue {
         transaction => {
           if (this.selectedBankAccount !== undefined && transaction.bankAccount !== undefined) {
             return transaction.bankAccount!.id === this.selectedBankAccount!.id;
-          }
-          else if (transaction.bankAccount === undefined) {
+          } else if (transaction.bankAccount === undefined) {
             return true
-          }
-          else {
+          } else {
             return false;
           }
-        }).
-    filter(transaction => {
+        }).filter(transaction => {
       if (this.selectedCategories.length > 0 && transaction.category !== undefined) {
         return this.selectedCategories.find(
-            category => transaction.category!.id === category.id) !==
+                category => transaction.category!.id === category.id) !==
             undefined;
-      }
-      else {
+      } else {
         return true;
       }
     }).filter(value => this.isInDateRange(value)).filter(value => {
       let search = this.searchString.trim().toLowerCase();
       if (search !== "") {
         return value.name.trim().toLowerCase().includes(search);
-      }
-      else {
+      } else {
         return true;
       }
     }).sort((a, b) => b.date.compareTo(a.date));
@@ -203,8 +198,7 @@ export default class TransactionOverview extends Vue {
     if (this.datesDefault[0].isEqual(this.dateFrom) &&
         this.datesDefault[this.datesDefault.length - 1].isEqual(this.dateUntil)) {
       return "alle Daten";
-    }
-    else {
+    } else {
       return this.dateTimeFormatter.format(this.datesFilter[0]) + " -> " +
           this.dateTimeFormatter.format(this.datesFilter[this.datesFilter.length - 1]);
     }
@@ -219,8 +213,7 @@ export default class TransactionOverview extends Vue {
         if (category !== undefined) {
           categoriesRet.push(category);
         }
-      }
-      else {
+      } else {
         categoryString.forEach(value => {
           let category = this.categories.find(value1 => value1.id === value);
           if (category !== undefined) {
@@ -241,8 +234,7 @@ export default class TransactionOverview extends Vue {
     let searchParameter = this.$route.query.search;
     if (searchParameter !== undefined && searchParameter !== "") {
       return searchParameter as string;
-    }
-    else {
+    } else {
       return ""
     }
   }
@@ -257,7 +249,7 @@ export default class TransactionOverview extends Vue {
 
 
   buildRoute(bankAccount: BankAccountModel | undefined, categories: CategoryModel[],
-      searchString: string) {
+             searchString: string) {
     let location = "transactions";
     let isParameterAlreadyThere: boolean = false;
 
@@ -270,8 +262,7 @@ export default class TransactionOverview extends Vue {
       if (!isParameterAlreadyThere) {
         location = location + "?" + "search" + "=" + searchString;
         isParameterAlreadyThere = true;
-      }
-      else {
+      } else {
         location = location + "&" + "search" + "=" + searchString;
       }
     }
@@ -280,8 +271,7 @@ export default class TransactionOverview extends Vue {
       if (!isParameterAlreadyThere) {
         location = location + "?" + this.CATEGORY + "=" + value.id;
         isParameterAlreadyThere = true;
-      }
-      else {
+      } else {
         location = location + "&category=" + value.id;
       }
     })
@@ -370,8 +360,7 @@ export default class TransactionOverview extends Vue {
     if (this.selectedBankAccount !== undefined) {
       this.transactionService.loadTransactions(this.selectedBankAccount.id!,
           this.dateFrom,
-          this.dateUntil).
-      then(value => {
+          this.dateUntil).then(value => {
         this.isLoading = false;
         setTimeout((value: any) => {
           if (this.transactionToScrollTo !== "") {
@@ -380,8 +369,7 @@ export default class TransactionOverview extends Vue {
         }, 100);
 
       });
-    }
-    else {
+    } else {
       this.isLoading = false;
     }
   }

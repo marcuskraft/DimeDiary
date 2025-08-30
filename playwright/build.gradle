@@ -7,15 +7,21 @@
  */
 
 plugins {
+    id 'org.springframework.boot' version '2.2.5.RELEASE'
     id 'java'
     id 'application'
 }
 
+apply plugin: 'org.springframework.boot'
+
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
+    testImplementation 'org.springframework.boot:spring-boot-starter:2.2.5.RELEASE'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test:2.2.5.RELEASE'
+
     testImplementation 'com.microsoft.playwright:playwright:1.55.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.1'
 
@@ -23,6 +29,11 @@ dependencies {
 
     testCompileOnly 'org.projectlombok:lombok:1.18.30'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.register('systemTest', Test) {
+    useJUnitPlatform()
+    description = "Run system tests"
 }
 
 

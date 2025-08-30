@@ -1,20 +1,25 @@
 package playwright.features;
 
 import org.junit.jupiter.api.Test;
-import playwright.BaseSystemtest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import playwright.base.BaseSystemtest;
 import playwright.pages.AppBarComponent;
 import playwright.pages.TransactionOverviewComponent;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Component
 public class NavigationTest extends BaseSystemtest {
+
+    @Autowired
+    private AppBarComponent appBarComponent;
+    @Autowired
+    private TransactionOverviewComponent transactionOverviewComponent;
 
     @Test
     public void navigateToTransactionsTest() {
-        AppBarComponent appBarComponent = new AppBarComponent(getPage());
-        TransactionOverviewComponent transactionOverviewComponent = new TransactionOverviewComponent(getPage());
-
         assertFalse(transactionOverviewComponent.isVisible());
         appBarComponent.navigateToTransactions();
 
@@ -23,6 +28,6 @@ public class NavigationTest extends BaseSystemtest {
 
         appBarComponent.navigateToDashboard();
         assertFalse(transactionOverviewComponent.isVisible());
-        
+
     }
 }

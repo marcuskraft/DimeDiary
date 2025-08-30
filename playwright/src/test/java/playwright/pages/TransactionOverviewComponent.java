@@ -2,7 +2,9 @@ package playwright.pages;
 
 import com.microsoft.playwright.Page;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
 
+@Service
 @AllArgsConstructor
 public class TransactionOverviewComponent {
 

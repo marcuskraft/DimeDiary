@@ -2,29 +2,29 @@
   <v-hover v-slot:default="{ hover }">
     <v-card class="transaction-group" max-width="80%" outlined
             :elevation="hover ? 12 : 2"
-            rounded @click="openTransaction">
+            rounded @click="openTransaction" data-ref="transaction-group">
       <v-container>
         <v-row>
           <v-col cols="auto">
             <div>
-              <b>{{ dateString }}</b>
+              <b data-ref="date">{{ dateString }}</b>
             </div>
           </v-col>
           <v-col cols="auto">
             <v-row>
-              <b>{{ name }}</b>
+              <b data-ref="name">{{ name }}</b>
             </v-row>
             <v-row>
-              <small v-if="category !== undefined">{{ category.name }}</small>
+              <small v-if="category !== undefined" data-ref="category">{{ category.name }}</small>
             </v-row>
           </v-col>
           <v-spacer></v-spacer>
           <v-col cols="2">
             <v-row>
-              <b>{{ amount }}</b>
+              <b data-ref="amount">{{ amount }}</b>
             </v-row>
             <v-row>
-              <small>{{ balance }}</small>
+              <small data-ref="balance">{{ balance }}</small>
             </v-row>
           </v-col>
         </v-row>

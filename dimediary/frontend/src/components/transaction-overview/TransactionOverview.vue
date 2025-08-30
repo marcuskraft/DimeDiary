@@ -17,7 +17,7 @@
             </v-chip>
           </v-col>
           <v-col>
-            <v-btn color="primary" @click="addTransaction">Neue Transaktion</v-btn>
+            <v-btn color="primary" @click="addTransaction" data-ref="add-transaction">Neue Transaktion</v-btn>
           </v-col>
         </v-row>
 

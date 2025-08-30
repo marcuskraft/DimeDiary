@@ -1,5 +1,5 @@
 <template>
-  <v-form v-model="valid">
+  <v-form v-model="valid" data-ref="transaction-page">
     <v-skeleton-loader
         class="mx-auto"
         max-width="300"
@@ -21,16 +21,18 @@
                       type="text"
                       label="Bezeichnung der Transaktion*"
                       :rules="[ v => requiredString(v) || 'Pflichtfeld' ]"
+                      data-ref="name"
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
-                <v-col>
+                <v-col data-ref="date">
                   <date-picker-text-field
                       :set-local-date="setLocalDate"
                       label="Datum*"
                       :local-date="dateMember"
-                      :rules="[ v => dateMember !== undefined || 'Pflichtfeld' ]"/>
+                      :rules="[ v => dateMember !== undefined || 'Pflichtfeld' ]"
+                  />
                 </v-col>
               </v-row>
               <v-row>
@@ -41,6 +43,7 @@
                       label="Betrag*"
                       suffix="€"
                       :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
+                      data-ref="amount"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -96,6 +99,7 @@
             text
             :disabled="!valid"
             @click="save"
+            data-ref="save"
         >
           OK
         </v-btn>
@@ -150,7 +154,6 @@ import BankAccountModel from "@/model/BankAccountModel";
 import CategoryModel from "@/model/CategoryModel";
 import ContinuousTransactionModel from "@/model/ContinuousTransactionModel";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
-import AmountHelper from "@/helper/AmountHelper";
 import BankAccountStore from "@/store/modules/BankAccountStore";
 import CategoryStore from "@/store/modules/CategoryStore";
 import TransactionService from "@/service/TransactionService";
@@ -185,8 +188,7 @@ export default class Transaction extends Vue {
     CategoryStore.loadCategoriesIfNotPresent();
     if (this.transactionId !== undefined) {
       this.loadTransaction(this.transactionId);
-    }
-    else {
+    } else {
       this.loading = false;
     }
   }
@@ -316,8 +318,7 @@ export default class Transaction extends Vue {
       this.transaction.amountEuroCent = this.amountEuroCent * 100;
       this.transaction.date = this.date;
       transaction = this.transaction;
-    }
-    else {
+    } else {
       transaction = new TransactionModel(this.name, this.date, this.amountEuroCent * 100,
           this.fixCost, this.bankAccount, this.category, this.continuousTransaction, this.id);
     }

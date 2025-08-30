@@ -17,11 +17,12 @@ public class BaseSystemtest {
     private static Playwright playwright;
     @Getter
     private static Page page;
+    private static Browser browser;
 
     @BeforeAll
     static void launchBrowser() {
         playwright = Playwright.create();
-        Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
         page = browser.newPage();
         Response response = page.navigate("http://localhost:4200/dashboard");
 
@@ -30,6 +31,7 @@ public class BaseSystemtest {
 
     @AfterAll
     static void closeBrowser() {
+        browser.close();
         playwright.close();
     }
 

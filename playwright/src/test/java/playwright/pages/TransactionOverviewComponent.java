@@ -10,6 +10,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static playwright.utils.AmountUtils.normalizeAmountString;
+
 @Service
 @AllArgsConstructor
 public class TransactionOverviewComponent {
@@ -72,11 +74,5 @@ public class TransactionOverviewComponent {
                 .click();
     }
 
-    private static String normalizeAmountString(String amount) {
-        return amount
-                .replace(" ", "")
-                .replace("€", "")
-                .replace(".", "")
-                .replace(",", ".");
-    }
+
 }

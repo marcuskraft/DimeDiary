@@ -48,7 +48,8 @@ public class TransactionTest extends BaseSystemtest {
                 .findFirst();
 
         assertThat(myFancyTransaction).isPresent();
-        assertThat(myFancyTransaction.get().getAmount()).isEqualTo(amount);
-        assertThat(myFancyTransaction.get().getLocalDate()).isEqualTo(localDate);
+        Transaction transaction = myFancyTransaction.get();
+        assertThat(transaction.getAmount()).isEqualTo(amount);
+        assertThat(transaction.getLocalDate()).isEqualTo(localDate);
     }
 }

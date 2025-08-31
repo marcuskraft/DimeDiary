@@ -50,7 +50,7 @@ public class DatePickerComponent {
                 .locator(YEARS.replace("<year>", year)).click();
 
         // select month
-        String month = localDate.format(GERMAN_MONTH_FORMATTER).replace(".", "").toUpperCase();
+        String month = localDate.format(GERMAN_MONTH_FORMATTER).substring(0, 3).toUpperCase();
         datePicker
                 .locator(V_DATE_PICKER_TABLE_MONTH)
                 .locator(MONTHS.replace("<month>", month)).click();

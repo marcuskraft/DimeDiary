@@ -5,7 +5,7 @@
         persistent
         max-width="600px"
     >
-      <v-card>
+      <v-card data-ref="bank-account-dialog">
         <v-card-title>
           <span class="headline">Bankkonto anlegen</span>
         </v-card-title>
@@ -21,15 +21,17 @@
                           type="text"
                           label="Name des Kontos*"
                           :rules="[ v => requiredString(v) || 'Name ist ein Pflichtfeld' ]"
+                          data-ref="name"
                       ></v-text-field>
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col>
+                    <v-col data-ref="start-date">
                       <date-picker-text-field
                           :set-local-date="setDateStartBalance"
                           label="Startdatum der Kontoführung*"
-                          :rules="[ v => dateStartBalance !== undefined || 'Es muss ein Startdatum angegeben werden' ]"/>
+                          :rules="[ v => dateStartBalance !== undefined || 'Es muss ein Startdatum angegeben werden' ]"
+                      />
                     </v-col>
                   </v-row>
                   <v-row>
@@ -40,6 +42,7 @@
                           label="Startguthaben*"
                           suffix="€"
                           :rules="[value => onlyTwoPrecision(value) || 'nur 2 Nachkommastellen möglich' ]"
+                          data-ref="start-balance"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -105,6 +108,7 @@
               text
               :disabled="!valid"
               @click="save"
+              data-ref="save"
           >
             OK
           </v-btn>
@@ -119,7 +123,6 @@ import {Component, Vue} from "vue-property-decorator";
 import DialogStateStore from "@/store/modules/DialogStateStore";
 import {LocalDate} from "@js-joda/core";
 import DatePickerTextField from "@/components/common/DatePickerTextField.vue";
-import AmountHelper from "@/helper/AmountHelper";
 import BankAccountCategoryModel from "@/model/BankAccountCategoryModel";
 import BankAccountCategoryStore from "@/store/modules/BankAccountCategoryStore";
 import BankAccountModel from "@/model/BankAccountModel";

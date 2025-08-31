@@ -3,6 +3,7 @@ package playwright.pages;
 import com.microsoft.playwright.Locator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import playwright.utils.AmountUtils;
 
 import java.time.LocalDate;
 
@@ -10,10 +11,11 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class TransactionComponent {
 
-    public static final String TRANSACTION_PAGE = "[data-ref=transaction-page]";
-    public static final String NAME = "[data-ref=name]";
-    public static final String AMOUNT = "[data-ref=amount]";
-    public static final String DATE = "[data-ref=date] >> input";
+    private static final String TRANSACTION_PAGE = "[data-ref=transaction-page]";
+    private static final String NAME = "[data-ref=name]";
+    private static final String AMOUNT = "[data-ref=amount]";
+    private static final String DATE = "[data-ref=date] >> input";
+    private static final String SAVE = "[data-ref=save]";
 
     private PageFactory pageFactory;
     private DatePickerComponent datePickerComponent;
@@ -31,16 +33,16 @@ public class TransactionComponent {
     }
 
     public void setAmount(Double amount) {
-        String amountString = String.format("%.2f", amount);
-        Locator locator = pageFactory.getPage().locator(TRANSACTION_PAGE)
+        Locator locator = pageFactory.getPage()
+                .locator(TRANSACTION_PAGE)
                 .locator(AMOUNT);
-        locator.fill("");
-        locator.pressSequentially(amountString, new Locator.PressSequentiallyOptions().setDelay(50));
+        AmountUtils.setAmount(amount, locator);
     }
+
 
     public void save() {
         pageFactory.getPage().locator(TRANSACTION_PAGE)
-                .locator("[data-ref=save]")
+                .locator(SAVE)
                 .click();
     }
 }

@@ -21,6 +21,7 @@
                 color="primary"
                 dark
                 @click="showDialog"
+                data-ref="add-bank-account"
             >
               <v-icon dark>
                 add

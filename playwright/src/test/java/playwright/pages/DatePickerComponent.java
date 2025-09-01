@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.NoSuchElementException;
 
 @Service
 @AllArgsConstructor
@@ -61,7 +62,7 @@ public class DatePickerComponent {
                 .locator(DATE_PICKER_TABLE_DATE)
                 .locator(DAYS.replace("<day>", day)).all().stream()
                 .filter(locator -> day.equals(locator.innerText()))
-                .findFirst().orElseThrow()
+                .findFirst().orElseThrow(() -> new NoSuchElementException("No Element for that day found"))
                 .click();
 
     }
